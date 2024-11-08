@@ -1,1 +1,1 @@
-module metamod-go
+module github.com/et-nik/metamod-go

@@ -1,40 +1,30 @@
 package main
 
-/**
-typedef struct plugin_info_t
-{
-    const char*     ifvers;     // meta_interface version
-    const char*     name;       // full name of plugin
-    const char*     version;    // version
-    const char*     date;       // date
-    const char*     author;     // author name/email
-    const char*     url;        // URL
-    const char*     logtag;     // log message prefix (unused right now)
-    int   loadable;   // when loadable
-    int   unloadable; // when unloadable
-} plugin_info_t;
+/*
+#include "metamod/plinfo.h"
 */
 import "C"
-import "fmt"
+import (
+	"fmt"
+	"github.com/et-nik/metamod-go/metamod"
+)
 
 func main() {}
 
-//export call
-func call() {
-	fmt.Println("Hi from Go!")
+var Plugin = &metamod.PluginInfo{
+	InterfaceVersion: MetaInterfaceVersion,
+	Name:             "GoPlugin",
+	Version:          "1.0",
+	Date:             "2024-11-08",
+	Author:           "KNiK",
+	Url:              "https://github.com/et-nik/metamod-go",
+	Loadable:         metamod.PluginLoadTimeAnyTime,
+	Unloadable:       metamod.PluginLoadTimeAnyTime,
 }
 
-//export call2
-func call2(s *C.char) {
-	v := C.GoString(s)
-	fmt.Println("(call2) Hi from Go! You passed:", v)
-}
-
-//export call3
-func call3(s C.int) C.int {
-	fmt.Println("(call3) Hi from Go! You passed:", s)
-	return s
-}
+//type PluginInfo struct {
+//	p C.plugin_info_t
+//}
 
 //export Meta_Attach
 func Meta_Attach(now C.int, pFunctionTable *C.void, pMGlobals *C.void, pGamedllFuncs *C.void) C.int {
@@ -47,17 +37,7 @@ func Meta_Attach(now C.int, pFunctionTable *C.void, pMGlobals *C.void, pGamedllF
 
 //export Meta_Query
 func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFuncs *C.void) C.int {
-	*plinfo = &C.plugin_info_t{
-		ifvers:     C.CString(MetaInterfaceVersion),
-		name:       C.CString("GoPlugin"),
-		version:    C.CString("1.0"),
-		date:       C.CString("2024-11-08"),
-		author:     C.CString("Author"),
-		url:        C.CString(""),
-		logtag:     C.CString("EXAMPLE"),
-		loadable:   3,
-		unloadable: 3,
-	}
+	*plinfo = Plugin.ToC()
 
 	return 1
 }
