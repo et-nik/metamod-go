@@ -1,6 +1,6 @@
-package metamod
+package main
 
-// #include "plinfo.h"
+// #include "metamod/plinfo.h"
 import "C"
 
 type PluginLoadTime int
@@ -49,7 +49,7 @@ func (p *PluginInfo) ToC() *C.plugin_info_t {
 		author:     C.CString(p.Author),
 		url:        C.CString(p.Url),
 		logtag:     C.CString(p.LogTag),
-		loadable:   C.int(p.Loadable),
-		unloadable: C.int(p.Unloadable),
+		loadable:   C.enum_PLUG_LOADTIME(p.Loadable),
+		unloadable: C.enum_PLUG_LOADTIME(p.Unloadable),
 	}
 }
