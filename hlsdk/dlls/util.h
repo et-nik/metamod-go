@@ -26,6 +26,8 @@
 #include "enginecallback.h"
 #endif
 
+#include <progdefs.h>
+
 inline void MESSAGE_BEGIN( int msg_dest, int msg_type, const float *pOrigin, entvars_t *ent );  // implementation later in this file
 
 extern globalvars_t                             *gpGlobals;
@@ -102,32 +104,32 @@ typedef int BOOL;
 //
 // Conversion among the three types of "entity", including identity-conversions.
 //
-#ifdef DEBUG
-        extern edict_t *DBG_EntOfVars(const entvars_t *pev);
-        inline edict_t *ENT(const entvars_t *pev)       { return DBG_EntOfVars(pev); }
-#else
-        inline edict_t *ENT(const entvars_t *pev)       { return pev->pContainingEntity; }
-#endif
-inline edict_t *ENT(edict_t *pent)              { return pent; }
-inline edict_t *ENT(EOFFSET eoffset)                    { return (*g_engfuncs.pfnPEntityOfEntOffset)(eoffset); }
-inline EOFFSET OFFSET(EOFFSET eoffset)                  { return eoffset; }
-inline EOFFSET OFFSET(const edict_t *pent)      
-{ 
-#ifdef _DEBUG
-        if ( !pent )
-                ALERT( at_error, "Bad ent in OFFSET()\n" );
-#endif
-        return (*g_engfuncs.pfnEntOffsetOfPEntity)(pent); 
-}
-inline EOFFSET OFFSET(entvars_t *pev)                           
-{ 
-#ifdef _DEBUG
-        if ( !pev )
-                ALERT( at_error, "Bad pev in OFFSET()\n" );
-#endif
-        return OFFSET(ENT(pev)); 
-}
-inline entvars_t *VARS(entvars_t *pev)                                  { return pev; }
+//#ifdef DEBUG
+//        extern edict_t *DBG_EntOfVars(const entvars_t *pev);
+//        inline edict_t *ENT(const entvars_t *pev)       { return DBG_EntOfVars(pev); }
+//#else
+//        inline edict_t *ENT(const entvars_t *pev)       { return pev->pContainingEntity; }
+//#endif
+//inline edict_t *ENT(edict_t *pent)              { return pent; }
+//inline edict_t *ENT(EOFFSET eoffset)                    { return (*g_engfuncs.pfnPEntityOfEntOffset)(eoffset); }
+//inline EOFFSET OFFSET(EOFFSET eoffset)                  { return eoffset; }
+//inline EOFFSET OFFSET(const edict_t *pent)
+//{
+//#ifdef _DEBUG
+//        if ( !pent )
+//                ALERT( at_error, "Bad ent in OFFSET()\n" );
+//#endif
+//        return (*g_engfuncs.pfnEntOffsetOfPEntity)(pent);
+//}
+//inline EOFFSET OFFSET(entvars_t *pev)
+//{
+//#ifdef _DEBUG
+//        if ( !pev )
+//                ALERT( at_error, "Bad pev in OFFSET()\n" );
+//#endif
+//        return OFFSET(ENT(pev));
+//}
+//inline entvars_t *VARS(entvars_t *pev)                                  { return pev; }
 
 inline entvars_t *VARS(edict_t *pent)                   
 { 
@@ -137,7 +139,7 @@ inline entvars_t *VARS(edict_t *pent)
         return &pent->v; 
 }
 
-inline entvars_t* VARS(EOFFSET eoffset)                         { return VARS(ENT(eoffset)); }
+//inline entvars_t* VARS(EOFFSET eoffset)                         { return VARS(ENT(eoffset)); }
 inline int        ENTINDEX(edict_t *pEdict)                     { return (*g_engfuncs.pfnIndexOfEdict)(pEdict); }
 inline edict_t* INDEXENT( int iEdictNum )               { return (*g_engfuncs.pfnPEntityOfEntIndex)(iEdictNum); }
 inline void MESSAGE_BEGIN( int msg_dest, int msg_type, const float *pOrigin, entvars_t *ent ) {
@@ -146,9 +148,9 @@ inline void MESSAGE_BEGIN( int msg_dest, int msg_type, const float *pOrigin, ent
 
 // Testing the three types of "entity" for nullity
 #define eoNullEntity 0
-inline BOOL FNullEnt(EOFFSET eoffset)                   { return eoffset == 0; }
-inline BOOL FNullEnt(const edict_t* pent)       { return pent == NULL || FNullEnt(OFFSET(pent)); }
-inline BOOL FNullEnt(entvars_t* pev)                            { return pev == NULL || FNullEnt(OFFSET(pev)); }
+//inline BOOL FNullEnt(EOFFSET eoffset)                   { return eoffset == 0; }
+//inline BOOL FNullEnt(const edict_t* pent)       { return pent == NULL || FNullEnt(OFFSET(pent)); }
+//inline BOOL FNullEnt(entvars_t* pev)                            { return pev == NULL || FNullEnt(OFFSET(pev)); }
 
 // Testing strings for nullity
 #define iStringNull 0
@@ -196,58 +198,58 @@ typedef enum
 
 // Misc useful
 #include "string.h"
-inline BOOL FStrEq(const char*sz1, const char*sz2)
-        { return (strcmp(sz1, sz2) == 0); }
-inline BOOL FClassnameIs(edict_t* pent, const char* szClassname)
-        { return FStrEq(STRING(VARS(pent)->classname), szClassname); }
-inline BOOL FClassnameIs(entvars_t* pev, const char* szClassname)
-        { return FStrEq(STRING(pev->classname), szClassname); }
+//inline BOOL FStrEq(const char*sz1, const char*sz2)
+//        { return (strcmp(sz1, sz2) == 0); }
+//inline BOOL FClassnameIs(edict_t* pent, const char* szClassname)
+//        { return FStrEq(STRING(VARS(pent)->classname), szClassname); }
+//inline BOOL FClassnameIs(entvars_t* pev, const char* szClassname)
+//        { return FStrEq(STRING(pev->classname), szClassname); }
 
 // Misc. Prototypes
-extern void                     UTIL_SetSize                    (entvars_t* pev, const Vector &vecMin, const Vector &vecMax);
-extern float            UTIL_VecToYaw                   (const Vector &vec);
-extern Vector           UTIL_VecToAngles                (const Vector &vec);
+//extern void                     UTIL_SetSize                    (entvars_t* pev, const Vector &vecMin, const Vector &vecMax);
+//extern float            UTIL_VecToYaw                   (const Vector &vec);
+//extern Vector           UTIL_VecToAngles                (const Vector &vec);
 extern float            UTIL_AngleMod                   (float a);
 extern float            UTIL_AngleDiff                  ( float destAngle, float srcAngle );
 
 #define UTIL_EntitiesInPVS(pent)                        (*g_engfuncs.pfnEntitiesInPVS)(pent)
-extern void                     UTIL_MakeVectors                (const Vector &vecAngles);
+//extern void                     UTIL_MakeVectors                (const Vector &vecAngles);
 
-extern void                     UTIL_MakeAimVectors             ( const Vector &vecAngles ); // like MakeVectors, but assumes pitch isn't inverted
-extern void                     UTIL_MakeInvVectors             ( const Vector &vec, globalvars_t *pgv );
+//extern void                     UTIL_MakeAimVectors             ( const Vector &vecAngles ); // like MakeVectors, but assumes pitch isn't inverted
+//extern void                     UTIL_MakeInvVectors             ( const Vector &vec, globalvars_t *pgv );
 
-extern void                     UTIL_SetOrigin                  ( entvars_t* pev, const Vector &vecOrigin );
-extern void                     UTIL_EmitAmbientSound   ( edict_t *entity, const Vector &vecOrigin, const char *samp, float vol, float attenuation, int fFlags, int pitch );
-extern void                     UTIL_ParticleEffect             ( const Vector &vecOrigin, const Vector &vecDirection, ULONG ulColor, ULONG ulCount );
-extern void                     UTIL_ScreenShake                ( const Vector &center, float amplitude, float frequency, float duration, float radius );
-extern void                     UTIL_ScreenShakeAll             ( const Vector &center, float amplitude, float frequency, float duration );
+//extern void                     UTIL_SetOrigin                  ( entvars_t* pev, const Vector &vecOrigin );
+//extern void                     UTIL_EmitAmbientSound   ( edict_t *entity, const Vector &vecOrigin, const char *samp, float vol, float attenuation, int fFlags, int pitch );
+//extern void                     UTIL_ParticleEffect             ( const Vector &vecOrigin, const Vector &vecDirection, ULONG ulColor, ULONG ulCount );
+//extern void                     UTIL_ScreenShake                ( const Vector &center, float amplitude, float frequency, float duration, float radius );
+//extern void                     UTIL_ScreenShakeAll             ( const Vector &center, float amplitude, float frequency, float duration );
 extern void                     UTIL_ShowMessageAll             ( const char *pString );
-extern void                     UTIL_ScreenFadeAll              ( const Vector &color, float fadeTime, float holdTime, int alpha, int flags );
+//extern void                     UTIL_ScreenFadeAll              ( const Vector &color, float fadeTime, float holdTime, int alpha, int flags );
 
 typedef enum { ignore_monsters=1, dont_ignore_monsters=0, missile=2 } IGNORE_MONSTERS;
 typedef enum { ignore_glass=1, dont_ignore_glass=0 } IGNORE_GLASS;
-extern void                     UTIL_TraceLine                  (const Vector &vecStart, const Vector &vecEnd, IGNORE_MONSTERS igmon, edict_t *pentIgnore, TraceResult *ptr);
-extern void                     UTIL_TraceLine                  (const Vector &vecStart, const Vector &vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t *pentIgnore, TraceResult *ptr);
+//extern void                     UTIL_TraceLine                  (const Vector &vecStart, const Vector &vecEnd, IGNORE_MONSTERS igmon, edict_t *pentIgnore, TraceResult *ptr);
+//extern void                     UTIL_TraceLine                  (const Vector &vecStart, const Vector &vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t *pentIgnore, TraceResult *ptr);
 typedef enum { point_hull=0, human_hull=1, large_hull=2, head_hull=3 } hull_enum;
-extern void                     UTIL_TraceHull                  (const Vector &vecStart, const Vector &vecEnd, IGNORE_MONSTERS igmon, int hullNumber, edict_t *pentIgnore, TraceResult *ptr);
+//extern void                     UTIL_TraceHull                  (const Vector &vecStart, const Vector &vecEnd, IGNORE_MONSTERS igmon, int hullNumber, edict_t *pentIgnore, TraceResult *ptr);
 extern TraceResult      UTIL_GetGlobalTrace             (void);
-extern void                     UTIL_TraceModel                 (const Vector &vecStart, const Vector &vecEnd, int hullNumber, edict_t *pentModel, TraceResult *ptr);
-extern Vector           UTIL_GetAimVector               (edict_t* pent, float flSpeed);
-extern int                      UTIL_PointContents              (const Vector &vec);
+//extern void                     UTIL_TraceModel                 (const Vector &vecStart, const Vector &vecEnd, int hullNumber, edict_t *pentModel, TraceResult *ptr);
+//extern Vector           UTIL_GetAimVector               (edict_t* pent, float flSpeed);
+//extern int                      UTIL_PointContents              (const Vector &vec);
 
-extern void                     UTIL_BloodStream( const Vector &origin, const Vector &direction, int color, int amount );
-extern void                     UTIL_BloodDrips( const Vector &origin, const Vector &direction, int color, int amount );
-extern Vector           UTIL_RandomBloodVector( void );
+//extern void                     UTIL_BloodStream( const Vector &origin, const Vector &direction, int color, int amount );
+//extern void                     UTIL_BloodDrips( const Vector &origin, const Vector &direction, int color, int amount );
+//extern Vector           UTIL_RandomBloodVector( void );
 extern BOOL                     UTIL_ShouldShowBlood( int bloodColor );
 extern void                     UTIL_BloodDecalTrace( TraceResult *pTrace, int bloodColor );
 extern void                     UTIL_DecalTrace( TraceResult *pTrace, int decalNumber );
 extern void                     UTIL_PlayerDecalTrace( TraceResult *pTrace, int playernum, int decalNumber, BOOL bIsCustom );
 extern void                     UTIL_GunshotDecalTrace( TraceResult *pTrace, int decalNumber );
-extern void                     UTIL_Sparks( const Vector &position );
-extern void                     UTIL_Ricochet( const Vector &position, float scale );
-extern void                     UTIL_StringToVector( float *pVector, const char *pString );
-extern void                     UTIL_StringToIntArray( int *pVector, int count, const char *pString );
-extern Vector           UTIL_ClampVectorToBox( const Vector &input, const Vector &clampSize );
+//extern void                     UTIL_Sparks( const Vector &position );
+//extern void                     UTIL_Ricochet( const Vector &position, float scale );
+//extern void                     UTIL_StringToVector( float *pVector, const char *pString );
+//extern void                     UTIL_StringToIntArray( int *pVector, int count, const char *pString );
+//extern Vector           UTIL_ClampVectorToBox( const Vector &input, const Vector &clampSize );
 extern float            UTIL_Approach( float target, float value, float speed );
 extern float            UTIL_ApproachAngle( float target, float value, float speed );
 extern float            UTIL_AngleDistance( float next, float cur );
@@ -260,26 +262,26 @@ extern BOOL                     UTIL_TeamsMatch( const char *pTeamName1, const c
 extern float            UTIL_SplineFraction( float value, float scale );
 
 // Search for water transition along a vertical line
-extern float            UTIL_WaterLevel( const Vector &position, float minz, float maxz );
-extern void                     UTIL_Bubbles( Vector mins, Vector maxs, int count );
-extern void                     UTIL_BubbleTrail( Vector from, Vector to, int count );
+//extern float            UTIL_WaterLevel( const Vector &position, float minz, float maxz );
+//extern void                     UTIL_Bubbles( Vector mins, Vector maxs, int count );
+//extern void                     UTIL_BubbleTrail( Vector from, Vector to, int count );
 
 // allows precacheing of other entities
 extern void                     UTIL_PrecacheOther( const char *szClassname );
 
 // prints a message to each client
-extern void                     UTIL_ClientPrintAll( int msg_dest, const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL );
-inline void                     UTIL_CenterPrintAll( const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL ) 
-{
-        UTIL_ClientPrintAll( HUD_PRINTCENTER, msg_name, param1, param2, param3, param4 );
-}
+//extern void                     UTIL_ClientPrintAll( int msg_dest, const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL );
+//inline void                     UTIL_CenterPrintAll( const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL )
+//{
+//        UTIL_ClientPrintAll( HUD_PRINTCENTER, msg_name, param1, param2, param3, param4 );
+//}
 
-class CBasePlayerItem;
-class CBasePlayer;
-extern BOOL UTIL_GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pCurrentWeapon );
+//class CBasePlayerItem;
+//class CBasePlayer;
+//extern BOOL UTIL_GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pCurrentWeapon );
 
 // prints messages through the HUD
-extern void ClientPrint( entvars_t *client, int msg_dest, const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL );
+//extern void ClientPrint( entvars_t *client, int msg_dest, const char *msg_name, const char *param1 = NULL, const char *param2 = NULL, const char *param3 = NULL, const char *param4 = NULL );
 
 typedef struct hudtextparms_s
 {
@@ -296,7 +298,7 @@ typedef struct hudtextparms_s
 } hudtextparms_t;
 
 // prints as transparent 'title' to the HUD
-extern void                     UTIL_HudMessageAll( const hudtextparms_t &textparms, const char *pMessage );
+//extern void                     UTIL_HudMessageAll( const hudtextparms_t &textparms, const char *pMessage );
 
 // for handy use with ClientPrint params
 extern char *UTIL_dtos1( int d );
@@ -308,13 +310,13 @@ extern char *UTIL_dtos4( int d );
 extern void                     UTIL_LogPrintf( char *fmt, ... );
 
 // Sorta like FInViewCone, but for nonmonsters. 
-extern float UTIL_DotPoints ( const Vector &vecSrc, const Vector &vecCheck, const Vector &vecDir );
+//extern float UTIL_DotPoints ( const Vector &vecSrc, const Vector &vecCheck, const Vector &vecDir );
 
 extern void UTIL_StripToken( const char *pKey, char *pDest );// for redundant keynames
 
 // Misc functions
-extern void SetMovedir(entvars_t* pev);
-extern Vector VecBModelOrigin( entvars_t* pevBModel );
+//extern void SetMovedir(entvars_t* pev);
+//extern Vector VecBModelOrigin( entvars_t* pevBModel );
 extern int BuildChangeList( LEVELLIST *pLevelList, int maxList );
 
 //
@@ -330,7 +332,7 @@ void DBG_AssertFunction(BOOL fExpr, const char* szExpr, const char* szFile, int 
 #endif  // !DEBUG
 
 
-extern DLL_GLOBAL const Vector g_vecZero;
+//extern DLL_GLOBAL const Vector g_vecZero;
 
 //
 // Constants that were used only by QC (maybe not used at all now)
@@ -380,17 +382,17 @@ extern DLL_GLOBAL int                   g_Language;
 #define PUSH_BLOCK_ONLY_X       1
 #define PUSH_BLOCK_ONLY_Y       2
 
-#define VEC_HULL_MIN            Vector(-16, -16, -36)
-#define VEC_HULL_MAX            Vector( 16,  16,  36)
-#define VEC_HUMAN_HULL_MIN      Vector( -16, -16, 0 )
-#define VEC_HUMAN_HULL_MAX      Vector( 16, 16, 72 )
-#define VEC_HUMAN_HULL_DUCK     Vector( 16, 16, 36 )
+//#define VEC_HULL_MIN            Vector(-16, -16, -36)
+//#define VEC_HULL_MAX            Vector( 16,  16,  36)
+//#define VEC_HUMAN_HULL_MIN      Vector( -16, -16, 0 )
+//#define VEC_HUMAN_HULL_MAX      Vector( 16, 16, 72 )
+//#define VEC_HUMAN_HULL_DUCK     Vector( 16, 16, 36 )
 
-#define VEC_VIEW                        Vector( 0, 0, 28 )
+//#define VEC_VIEW                        Vector( 0, 0, 28 )
 
-#define VEC_DUCK_HULL_MIN       Vector(-16, -16, -18 )
-#define VEC_DUCK_HULL_MAX       Vector( 16,  16,  18)
-#define VEC_DUCK_VIEW           Vector( 0, 0, 12 )
+//#define VEC_DUCK_HULL_MIN       Vector(-16, -16, -18 )
+//#define VEC_DUCK_HULL_MAX       Vector( 16,  16,  18)
+//#define VEC_DUCK_VIEW           Vector( 0, 0, 12 )
 
 #define SVC_TEMPENTITY          23
 #define SVC_INTERMISSION        30
@@ -457,7 +459,7 @@ int SENTENCEG_Lookup(const char *sample, char *sentencenum);
 
 void TEXTURETYPE_Init();
 char TEXTURETYPE_Find(char *name);
-float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int iBulletType);
+//float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int iBulletType);
 
 // NOTE: use EMIT_SOUND_DYN to set the pitch of a sound. Pitch of 100
 // is no pitch shift.  Pitch > 100 up to 255 is a higher pitch, pitch < 100
@@ -500,15 +502,15 @@ void EMIT_GROUPNAME_SUIT(edict_t *entity, const char *groupname);
 extern int g_groupmask;
 extern int g_groupop;
 
-class UTIL_GroupTrace
-{
-public:
-        UTIL_GroupTrace( int groupmask, int op );
-        ~UTIL_GroupTrace( void );
-
-private:
-        int m_oldgroupmask, m_oldgroupop;
-};
+//class UTIL_GroupTrace
+//{
+//public:
+//        UTIL_GroupTrace( int groupmask, int op );
+//        ~UTIL_GroupTrace( void );
+//
+//private:
+//        int m_oldgroupmask, m_oldgroupop;
+//};
 
 void UTIL_SetGroupTrace( int groupmask, int op );
 void UTIL_UnsetGroupTrace( void );

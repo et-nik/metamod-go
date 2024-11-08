@@ -1,7 +1,7 @@
 package main
 
 /*
-#cgo CPPFLAGS: -I${SRCDIR}/hlsdk/dlls -I${SRCDIR}/hlsdk/engine -I${SRCDIR}/hlsdk/pm_shared -I${SRCDIR}/hlsdk/common -include ${SRCDIR}/hlsdk/public/basetypes.h
+#cgo CPPFLAGS: -I${SRCDIR}/hlsdk/dlls -I${SRCDIR}/hlsdk/engine -I${SRCDIR}/hlsdk/pm_shared -I${SRCDIR}/hlsdk/common -include ${SRCDIR}/hlsdk/public/basetypes.h -include ${SRCDIR}/hlsdk/common/const.h -include ${SRCDIR}/hlsdk/engine/edict.h
 
 #include <stdio.h>
 
@@ -9,6 +9,7 @@ package main
 
 #include "metamod/plinfo.h"
 #include "metamod/meta_api.h"
+#include "metamod/mutil.h"
 
 int GetNewDLLFunctions(NEW_DLL_FUNCTIONS *pNewFunctionTable, int *interfaceVersion);
 */
@@ -57,10 +58,19 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void,
 }
 
 //export Meta_Query
-func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFuncs *C.void) C.int {
+func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFuncs *C.mutil_funcs_t) C.int {
 	*plinfo = pluginInfo.ToC()
 
 	P.Info = pluginInfo
+	P.MetaUtilFuncs = &MUtilFuncs{
+		info: pluginInfo,
+		p:    pMetaUtilFuncs,
+	}
+
+	P.MetaUtilFuncs.LogConsole("Hello from Go!")
+	P.MetaUtilFuncs.LogConsole("Hello from Go!")
+	P.MetaUtilFuncs.LogConsole("Hello from Go!")
+	P.MetaUtilFuncs.LogConsole("Hello from Go!")
 
 	return 1
 }
@@ -87,7 +97,9 @@ func GiveFnptrsToDll(pengfuncsFromEngine *C.enginefuncs_t, pGlobals *C.void) {
 	fmt.Println("(GiveFnptrsToDll) Hi from Go!")
 	fmt.Println("=====================================")
 
-	P.EngineFuncs.p = pengfuncsFromEngine
+	P.EngineFuncs = &EngineFuncs{
+		p: pengfuncsFromEngine,
+	}
 }
 
 //export GetNewDLLFunctions

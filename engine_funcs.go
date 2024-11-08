@@ -17,12 +17,14 @@ func (ef *EngineFuncs) PrecacheModel(name string) int {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
-	return int(ef.p.pfnPrecacheModel(cs))
+	//return int(ef.p.pfnPrecacheModel(cs))
+	return 0
 }
 
 func (ef *EngineFuncs) PrecacheSound(name string) int {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
-	return int(ef.p.pfnPrecacheSound(cs))
+	//return int(ef.p.pfnPrecacheSound(cs))
+	return 0
 }

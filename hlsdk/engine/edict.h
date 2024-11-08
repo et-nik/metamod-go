@@ -9,7 +9,7 @@
 
 #include "progdefs.h"
 
-struct edict_s
+typedef struct edict_s
 {
 	qboolean	free;
 	int			serialnumber;

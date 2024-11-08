@@ -39,3 +39,5 @@ typedef struct plugin_info_t
     enum PLUG_LOADTIME loadable;   // when loadable
     enum PLUG_LOADTIME unloadable; // when unloadable
 } plugin_info_t;
+
+typedef plugin_info_t* plid_t;
