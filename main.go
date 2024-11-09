@@ -7,9 +7,7 @@ package main
 
 #include <eiface.h>
 
-#include "metamod/plinfo.h"
-#include "metamod/meta_api.h"
-#include "metamod/mutil.h"
+#include "metamod/index.h"
 
 int GetNewDLLFunctions(NEW_DLL_FUNCTIONS *pNewFunctionTable, int *interfaceVersion);
 */
@@ -27,6 +25,7 @@ var pluginInfo = &PluginInfo{
 	Date:             "2024-11-08",
 	Author:           "KNiK",
 	Url:              "https://github.com/et-nik/metamod-go",
+	LogTag:           "GoPlugin",
 	Loadable:         PluginLoadTimeAnyTime,
 	Unloadable:       PluginLoadTimeAnyTime,
 }
@@ -59,18 +58,25 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void,
 
 //export Meta_Query
 func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFuncs *C.mutil_funcs_t) C.int {
-	*plinfo = pluginInfo.ToC()
+	*plinfo = pluginInfo.ToCPluginInfo()
+
+	setCGlobalPluginInfo(pluginInfo)
 
 	P.Info = pluginInfo
 	P.MetaUtilFuncs = &MUtilFuncs{
-		info: pluginInfo,
-		p:    pMetaUtilFuncs,
+		p: pMetaUtilFuncs,
 	}
 
 	P.MetaUtilFuncs.LogConsole("Hello from Go!")
 	P.MetaUtilFuncs.LogConsole("Hello from Go!")
 	P.MetaUtilFuncs.LogConsole("Hello from Go!")
 	P.MetaUtilFuncs.LogConsole("Hello from Go!")
+
+	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
+	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
+	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
+	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
+	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
 
 	return 1
 }

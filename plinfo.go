@@ -1,6 +1,23 @@
 package main
 
-// #include "metamod/plinfo.h"
+/*
+#include "metamod/plinfo.h"
+
+plugin_info_t Plugin_info =
+{
+	"",								// ifvers
+	"",								// name
+	"",								// version
+	"",								// date
+	"",								// author
+	"",								// url
+	"",								// logtag
+	PT_ANYTIME,						// (when) loadable
+	PT_ANYTIME,						// (when) unloadable
+};
+
+#define PLID &Plugin_info
+*/
 import "C"
 
 type PluginLoadTime int
@@ -40,7 +57,7 @@ type PluginInfo struct {
 	Unloadable       PluginLoadTime
 }
 
-func (p *PluginInfo) ToC() *C.plugin_info_t {
+func (p *PluginInfo) ToCPluginInfo() *C.plugin_info_t {
 	return &C.plugin_info_t{
 		ifvers:     C.CString(p.InterfaceVersion),
 		name:       C.CString(p.Name),
@@ -52,4 +69,16 @@ func (p *PluginInfo) ToC() *C.plugin_info_t {
 		loadable:   C.enum_PLUG_LOADTIME(p.Loadable),
 		unloadable: C.enum_PLUG_LOADTIME(p.Unloadable),
 	}
+}
+
+func setCGlobalPluginInfo(p *PluginInfo) {
+	C.Plugin_info.ifvers = C.CString(p.InterfaceVersion)
+	C.Plugin_info.name = C.CString(p.Name)
+	C.Plugin_info.version = C.CString(p.Version)
+	C.Plugin_info.date = C.CString(p.Date)
+	C.Plugin_info.author = C.CString(p.Author)
+	C.Plugin_info.url = C.CString(p.Url)
+	C.Plugin_info.logtag = C.CString(p.LogTag)
+	C.Plugin_info.loadable = C.enum_PLUG_LOADTIME(p.Loadable)
+	C.Plugin_info.unloadable = C.enum_PLUG_LOADTIME(p.Unloadable)
 }

@@ -40,4 +40,8 @@ typedef struct plugin_info_t
     enum PLUG_LOADTIME unloadable; // when unloadable
 } plugin_info_t;
 
-typedef plugin_info_t* plid_t;
+extern plugin_info_t Plugin_info;
+
+// Plugin identifier, passed to all Meta Utility Functions.
+typedef plugin_info_t *plid_t;
+#define PLID &Plugin_info

@@ -2,9 +2,7 @@
 
 #include <eiface.h>
 
-// TODO: Fix util.h to use this
 #include <util.h>
-
 
 #include "plinfo.h"
 
@@ -28,10 +26,8 @@ typedef struct mutil_funcs_t
 	void            (*pfnLogDeveloper)          (plid_t plid, const char *fmt, ...);
 	void            (*pfnCenterSay)             (plid_t plid, const char *fmt, ...);
 
-	// TODO: Fix util.h to use this
 	void            (*pfnCenterSayParms)        (plid_t plid, hudtextparms_t tparms, const char *fmt, ...);
 	void            (*pfnCenterSayVarargs)      (plid_t plid, hudtextparms_t tparms, const char *fmt, va_list ap);
-
 
 	qboolean        (*pfnCallGameEntity)        (plid_t plid, const char *entStr, struct entvars_t *pev);
 	int             (*pfnGetUserMsgID)          (plid_t plid, const char *msgname, int *size);
