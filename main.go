@@ -53,6 +53,16 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void,
 
 	pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.GetNewDLLFunctions)
 
+	P.EngineFuncs.AddServerCommand("test", func(argc int, argv ...string) {
+		fmt.Println()
+		fmt.Println("=====================================")
+		fmt.Println("Server command test")
+		fmt.Println("argc:", argc)
+		fmt.Println("argv:", argv)
+		fmt.Println("=====================================")
+		fmt.Println()
+	})
+
 	return 1
 }
 
