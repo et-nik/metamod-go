@@ -38,6 +38,10 @@ type MUtilFuncs struct {
 }
 
 func (m *MUtilFuncs) LogConsole(msg string) {
+	if m.p == nil {
+		return
+	}
+
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -45,6 +49,10 @@ func (m *MUtilFuncs) LogConsole(msg string) {
 }
 
 func (m *MUtilFuncs) LogError(msg string) {
+	if m.p == nil {
+		return
+	}
+
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -52,6 +60,10 @@ func (m *MUtilFuncs) LogError(msg string) {
 }
 
 func (m *MUtilFuncs) LogMessage(msg string) {
+	if m.p == nil {
+		return
+	}
+
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -59,6 +71,10 @@ func (m *MUtilFuncs) LogMessage(msg string) {
 }
 
 func (m *MUtilFuncs) LogDeveloper(msg string) {
+	if m.p == nil {
+		return
+	}
+
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -66,6 +82,10 @@ func (m *MUtilFuncs) LogDeveloper(msg string) {
 }
 
 func (m *MUtilFuncs) LogCenterSay(msg string) {
+	if m.p == nil {
+		return
+	}
+
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 

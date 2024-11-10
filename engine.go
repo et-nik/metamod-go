@@ -6,7 +6,6 @@ const char* ReadString(globalvars_t *gpGlobals, int offset) {
 }
 */
 import "C"
-import "unsafe"
 
 const (
 	MaxEntLeafs = 48
@@ -32,52 +31,84 @@ func (l *Link) ToCLinkT() *C.link_t {
 }
 
 type Edict struct {
-	Free         bool
-	SerialNumber int
-	Area         *Link
+	p          *C.edict_t
+	globalVars *C.globalvars_t
 
-	HeadNode int
-	NumLeafs int
-	LeafNums [MaxEntLeafs]int16
-
-	FreeTime float64
-
-	PvPrivateData unsafe.Pointer
-
-	V EntVars
+	//Free         bool
+	//SerialNumber int
+	//Area         *Link
+	//
+	//HeadNode int
+	//NumLeafs int
+	//LeafNums [MaxEntLeafs]int16
+	//
+	//FreeTime float64
+	//
+	//PvPrivateData unsafe.Pointer
+	//
+	//V EntVars
 }
 
-func (e *Edict) ToCEdictT() *C.edict_t {
-	free := 0
-	if e.Free {
-		free = 1
+func EdictFromC(globalVars *C.globalvars_t, e *C.edict_t) *Edict {
+	if e == nil {
+		return nil
 	}
 
-	leafNums := [MaxEntLeafs]C.short{}
-	for i, leafNum := range e.LeafNums {
-		leafNums[i] = C.short(leafNum)
+	edict := &Edict{
+		p:          e,
+		globalVars: globalVars,
 	}
 
-	return &C.edict_t{
-		free:         C.qboolean(C.int(free)),
-		serialnumber: C.int(e.SerialNumber),
-		area:         *e.Area.ToCLinkT(),
-
-		headnode:  C.int(e.HeadNode),
-		num_leafs: C.int(e.NumLeafs),
-		leafnums:  leafNums,
-
-		freetime:      C.float(e.FreeTime),
-		pvPrivateData: e.PvPrivateData,
-		//v:             *e.V.ToCEntVarsT(),
-	}
+	return edict
 }
+
+func (e *Edict) Free() int {
+	return int(e.p.free)
+}
+
+func (e *Edict) SerialNumber() int {
+	return int(e.p.serialnumber)
+}
+
+func (e *Edict) EntVars() *EntVars {
+	return EntVarsFromC(e.globalVars, &e.p.v)
+}
+
+//func (e *Edict) ToCEdictT() *C.edict_t {
+//	free := 0
+//	if e.Free {
+//		free = 1
+//	}
+//
+//	leafNums := [MaxEntLeafs]C.short{}
+//	for i, leafNum := range e.LeafNums {
+//		leafNums[i] = C.short(leafNum)
+//	}
+//
+//	return &C.edict_t{
+//		free:         C.qboolean(C.int(free)),
+//		serialnumber: C.int(e.SerialNumber),
+//		area:         *e.Area.ToCLinkT(),
+//
+//		headnode:  C.int(e.HeadNode),
+//		num_leafs: C.int(e.NumLeafs),
+//		leafnums:  leafNums,
+//
+//		freetime:      C.float(e.FreeTime),
+//		pvPrivateData: e.PvPrivateData,
+//		//v:             *e.V.ToCEntVarsT(),
+//	}
+//}
 
 type GlobalVars struct {
 	p *C.globalvars_t
 }
 
 func GlobalVarsFromC(g *C.globalvars_t) *GlobalVars {
+	if g == nil {
+		return nil
+	}
+
 	gv := &GlobalVars{
 		p: g,
 	}
@@ -126,7 +157,8 @@ func (gv *GlobalVars) MaxEntities() int {
 }
 
 type EntVars struct {
-	p *C.entvars_t
+	p          *C.entvars_t
+	globalVars *C.globalvars_t
 
 	//Classname  int
 	//GlobalName int
@@ -295,18 +327,618 @@ type EntVars struct {
 	//EUser4 *Edict
 }
 
-func EntVarsFromC(ev *C.entvars_t) *EntVars {
+func EntVarsFromC(globalVars *C.globalvars_t, ev *C.entvars_t) *EntVars {
+	if ev == nil {
+		return nil
+	}
+
 	e := &EntVars{
-		p: ev,
+		p:          ev,
+		globalVars: globalVars,
 	}
 
 	return e
 }
 
 func (e *EntVars) ClassName() string {
-	return C.GoString(C.ReadString(e.p, e.p.classname))
+	return C.GoString(C.ReadString(e.globalVars, e.p.classname))
 }
 
 func (e *EntVars) GlobalName() string {
-	return C.GoString(C.ReadString(e.p, e.p.globalname))
+	return C.GoString(C.ReadString(e.globalVars, e.p.globalname))
+}
+
+func (e *EntVars) Origin() [3]float32 {
+	return [3]float32{
+		float32(e.p.origin[0]),
+		float32(e.p.origin[1]),
+		float32(e.p.origin[2]),
+	}
+}
+
+func (e *EntVars) OldOrigin() [3]float32 {
+	return [3]float32{
+		float32(e.p.oldorigin[0]),
+		float32(e.p.oldorigin[1]),
+		float32(e.p.oldorigin[2]),
+	}
+}
+
+func (e *EntVars) Velocity() [3]float32 {
+	return [3]float32{
+		float32(e.p.velocity[0]),
+		float32(e.p.velocity[1]),
+		float32(e.p.velocity[2]),
+	}
+}
+
+func (e *EntVars) BaseVelocity() [3]float32 {
+	return [3]float32{
+		float32(e.p.basevelocity[0]),
+		float32(e.p.basevelocity[1]),
+		float32(e.p.basevelocity[2]),
+	}
+}
+
+// ClBaseVelocity Base velocity that was passed in to server physics so
+// client can predict conveyors correctly.
+// Server zeroes it, so we need to store here, too.
+func (e *EntVars) ClBaseVelocity() [3]float32 {
+	return [3]float32{
+		float32(e.p.clbasevelocity[0]),
+		float32(e.p.clbasevelocity[1]),
+		float32(e.p.clbasevelocity[2]),
+	}
+}
+
+func (e *EntVars) MoveDir() [3]float32 {
+	return [3]float32{
+		float32(e.p.movedir[0]),
+		float32(e.p.movedir[1]),
+		float32(e.p.movedir[2]),
+	}
+}
+
+// Angles Model angles
+func (e *EntVars) Angles() [3]float32 {
+	return [3]float32{
+		float32(e.p.angles[0]),
+		float32(e.p.angles[1]),
+		float32(e.p.angles[2]),
+	}
+}
+
+func (e *EntVars) Avelocity() [3]float32 {
+	return [3]float32{
+		float32(e.p.avelocity[0]),
+		float32(e.p.avelocity[1]),
+		float32(e.p.avelocity[2]),
+	}
+}
+
+func (e *EntVars) PunchAngle() [3]float32 {
+	return [3]float32{
+		float32(e.p.punchangle[0]),
+		float32(e.p.punchangle[1]),
+		float32(e.p.punchangle[2]),
+	}
+}
+
+func (e *EntVars) VAngle() [3]float32 {
+	return [3]float32{
+		float32(e.p.v_angle[0]),
+		float32(e.p.v_angle[1]),
+		float32(e.p.v_angle[2]),
+	}
+}
+
+func (e *EntVars) EndPos() [3]float32 {
+	return [3]float32{
+		float32(e.p.endpos[0]),
+		float32(e.p.endpos[1]),
+		float32(e.p.endpos[2]),
+	}
+}
+
+func (e *EntVars) StartPos() [3]float32 {
+	return [3]float32{
+		float32(e.p.startpos[0]),
+		float32(e.p.startpos[1]),
+		float32(e.p.startpos[2]),
+	}
+}
+
+func (e *EntVars) ImpactTime() float32 {
+	return float32(e.p.impacttime)
+}
+
+func (e *EntVars) StartTime() float32 {
+	return float32(e.p.starttime)
+}
+
+func (e *EntVars) FixAngle() int {
+	return int(e.p.fixangle)
+}
+
+func (e *EntVars) IdealPitch() float32 {
+	return float32(e.p.idealpitch)
+}
+
+func (e *EntVars) PitchSpeed() float32 {
+	return float32(e.p.pitch_speed)
+}
+
+func (e *EntVars) IdealYaw() float32 {
+	return float32(e.p.ideal_yaw)
+}
+
+func (e *EntVars) YawSpeed() float32 {
+	return float32(e.p.yaw_speed)
+}
+
+func (e *EntVars) ModelIndex() int {
+	return int(e.p.modelindex)
+}
+
+func (e *EntVars) Model() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.model))
+}
+
+func (e *EntVars) ViewModel() int {
+	return int(e.p.viewmodel)
+}
+
+func (e *EntVars) WeaponModel() int {
+	return int(e.p.weaponmodel)
+}
+
+func (e *EntVars) AbsMin() [3]float32 {
+	return [3]float32{
+		float32(e.p.absmin[0]),
+		float32(e.p.absmin[1]),
+		float32(e.p.absmin[2]),
+	}
+}
+
+func (e *EntVars) AbsMax() [3]float32 {
+	return [3]float32{
+		float32(e.p.absmax[0]),
+		float32(e.p.absmax[1]),
+		float32(e.p.absmax[2]),
+	}
+}
+
+func (e *EntVars) Mins() [3]float32 {
+	return [3]float32{
+		float32(e.p.mins[0]),
+		float32(e.p.mins[1]),
+		float32(e.p.mins[2]),
+	}
+}
+
+func (e *EntVars) Maxs() [3]float32 {
+	return [3]float32{
+		float32(e.p.maxs[0]),
+		float32(e.p.maxs[1]),
+		float32(e.p.maxs[2]),
+	}
+}
+
+func (e *EntVars) Size() [3]float32 {
+	return [3]float32{
+		float32(e.p.size[0]),
+		float32(e.p.size[1]),
+		float32(e.p.size[2]),
+	}
+}
+
+func (e *EntVars) Ltime() float32 {
+	return float32(e.p.ltime)
+}
+
+func (e *EntVars) NextThink() float32 {
+	return float32(e.p.nextthink)
+}
+
+func (e *EntVars) MoveType() int {
+	return int(e.p.movetype)
+}
+
+func (e *EntVars) Solid() int {
+	return int(e.p.solid)
+}
+
+func (e *EntVars) Skin() int {
+	return int(e.p.skin)
+}
+
+func (e *EntVars) Body() int {
+	return int(e.p.body)
+}
+
+func (e *EntVars) Effects() int {
+	return int(e.p.effects)
+}
+
+func (e *EntVars) Gravity() float32 {
+	return float32(e.p.gravity)
+}
+
+func (e *EntVars) Friction() float32 {
+	return float32(e.p.friction)
+}
+
+func (e *EntVars) LightLevel() int {
+	return int(e.p.light_level)
+}
+
+// Sequence animation sequence
+func (e *EntVars) Sequence() int {
+	return int(e.p.sequence)
+}
+
+// GaitSequence movement animation sequence for player (0 for none)
+func (e *EntVars) GaitSequence() int {
+	return int(e.p.gaitsequence)
+}
+
+// Frame % playback position in animation sequences (0..255)
+func (e *EntVars) Frame() float32 {
+	return float32(e.p.frame)
+}
+
+// AnymTime world time when frame was set
+func (e *EntVars) AnymTime() float32 {
+	return float32(e.p.animtime)
+}
+
+// FrameRate animation playback rate (-8x to 8x)
+func (e *EntVars) FrameRate() float32 {
+	return float32(e.p.framerate)
+}
+
+// Controller bone controller setting
+func (e *EntVars) Controller() [4]byte {
+	return [4]byte{
+		byte(e.p.controller[0]),
+		byte(e.p.controller[1]),
+		byte(e.p.controller[2]),
+		byte(e.p.controller[3]),
+	}
+}
+
+// Blending blending amount between sub-sequences
+func (e *EntVars) Blending() [2]byte {
+	return [2]byte{
+		byte(e.p.blending[0]),
+		byte(e.p.blending[1]),
+	}
+}
+
+func (e *EntVars) Scale() float32 {
+	return float32(e.p.scale)
+}
+
+func (e *EntVars) RenderMode() int {
+	return int(e.p.rendermode)
+}
+
+func (e *EntVars) RenderAmt() float32 {
+	return float32(e.p.renderamt)
+}
+
+func (e *EntVars) RenderColor() [3]float32 {
+	return [3]float32{
+		float32(e.p.rendercolor[0]),
+		float32(e.p.rendercolor[1]),
+		float32(e.p.rendercolor[2]),
+	}
+}
+
+func (e *EntVars) RenderFx() int {
+	return int(e.p.renderfx)
+}
+
+func (e *EntVars) Health() float32 {
+	return float32(e.p.health)
+}
+
+func (e *EntVars) MaxHealth() float32 {
+	return float32(e.p.max_health)
+}
+
+func (e *EntVars) Frags() float32 {
+	return float32(e.p.frags)
+}
+
+func (e *EntVars) Weapons() int {
+	return int(e.p.weapons)
+}
+
+func (e *EntVars) TakeDamage() int {
+	return int(e.p.takedamage)
+}
+
+func (e *EntVars) DeadFlag() int {
+	return int(e.p.deadflag)
+}
+
+func (e *EntVars) ViewOfs() [3]float32 {
+	return [3]float32{
+		float32(e.p.view_ofs[0]),
+		float32(e.p.view_ofs[1]),
+		float32(e.p.view_ofs[2]),
+	}
+}
+
+func (e *EntVars) Button() int {
+	return int(e.p.button)
+}
+
+func (e *EntVars) Impulse() int {
+	return int(e.p.impulse)
+}
+
+func (e *EntVars) Chain() *Edict {
+	return EdictFromC(e.globalVars, e.p.chain)
+}
+
+func (e *EntVars) DmgInflictor() *Edict {
+	return EdictFromC(e.globalVars, e.p.dmg_inflictor)
+}
+
+func (e *EntVars) Enemy() *Edict {
+	return EdictFromC(e.globalVars, e.p.enemy)
+}
+
+func (e *EntVars) AimEnt() *Edict {
+	return EdictFromC(e.globalVars, e.p.aiment)
+}
+
+func (e *EntVars) Owner() *Edict {
+	return EdictFromC(e.globalVars, e.p.owner)
+}
+
+func (e *EntVars) GroundEntity() *Edict {
+	return EdictFromC(e.globalVars, e.p.groundentity)
+}
+
+func (e *EntVars) SpawnFlags() int {
+	return int(e.p.spawnflags)
+}
+
+func (e *EntVars) Flags() int {
+	return int(e.p.flags)
+}
+
+func (e *EntVars) Colormap() int {
+	return int(e.p.colormap)
+}
+
+func (e *EntVars) Team() int {
+	return int(e.p.team)
+}
+
+func (e *EntVars) TeleportTime() float32 {
+	return float32(e.p.teleport_time)
+}
+
+func (e *EntVars) Armortype() float32 {
+	return float32(e.p.armortype)
+}
+
+func (e *EntVars) Armorvalue() float32 {
+	return float32(e.p.armorvalue)
+}
+
+func (e *EntVars) WaterLevel() int {
+	return int(e.p.waterlevel)
+}
+
+func (e *EntVars) WaterType() int {
+	return int(e.p.watertype)
+}
+
+func (e *EntVars) Target() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.target))
+}
+
+func (e *EntVars) TargetName() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.targetname))
+}
+
+func (e *EntVars) NetName() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.netname))
+}
+
+func (e *EntVars) Message() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.message))
+}
+
+func (e *EntVars) DmgTake() float32 {
+	return float32(e.p.dmg_take)
+}
+
+func (e *EntVars) DmgSave() float32 {
+	return float32(e.p.dmg_save)
+}
+
+func (e *EntVars) Dmg() float32 {
+	return float32(e.p.dmg)
+}
+
+func (e *EntVars) DmgTime() float32 {
+	return float32(e.p.dmgtime)
+}
+
+func (e *EntVars) Noise() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.noise))
+}
+
+func (e *EntVars) Noise1() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.noise1))
+}
+
+func (e *EntVars) Noise2() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.noise2))
+}
+
+func (e *EntVars) Noise3() string {
+	return C.GoString(C.ReadString(e.globalVars, e.p.noise3))
+}
+
+func (e *EntVars) Speed() float32 {
+	return float32(e.p.speed)
+}
+
+func (e *EntVars) AirFinished() float32 {
+	return float32(e.p.air_finished)
+}
+
+func (e *EntVars) PainFinished() float32 {
+	return float32(e.p.pain_finished)
+}
+
+func (e *EntVars) RadsuitFinished() float32 {
+	return float32(e.p.radsuit_finished)
+}
+
+func (e *EntVars) PContainingEntity() *Edict {
+	return EdictFromC(e.globalVars, e.p.pContainingEntity)
+}
+
+func (e *EntVars) PlayerClass() int {
+	return int(e.p.playerclass)
+}
+
+func (e *EntVars) MaxSpeed() float32 {
+	return float32(e.p.maxspeed)
+}
+
+func (e *EntVars) Fov() float32 {
+	return float32(e.p.fov)
+}
+
+func (e *EntVars) WeaponAnim() int {
+	return int(e.p.weaponanim)
+}
+
+func (e *EntVars) PushmSec() int {
+	return int(e.p.pushmsec)
+}
+
+func (e *EntVars) BInDuck() int {
+	return int(e.p.bInDuck)
+}
+
+func (e *EntVars) TimeStepSound() int {
+	return int(e.p.flTimeStepSound)
+}
+
+func (e *EntVars) SwimTime() int {
+	return int(e.p.flSwimTime)
+}
+
+func (e *EntVars) DuckTime() int {
+	return int(e.p.flDuckTime)
+}
+
+func (e *EntVars) StepLeft() int {
+	return int(e.p.iStepLeft)
+}
+
+func (e *EntVars) FallVelocity() int {
+	return int(e.p.flFallVelocity)
+}
+
+func (e *EntVars) GameState() int {
+	return int(e.p.gamestate)
+}
+
+func (e *EntVars) OldButtons() int {
+	return int(e.p.oldbuttons)
+}
+
+func (e *EntVars) GroupInfo() int {
+	return int(e.p.groupinfo)
+}
+
+func (e *EntVars) IUser1() int {
+	return int(e.p.iuser1)
+}
+
+func (e *EntVars) IUser2() int {
+	return int(e.p.iuser2)
+}
+
+func (e *EntVars) IUser3() int {
+	return int(e.p.iuser3)
+}
+
+func (e *EntVars) IUser4() int {
+	return int(e.p.iuser4)
+}
+
+func (e *EntVars) FUser1() float32 {
+	return float32(e.p.fuser1)
+}
+
+func (e *EntVars) FUser2() float32 {
+	return float32(e.p.fuser2)
+}
+
+func (e *EntVars) FUser3() float32 {
+	return float32(e.p.fuser3)
+}
+
+func (e *EntVars) FUser4() float32 {
+	return float32(e.p.fuser4)
+}
+
+func (e *EntVars) VUser1() [3]float32 {
+	return [3]float32{
+		float32(e.p.vuser1[0]),
+		float32(e.p.vuser1[1]),
+		float32(e.p.vuser1[2]),
+	}
+}
+
+func (e *EntVars) VUser2() [3]float32 {
+	return [3]float32{
+		float32(e.p.vuser2[0]),
+		float32(e.p.vuser2[1]),
+		float32(e.p.vuser2[2]),
+	}
+}
+
+func (e *EntVars) VUser3() [3]float32 {
+	return [3]float32{
+		float32(e.p.vuser3[0]),
+		float32(e.p.vuser3[1]),
+		float32(e.p.vuser3[2]),
+	}
+}
+
+func (e *EntVars) VUser4() [3]float32 {
+	return [3]float32{
+		float32(e.p.vuser4[0]),
+		float32(e.p.vuser4[1]),
+		float32(e.p.vuser4[2]),
+	}
+}
+
+func (e *EntVars) EUser1() *Edict {
+	return EdictFromC(e.globalVars, e.p.euser1)
+}
+
+func (e *EntVars) EUser2() *Edict {
+	return EdictFromC(e.globalVars, e.p.euser2)
+}
+
+func (e *EntVars) EUser3() *Edict {
+	return EdictFromC(e.globalVars, e.p.euser3)
+}
+
+func (e *EntVars) EUser4() *Edict {
+	return EdictFromC(e.globalVars, e.p.euser4)
 }

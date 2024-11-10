@@ -14,11 +14,13 @@ int GetEntityAPI2(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
 int GetEntityAPI2_Post(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
 
 extern void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable);
+extern void SetDLLFunctionsPost(DLL_FUNCTIONS *pFunctionTable);
 
 */
 import "C"
 import (
 	"fmt"
+	"strconv"
 )
 
 func main() {}
@@ -63,6 +65,37 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void,
 		fmt.Println()
 	})
 
+	P.EngineFuncs.AddServerCommand("entinfo", func(argc int, argv ...string) {
+		if argc < 2 {
+			fmt.Println("Usage: entinfo <entityIndex>")
+			return
+		}
+
+		entityIndex, err := strconv.Atoi(argv[1])
+		if err != nil {
+			fmt.Println("Invalid entity index")
+			return
+		}
+
+		edict := P.EngineFuncs.EntityOfEntIndex(entityIndex)
+		if edict == nil {
+			fmt.Println("Entity not found")
+			return
+		}
+
+		entVars := edict.EntVars()
+
+		fmt.Println()
+		fmt.Println("=====================================")
+		fmt.Println("Entity info")
+		fmt.Println("Index:", entityIndex)
+		fmt.Println("Classname:", entVars.ClassName())
+		fmt.Println("Globalname:", entVars.GlobalName())
+		fmt.Println("Origin:", entVars.Origin())
+		fmt.Println("Health:", entVars.Health())
+		fmt.Println("Max Health:", entVars.MaxHealth())
+	})
+
 	P.EngineFuncs.AddServerCommand("test2", func(argc int, argv ...string) {
 		someVal := "someVal"
 		fmt.Println()
@@ -74,7 +107,6 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void,
 		P.MetaUtilFuncs.LogMessage("Server command test")
 		fmt.Println("=====================================")
 		fmt.Println()
-
 	})
 
 	return 1
@@ -91,16 +123,7 @@ func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFun
 		p: pMetaUtilFuncs,
 	}
 
-	P.MetaUtilFuncs.LogConsole("Hello from Go!")
-	P.MetaUtilFuncs.LogConsole("Hello from Go!")
-	P.MetaUtilFuncs.LogConsole("Hello from Go!")
-	P.MetaUtilFuncs.LogConsole("Hello from Go!")
-
-	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
-	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
-	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
-	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
-	P.MetaUtilFuncs.LogMessage("(Message TEST) Hello from Go!")
+	//P.MetaUtilFuncs.LogConsole("Hello from Go!")
 
 	return 1
 }
@@ -127,14 +150,12 @@ func GiveFnptrsToDll(pengfuncsFromEngine *C.enginefuncs_t, pGlobals *C.globalvar
 	fmt.Println("(GiveFnptrsToDll) Hi from Go!")
 	fmt.Println("=====================================")
 
-	gb := GlobalVarsFromC(pGlobals)
-	fmt.Println("GlobalVars time:", gb.Time())
+	globalVars := GlobalVarsFromC(pGlobals)
+	fmt.Println("GlobalVars time:", globalVars.Time())
 
-	P.GlobalVars = gb
+	P.GlobalVars = globalVars
 
-	P.EngineFuncs = &EngineFuncs{
-		p: pengfuncsFromEngine,
-	}
+	P.EngineFuncs = NewEngineFuncs(pengfuncsFromEngine, globalVars)
 }
 
 //export GetNewDLLFunctions
@@ -189,6 +210,8 @@ func GetEntityAPI2_Post(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int
 	fmt.Println("=====================================")
 	fmt.Println("(GetEntityAPI2) Hi from Go!")
 	fmt.Println("=====================================")
+
+	C.SetDLLFunctionsPost(pFunctionTable)
 
 	return 1
 }

@@ -9,6 +9,8 @@ package main
 #define MAX_SERVER_COMMAND_CALLBACKS 128
 #define SERVER_COMMAND_CALLBACKS_CATEGORY "server_commands"
 
+extern const char* ReadString(globalvars_t *gpGlobals, int offset);
+
 extern void callGoFunction(void *f, int argc, char **argv);
 extern void getGoCallback(char *category, char *v, void **f);
 extern void setGoCallback(char *category, char *v, void *f);
@@ -63,6 +65,11 @@ void engineFuncsAddServerCommand(struct enginefuncs_s *t, char *cmd_name, void *
 
 	(*t->pfnAddServerCommand)(cmd_name, &ff);
 }
+
+edict_t* engineFuncsEntityOfEntIndex(struct enginefuncs_s *t, int index) {
+	return (*t->pfnPEntityOfEntIndex)(index);
+}
+
 */
 import "C"
 import "C"
@@ -72,7 +79,15 @@ import (
 )
 
 type EngineFuncs struct {
-	p *C.enginefuncs_t
+	p          *C.enginefuncs_t
+	globalVars *GlobalVars
+}
+
+func NewEngineFuncs(p *C.enginefuncs_t, globalVars *GlobalVars) *EngineFuncs {
+	return &EngineFuncs{
+		p:          p,
+		globalVars: globalVars,
+	}
 }
 
 func (ef *EngineFuncs) PrecacheModel(name string) int {
@@ -96,4 +111,10 @@ func (ef *EngineFuncs) AddServerCommand(name string, callback func(int, ...strin
 	f := unsafe.Pointer(&callback)
 
 	C.engineFuncsAddServerCommand(ef.p, cs, f)
+}
+
+func (ef *EngineFuncs) EntityOfEntIndex(index int) *Edict {
+	edict := C.engineFuncsEntityOfEntIndex(ef.p, C.int(index))
+
+	return EdictFromC(ef.globalVars.p, edict)
 }
