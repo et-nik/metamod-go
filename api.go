@@ -73,8 +73,6 @@ void goSysError(const char *error_string);
 void goSysErrorPost(const char *error_string);
 
 void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable) {
-	printf("\n\n\nSetDLLFunctions\n\n\n");
-
 	pFunctionTable->pfnGameInit = goGameDLLInit;
 	pFunctionTable->pfnSpawn = goSpawn;
 	pFunctionTable->pfnThink = goThink;
@@ -99,8 +97,6 @@ void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable) {
 }
 
 void SetDLLFunctionsPost(DLL_FUNCTIONS *pFunctionTable) {
-	printf("\n\n\nSetDLLFunctionsPost\n\n\n");
-
 	pFunctionTable->pfnGameInit = goGameDLLInitPost;
 	pFunctionTable->pfnSpawn = goSpawnPost;
 	pFunctionTable->pfnThink = goThinkPost;
@@ -123,6 +119,8 @@ void SetDLLFunctionsPost(DLL_FUNCTIONS *pFunctionTable) {
 	pFunctionTable->pfnSpectatorThink = goSpectatorThinkPost;
 	pFunctionTable->pfnSys_Error = goSysErrorPost;
 }
+
+
 
 */
 import "C"

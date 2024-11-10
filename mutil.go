@@ -29,6 +29,14 @@ void logCenterSay(struct mutil_funcs_t *t, const char *msg) {
 	(*t->pfnCenterSay)(PLID, msg);
 };
 
+int getUserMsgID(struct mutil_funcs_t *t, const char *msgname, int *size) {
+	return (*t->pfnGetUserMsgID)(PLID, msgname, size);
+}
+
+const char * getUserMsgName(struct mutil_funcs_t *t, int msgid, int *size) {
+	return (*t->pfnGetUserMsgName)(PLID, msgid, size);
+}
+
 
 */
 import "C"
@@ -110,4 +118,30 @@ func (m *MUtilFuncs) LogDeveloperf(format string, args ...interface{}) {
 
 func (m *MUtilFuncs) LogCenterSayf(format string, args ...interface{}) {
 	m.LogCenterSay(fmt.Sprintf(format, args...))
+}
+
+func (m *MUtilFuncs) GetUserMsgID(msgname string, size int) int {
+	if m.p == nil {
+		return 0
+	}
+
+	cs := C.CString(msgname)
+	defer C.free(unsafe.Pointer(cs))
+
+	csize := C.int(size)
+
+	return int(C.getUserMsgID(m.p, cs, &csize))
+}
+
+// (plid_t plid, int msgid, int *size);
+func (m *MUtilFuncs) GetUserMsgName(msgid int, size int) string {
+	if m.p == nil {
+		return ""
+	}
+
+	csize := C.int(size)
+
+	cs := C.getUserMsgName(m.p, C.int(msgid), &csize)
+
+	return C.GoString(cs)
 }

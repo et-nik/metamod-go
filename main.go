@@ -12,9 +12,13 @@ package main
 int GetNewDLLFunctions(NEW_DLL_FUNCTIONS *pNewFunctionTable, int *interfaceVersion);
 int GetEntityAPI2(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
 int GetEntityAPI2_Post(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
+int GetEngineFunctions(enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion);
+int GetEngineFunctions_Post(enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion);
 
+// Lib functions
 extern void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable);
 extern void SetDLLFunctionsPost(DLL_FUNCTIONS *pFunctionTable);
+extern void SetHooks(enginefuncs_t *pengfuncsFromEngine);
 
 */
 import "C"
@@ -39,13 +43,11 @@ var pluginInfo = &PluginInfo{
 
 //export Meta_Attach
 func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void, pGamedllFuncs *C.void) C.int {
-	fmt.Println("=====================================")
-	fmt.Println("(Meta_Attach) Hi from Go!")
-	fmt.Println("=====================================")
-
 	pFunctionTable.pfnGetEntityAPI2 = C.GETENTITYAPI2_FN(C.GetEntityAPI2)
 	pFunctionTable.pfnGetEntityAPI2_Post = C.GETENTITYAPI2_FN(C.GetEntityAPI2_Post)
 	pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.GetNewDLLFunctions)
+	pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.GetEngineFunctions)
+	pFunctionTable.pfnGetEngineFunctions_Post = C.GET_ENGINE_FUNCTIONS_FN(C.GetEngineFunctions_Post)
 
 	P.EngineFuncs.AddServerCommand("test", func(argc int, argv ...string) {
 		fmt.Println()
@@ -146,13 +148,7 @@ func Meta_Init() {
 
 //export GiveFnptrsToDll
 func GiveFnptrsToDll(pengfuncsFromEngine *C.enginefuncs_t, pGlobals *C.globalvars_t) {
-	fmt.Println("=====================================")
-	fmt.Println("(GiveFnptrsToDll) Hi from Go!")
-	fmt.Println("=====================================")
-
 	globalVars := GlobalVarsFromC(pGlobals)
-	fmt.Println("GlobalVars time:", globalVars.Time())
-
 	P.GlobalVars = globalVars
 
 	P.EngineFuncs = NewEngineFuncs(pengfuncsFromEngine, globalVars)
@@ -182,6 +178,9 @@ func GetEngineFunctions(pengfuncsFromEngine *C.enginefuncs_t, interfaceVersion *
 	fmt.Println("(GetEngineFunctions) Hi from Go!")
 	fmt.Println("=====================================")
 
+	// int GetEngineFunctions (enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion)
+	C.SetHooks(pengfuncsFromEngine)
+
 	return 1
 }
 
@@ -196,10 +195,6 @@ func GetEngineFunctions_Post(pengfuncsFromEngine *C.enginefuncs_t, interfaceVers
 
 //export GetEntityAPI2
 func GetEntityAPI2(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
-	fmt.Println("=====================================")
-	fmt.Println("(GetEntityAPI2) Hi from Go!")
-	fmt.Println("=====================================")
-
 	C.SetDLLFunctions(pFunctionTable)
 
 	return 1
@@ -207,10 +202,6 @@ func GetEntityAPI2(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int) C.i
 
 //export GetEntityAPI2_Post
 func GetEntityAPI2_Post(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
-	fmt.Println("=====================================")
-	fmt.Println("(GetEntityAPI2) Hi from Go!")
-	fmt.Println("=====================================")
-
 	C.SetDLLFunctionsPost(pFunctionTable)
 
 	return 1

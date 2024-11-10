@@ -151,7 +151,6 @@ func goPlayerPreThink(pEntity *C.edict_t) {
 
 //export goPlayerPreThinkPost
 func goPlayerPreThinkPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goPlayerPreThinkPost")
 }
 
 //export goPlayerPostThink
@@ -160,7 +159,6 @@ func goPlayerPostThink(pEntity *C.edict_t) {
 
 //export goPlayerPostThinkPost
 func goPlayerPostThinkPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goPlayerPostThinkPost")
 }
 
 //export goStartFrame
@@ -169,67 +167,54 @@ func goStartFrame() {
 
 //export goStartFramePost
 func goStartFramePost() {
-	P.MetaUtilFuncs.LogDeveloper("Called goStartFramePost")
 }
 
 //export goParmsNewLevel
 func goParmsNewLevel() {
-	P.MetaUtilFuncs.LogDeveloper("Called goParmsNewLevel")
 }
 
 //export goParmsNewLevelPost
 func goParmsNewLevelPost() {
-	P.MetaUtilFuncs.LogDeveloper("Called goParmsNewLevelPost")
 }
 
 //export goParmsChangeLevel
 func goParmsChangeLevel() {
-	P.MetaUtilFuncs.LogDeveloper("Called goParmsChangeLevel")
 }
 
 //export goParmsChangeLevelPost
 func goParmsChangeLevelPost() {
-	P.MetaUtilFuncs.LogDeveloper("Called goParmsChangeLevelPost")
 }
 
 //export goSpectatorConnect
 func goSpectatorConnect(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSpectatorConnect")
 }
 
 //export goSpectatorConnectPost
 func goSpectatorConnectPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSpectatorConnectPost")
 }
 
 //export goSpectatorDisconnect
 func goSpectatorDisconnect(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSpectatorDisconnect")
 }
 
 //export goSpectatorDisconnectPost
 func goSpectatorDisconnectPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSpectatorDisconnectPost")
 }
 
 //export goSpectatorThink
 func goSpectatorThink(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSpectatorThink")
 }
 
 //export goSpectatorThinkPost
 func goSpectatorThinkPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSpectatorThinkPost")
 }
 
 //export goSysError
 func goSysError(errorString *C.char) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSysError")
 }
 
 //export goSysErrorPost
 func goSysErrorPost(errorString *C.char) {
-	P.MetaUtilFuncs.LogDeveloper("Called goSysErrorPost")
 }
 
 //export goPMMove
@@ -256,20 +241,16 @@ func goSysErrorPost(errorString *C.char) {
 
 //export goOnFreeEntPrivateDate
 func goOnFreeEntPrivateDate(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goOnFreeEntPrivateDate")
 }
 
 //export goOnFreeEntPrivateDatePost
 func goOnFreeEntPrivateDatePost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goOnFreeEntPrivateDatePost")
 }
 
 //export goGameDLLShutdown
 func goGameDLLShutdown() {
-	P.MetaUtilFuncs.LogDeveloper("Called goGameDLLShutdown")
 }
 
 //export goGameDLLShutdownPost
 func goGameDLLShutdownPost() {
-	P.MetaUtilFuncs.LogDeveloper("Called goGameDLLShutdownPost")
 }

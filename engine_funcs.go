@@ -22,6 +22,7 @@ struct enginefuncs_s *engineFuncs;
 
 typedef void (*server_command_callback_t)(void);
 
+// Engine funcs
 int engineFuncsPrecacheModel(struct enginefuncs_s *t, char *s) {
 	return (*t->pfnPrecacheModel)(s);
 }
@@ -68,6 +69,46 @@ void engineFuncsAddServerCommand(struct enginefuncs_s *t, char *cmd_name, void *
 
 edict_t* engineFuncsEntityOfEntIndex(struct enginefuncs_s *t, int index) {
 	return (*t->pfnPEntityOfEntIndex)(index);
+}
+
+void engineMessageBegin(struct enginefuncs_s *t, int msg_dest, int msg_type, const float *pOrigin, edict_t *ed) {
+	(*t->pfnMessageBegin)(msg_dest, msg_type, pOrigin, ed);
+}
+
+void engineMessageEnd(struct enginefuncs_s *t) {
+	(*t->pfnMessageEnd)();
+}
+
+void engineWriteByte(struct enginefuncs_s *t, int i) {
+	(*t->pfnWriteByte)(i);
+}
+
+void engineWriteChar(struct enginefuncs_s *t, int i) {
+	(*t->pfnWriteChar)(i);
+}
+
+void engineWriteShort(struct enginefuncs_s *t, int i) {
+	(*t->pfnWriteShort)(i);
+}
+
+void engineWriteLong(struct enginefuncs_s *t, int i) {
+	(*t->pfnWriteLong)(i);
+}
+
+void engineWriteAngle(struct enginefuncs_s *t, float f) {
+	(*t->pfnWriteAngle)(f);
+}
+
+void engineWriteCoord(struct enginefuncs_s *t, float f) {
+	(*t->pfnWriteCoord)(f);
+}
+
+void engineWriteString(struct enginefuncs_s *t, const char *s) {
+	(*t->pfnWriteString)(s);
+}
+
+void engineWriteEntity(struct enginefuncs_s *t, int i) {
+	(*t->pfnWriteEntity)(i);
 }
 
 */
@@ -117,4 +158,58 @@ func (ef *EngineFuncs) EntityOfEntIndex(index int) *Edict {
 	edict := C.engineFuncsEntityOfEntIndex(ef.p, C.int(index))
 
 	return EdictFromC(ef.globalVars.p, edict)
+}
+
+func (ef *EngineFuncs) MessageBegin(
+	msgDest int,
+	msgType int,
+	pOrigin float32,
+	edict *Edict,
+) {
+	C.engineMessageBegin(
+		ef.p,
+		C.int(msgDest),
+		C.int(msgType),
+		(*C.float)(&pOrigin),
+		edict.p,
+	)
+}
+
+func (ef *EngineFuncs) MessageEnd() {
+	C.engineMessageEnd(ef.p)
+}
+
+func (ef *EngineFuncs) MessageWriteByte(i int) {
+	C.engineWriteByte(ef.p, C.int(i))
+}
+
+func (ef *EngineFuncs) MessageWriteChar(i int) {
+	C.engineWriteChar(ef.p, C.int(i))
+}
+
+func (ef *EngineFuncs) MessageWriteShort(i int) {
+	C.engineWriteShort(ef.p, C.int(i))
+}
+
+func (ef *EngineFuncs) MessageWriteLong(i int) {
+	C.engineWriteLong(ef.p, C.int(i))
+}
+
+func (ef *EngineFuncs) MessageWriteAngle(f float32) {
+	C.engineWriteAngle(ef.p, C.float(f))
+}
+
+func (ef *EngineFuncs) MessageWriteCoord(f float32) {
+	C.engineWriteCoord(ef.p, C.float(f))
+}
+
+func (ef *EngineFuncs) MessageWriteString(s string) {
+	cs := C.CString(s)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineWriteString(ef.p, cs)
+}
+
+func (ef *EngineFuncs) MessageWriteEntity(e *Edict) {
+	C.engineWriteEntity(ef.p, C.int(e.SerialNumber()))
 }
