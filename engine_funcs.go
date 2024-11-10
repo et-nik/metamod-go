@@ -20,6 +20,14 @@ struct enginefuncs_s *engineFuncs;
 
 typedef void (*server_command_callback_t)(void);
 
+int engineFuncsPrecacheModel(struct enginefuncs_s *t, char *s) {
+	return (*t->pfnPrecacheModel)(s);
+}
+
+int engineFuncsPrecacheSound(struct enginefuncs_s *t, char *s) {
+	return (*t->pfnPrecacheSound)(s);
+}
+
 const char* engineFuncsCmd_Args(struct enginefuncs_s *t) {
 	return (*t->pfnCmd_Args)();
 }
@@ -71,16 +79,14 @@ func (ef *EngineFuncs) PrecacheModel(name string) int {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
-	//return int(ef.p.pfnPrecacheModel(cs))
-	return 0
+	return int(C.engineFuncsPrecacheModel(ef.p, cs))
 }
 
 func (ef *EngineFuncs) PrecacheSound(name string) int {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
-	//return int(ef.p.pfnPrecacheSound(cs))
-	return 0
+	return int(C.engineFuncsPrecacheSound(ef.p, cs))
 }
 
 func (ef *EngineFuncs) AddServerCommand(name string, callback func(int, ...string)) {
