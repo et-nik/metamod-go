@@ -7,8 +7,6 @@ void goHookMessageBegin(int msg_dest, int msg_type, const float *pOrigin, edict_
 void goHookMessageEnd(void);
 
 void SetHooks(enginefuncs_t *pengfuncsFromEngine) {
-	printf("\n\n\nSetHooks\n\n\n");
-
 	memset(pengfuncsFromEngine, 0, sizeof(enginefuncs_t));
 
 	pengfuncsFromEngine->pfnMessageBegin = goHookMessageBegin;

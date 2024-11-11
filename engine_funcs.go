@@ -113,7 +113,6 @@ void engineWriteEntity(struct enginefuncs_s *t, int i) {
 
 */
 import "C"
-import "C"
 
 import (
 	"unsafe"
@@ -210,6 +209,6 @@ func (ef *EngineFuncs) MessageWriteString(s string) {
 	C.engineWriteString(ef.p, cs)
 }
 
-func (ef *EngineFuncs) MessageWriteEntity(e *Edict) {
-	C.engineWriteEntity(ef.p, C.int(e.SerialNumber()))
+func (ef *EngineFuncs) MessageWriteEntity(id int) {
+	C.engineWriteEntity(ef.p, C.int(id))
 }

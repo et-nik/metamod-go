@@ -42,12 +42,14 @@ var pluginInfo = &PluginInfo{
 }
 
 //export Meta_Attach
-func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void, pGamedllFuncs *C.void) C.int {
+func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_globals_t, pGamedllFuncs *C.void) C.int {
 	pFunctionTable.pfnGetEntityAPI2 = C.GETENTITYAPI2_FN(C.GetEntityAPI2)
 	pFunctionTable.pfnGetEntityAPI2_Post = C.GETENTITYAPI2_FN(C.GetEntityAPI2_Post)
 	pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.GetNewDLLFunctions)
 	pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.GetEngineFunctions)
 	pFunctionTable.pfnGetEngineFunctions_Post = C.GET_ENGINE_FUNCTIONS_FN(C.GetEngineFunctions_Post)
+
+	P.MetaGlobals = MetaGlobalsFromC(pMGlobals)
 
 	P.EngineFuncs.AddServerCommand("test", func(argc int, argv ...string) {
 		fmt.Println()
@@ -91,6 +93,7 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.void,
 		fmt.Println("=====================================")
 		fmt.Println("Entity info")
 		fmt.Println("Index:", entityIndex)
+		fmt.Println("SerialNumber:", edict.SerialNumber())
 		fmt.Println("Classname:", entVars.ClassName())
 		fmt.Println("Globalname:", entVars.GlobalName())
 		fmt.Println("Origin:", entVars.Origin())
@@ -125,25 +128,18 @@ func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFun
 		p: pMetaUtilFuncs,
 	}
 
-	//P.MetaUtilFuncs.LogConsole("Hello from Go!")
+	P.MetaUtilFuncs.LogDeveloper("Meta_Query called")
 
 	return 1
 }
 
 //export Meta_Detach
 func Meta_Detach(now C.int, reason C.int) C.int {
-	fmt.Println("=====================================")
-	fmt.Println("(Meta_Detach) Hi from Go!")
-	fmt.Println("=====================================")
-
 	return 1
 }
 
 //export Meta_Init
 func Meta_Init() {
-	fmt.Println("=====================================")
-	fmt.Println("(Meta_Init) Hi from Go!")
-	fmt.Println("=====================================")
 }
 
 //export GiveFnptrsToDll
@@ -178,7 +174,6 @@ func GetEngineFunctions(pengfuncsFromEngine *C.enginefuncs_t, interfaceVersion *
 	fmt.Println("(GetEngineFunctions) Hi from Go!")
 	fmt.Println("=====================================")
 
-	// int GetEngineFunctions (enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion)
 	C.SetHooks(pengfuncsFromEngine)
 
 	return 1
