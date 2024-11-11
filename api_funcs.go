@@ -128,6 +128,8 @@ func goClientUserInfoChangedPost(pEntity *C.edict_t, info *C.char) {
 //export goServerActivate
 func goServerActivate(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) {
 	P.MetaUtilFuncs.LogDeveloper("Called goServerActivate")
+
+	findFuncs()
 }
 
 //export goServerActivatePost

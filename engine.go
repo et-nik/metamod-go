@@ -4,6 +4,11 @@ package main
 const char* ReadString(globalvars_t *gpGlobals, int offset) {
 	return (const char *)(gpGlobals->pStringBase + (unsigned int)(offset));
 }
+
+int MakeString(globalvars_t *gpGlobals, char *str) {
+	return ((uint64)(str) - (uint64)(ReadString(gpGlobals, 0)));
+}
+
 */
 import "C"
 

@@ -2,7 +2,10 @@ package main
 
 import "C"
 
-var P = &Plugin{}
+var P = &Plugin{
+	EngineFuncs:   &EngineFuncs{},
+	MetaUtilFuncs: &MUtilFuncs{},
+}
 
 type Plugin struct {
 	Info          *PluginInfo

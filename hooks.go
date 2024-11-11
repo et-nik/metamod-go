@@ -12,5 +12,13 @@ void SetHooks(enginefuncs_t *pengfuncsFromEngine) {
 	pengfuncsFromEngine->pfnMessageBegin = goHookMessageBegin;
    	pengfuncsFromEngine->pfnMessageEnd = goHookMessageEnd;
 }
+
+//void **GetVTable(void *pthis, int size)
+//{
+//	return *((void***)(((char*)pthis)+size));
+//}
+
+
+
 */
 import "C"
