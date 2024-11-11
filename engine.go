@@ -1,6 +1,8 @@
 package main
 
 /*
+#include <eiface.h>
+
 const char* ReadString(globalvars_t *gpGlobals, int offset) {
 	return (const char *)(gpGlobals->pStringBase + (unsigned int)(offset));
 }
@@ -54,7 +56,7 @@ type Edict struct {
 	//V EntVars
 }
 
-func EdictFromC(globalVars *C.globalvars_t, e *C.edict_t) *Edict {
+func edictFromC(globalVars *C.globalvars_t, e *C.edict_t) *Edict {
 	if e == nil {
 		return nil
 	}
@@ -354,6 +356,10 @@ func (e *EntVars) GlobalName() string {
 }
 
 func (e *EntVars) Origin() [3]float32 {
+	if len(e.p.origin) == 0 {
+		return [3]float32{}
+	}
+
 	return [3]float32{
 		float32(e.p.origin[0]),
 		float32(e.p.origin[1]),
@@ -685,27 +691,27 @@ func (e *EntVars) Impulse() int {
 }
 
 func (e *EntVars) Chain() *Edict {
-	return EdictFromC(e.globalVars, e.p.chain)
+	return edictFromC(e.globalVars, e.p.chain)
 }
 
 func (e *EntVars) DmgInflictor() *Edict {
-	return EdictFromC(e.globalVars, e.p.dmg_inflictor)
+	return edictFromC(e.globalVars, e.p.dmg_inflictor)
 }
 
 func (e *EntVars) Enemy() *Edict {
-	return EdictFromC(e.globalVars, e.p.enemy)
+	return edictFromC(e.globalVars, e.p.enemy)
 }
 
 func (e *EntVars) AimEnt() *Edict {
-	return EdictFromC(e.globalVars, e.p.aiment)
+	return edictFromC(e.globalVars, e.p.aiment)
 }
 
 func (e *EntVars) Owner() *Edict {
-	return EdictFromC(e.globalVars, e.p.owner)
+	return edictFromC(e.globalVars, e.p.owner)
 }
 
 func (e *EntVars) GroundEntity() *Edict {
-	return EdictFromC(e.globalVars, e.p.groundentity)
+	return edictFromC(e.globalVars, e.p.groundentity)
 }
 
 func (e *EntVars) SpawnFlags() int {
@@ -809,7 +815,7 @@ func (e *EntVars) RadsuitFinished() float32 {
 }
 
 func (e *EntVars) PContainingEntity() *Edict {
-	return EdictFromC(e.globalVars, e.p.pContainingEntity)
+	return edictFromC(e.globalVars, e.p.pContainingEntity)
 }
 
 func (e *EntVars) PlayerClass() int {
@@ -933,17 +939,63 @@ func (e *EntVars) VUser4() [3]float32 {
 }
 
 func (e *EntVars) EUser1() *Edict {
-	return EdictFromC(e.globalVars, e.p.euser1)
+	return edictFromC(e.globalVars, e.p.euser1)
 }
 
 func (e *EntVars) EUser2() *Edict {
-	return EdictFromC(e.globalVars, e.p.euser2)
+	return edictFromC(e.globalVars, e.p.euser2)
 }
 
 func (e *EntVars) EUser3() *Edict {
-	return EdictFromC(e.globalVars, e.p.euser3)
+	return edictFromC(e.globalVars, e.p.euser3)
 }
 
 func (e *EntVars) EUser4() *Edict {
-	return EdictFromC(e.globalVars, e.p.euser4)
+	return edictFromC(e.globalVars, e.p.euser4)
+}
+
+type TraceResult struct {
+	AllSolid    bool       // if true, plane is not valid
+	StartSolid  bool       // if true, the initial point was in a solid area
+	InOpen      bool       // if true, the initial point was in empty space
+	InWater     bool       // if true, the initial point was underwater
+	Fraction    float32    // time completed, 1.0 = didn't hit anything
+	EndPos      [3]float32 // final position
+	PlaneDist   float32    // distance from the plane
+	PlaneNormal [3]float32 // surface normal at impact
+	Hit         *Edict     // entity the surface is on
+	HitGroup    int        // 0 == generic, non-zero is specific body part
+}
+
+func traceResultFromC(globalVars *C.globalvars_t, tr C.TraceResult) *TraceResult {
+	result := &TraceResult{
+		AllSolid:   tr.fAllSolid == 1,
+		StartSolid: tr.fStartSolid == 1,
+		InOpen:     tr.fInOpen == 1,
+		InWater:    tr.fInWater == 1,
+		Fraction:   float32(tr.flFraction),
+		PlaneDist:  float32(tr.flPlaneDist),
+	}
+
+	if len(tr.vecEndPos) == 3 {
+		result.EndPos = [3]float32{
+			float32(tr.vecEndPos[0]),
+			float32(tr.vecEndPos[1]),
+			float32(tr.vecEndPos[2]),
+		}
+	}
+
+	if len(tr.vecPlaneNormal) == 3 {
+		result.PlaneNormal = [3]float32{
+			float32(tr.vecPlaneNormal[0]),
+			float32(tr.vecPlaneNormal[1]),
+			float32(tr.vecPlaneNormal[2]),
+		}
+	}
+
+	if tr.pHit != nil {
+		result.Hit = edictFromC(globalVars, tr.pHit)
+	}
+
+	return result
 }

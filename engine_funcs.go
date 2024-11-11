@@ -720,7 +720,7 @@ func (ef *EngineFuncs) AddServerCommand(name string, callback func(int, ...strin
 func (ef *EngineFuncs) EntityOfEntIndex(index int) *Edict {
 	edict := C.engineFuncsEntityOfEntIndex(ef.p, C.int(index))
 
-	return EdictFromC(ef.globalVars.p, edict)
+	return edictFromC(ef.globalVars.p, edict)
 }
 
 func (ef *EngineFuncs) MessageBegin(
@@ -779,7 +779,7 @@ func (ef *EngineFuncs) MessageWriteEntity(id int) {
 
 func (ef *EngineFuncs) CreateEntity() *Edict {
 	e := C.engineFuncsCreateEntity(ef.p)
-	return EdictFromC(ef.globalVars.p, e)
+	return edictFromC(ef.globalVars.p, e)
 }
 
 func (ef *EngineFuncs) CreateNamedEntity(className string) *Edict {
@@ -789,9 +789,33 @@ func (ef *EngineFuncs) CreateNamedEntity(className string) *Edict {
 	engineString := C.engineFuncsAllocString(ef.p, cs)
 
 	e := C.engineFuncsCreateNamedEntity(ef.p, engineString)
-	return EdictFromC(ef.globalVars.p, e)
+	return edictFromC(ef.globalVars.p, e)
 }
 
 func (ef *EngineFuncs) RemoveEntity(e *Edict) {
 	C.engineFuncsRemoveEntity(ef.p, e.p)
+}
+
+func (ef *EngineFuncs) TraceLine(
+	v1, v2 [3]float32,
+	noMonsters int,
+	pentToSkip *Edict,
+) *TraceResult {
+	var tr C.TraceResult
+
+	var pent *C.edict_t
+	if pentToSkip != nil {
+		pent = pentToSkip.p
+	}
+
+	C.engineFuncsTraceLine(
+		ef.p,
+		(*C.float)(&v1[0]),
+		(*C.float)(&v2[0]),
+		C.int(noMonsters),
+		pent,
+		&tr,
+	)
+
+	return traceResultFromC(P.GlobalVars.p, tr)
 }

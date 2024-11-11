@@ -101,6 +101,53 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_
 		fmt.Println("Max Health:", entVars.MaxHealth())
 	})
 
+	P.EngineFuncs.AddServerCommand("traceplayers", func(argc int, argv ...string) {
+		if argc < 3 {
+			fmt.Println("Usage: traceplayers <player1> <player2>")
+			return
+		}
+
+		player1, err := strconv.Atoi(argv[1])
+		if err != nil {
+			fmt.Println("Invalid player index")
+			return
+		}
+
+		player2, err := strconv.Atoi(argv[2])
+		if err != nil {
+			fmt.Println("Invalid player index")
+			return
+		}
+
+		edict1 := P.EngineFuncs.EntityOfEntIndex(player1)
+		if edict1 == nil {
+			fmt.Println("Player 1 not found")
+			return
+		}
+
+		edict2 := P.EngineFuncs.EntityOfEntIndex(player2)
+		if edict2 == nil {
+			fmt.Println("Player 2 not found")
+			return
+		}
+
+		entVars1 := edict1.EntVars()
+		entVars2 := edict2.EntVars()
+
+		result := P.EngineFuncs.TraceLine(entVars1.Origin(), entVars2.Origin(), 0, nil)
+
+		fmt.Println()
+		fmt.Println("=====================================")
+		fmt.Println("Trace result")
+		fmt.Println("Player 1 Origin:", entVars1.Origin())
+		fmt.Println("Player 2 Origin:", entVars2.Origin())
+		fmt.Println("Start:", entVars1.Origin())
+		fmt.Println("End:", entVars2.Origin())
+		fmt.Println("Fraction:", result.Fraction)
+		fmt.Println("EndPos:", result.EndPos)
+		fmt.Println("PlaneDist:", result.PlaneDist)
+	})
+
 	P.EngineFuncs.AddServerCommand("test2", func(argc int, argv ...string) {
 		someVal := "someVal"
 		fmt.Println()

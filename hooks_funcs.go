@@ -15,7 +15,7 @@ func goHookMessageBegin(msgDest C.int, msgType C.int, pOrigin *C.float, pEdict *
 			*origin = float32(*pOrigin)
 		}
 
-		r := P.EngineHooks.MessageBegin(int(msgDest), int(msgType), origin, EdictFromC(P.GlobalVars.p, pEdict))
+		r := P.EngineHooks.MessageBegin(int(msgDest), int(msgType), origin, edictFromC(P.GlobalVars.p, pEdict))
 		P.MetaGlobals.SetMres(r.MetaRes)
 	}
 }
