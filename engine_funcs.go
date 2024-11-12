@@ -533,12 +533,12 @@ void engineFuncsPlaybackEvent(struct enginefuncs_s *t, int flags, const edict_t 
 	(*t->pfnPlaybackEvent)(flags, pInvoker, eventindex, delay, origin, angles, fparam1, fparam2, iparam1, iparam2, bparam1, bparam2);
 }
 
-unsigned char* engineFuncsSetFatPVS(struct enginefuncs_s *t, float *org) {
-	return (*t->pfnSetFatPVS)(org);
+unsigned char* engineFuncsSetFatPVS(struct enginefuncs_s *t, float *origin) {
+	return (*t->pfnSetFatPVS)(origin);
 }
 
-unsigned char* engineFuncsSetFatPAS(struct enginefuncs_s *t, float *org) {
-	return (*t->pfnSetFatPAS)(org);
+unsigned char* engineFuncsSetFatPAS(struct enginefuncs_s *t, float *origin) {
+	return (*t->pfnSetFatPAS)(origin);
 }
 
 int engineFuncsCheckVisibility(struct enginefuncs_s *t, const edict_t *entity, unsigned char *pset) {
@@ -1436,7 +1436,7 @@ func (ef *EngineFuncs) InfoRemoveKey(infobuffer, key string) {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 
-	C.engineFuncsInfoRemoveKey(ef.p, csInfoBuffer, csKey)
+	C.engineFuncsInfo_RemoveKey(ef.p, csInfoBuffer, csKey)
 }
 
 // GetPhysicsKeyValue Gets the value of a key in a physics keyvalue buffer.
@@ -1474,7 +1474,7 @@ func (ef *EngineFuncs) PrecacheEvent(eventType int, eventName string) int {
 
 // PlaybackEvent Plays an event.
 // flags - Event flags.
-// clientIndex - Client that triggered the event.
+// invoker - Client that triggered the event.
 // eventIndex - Event index. @see PrecacheEvent
 // delay - Delay before the event should be run.
 // origin - If not g_vecZero, this is the origin parameter sent to the clients.
@@ -1486,52 +1486,56 @@ func (ef *EngineFuncs) PrecacheEvent(eventType int, eventName string) int {
 // bparam1 - Boolean parameter 1.
 // bparam2 - Boolean parameter 2.
 func (ef *EngineFuncs) PlaybackEvent(
-	flags, clientIndex, eventIndex int,
+	flags int,
+	invoker *Edict,
+	eventIndex uint16,
 	delay float32,
 	origin, angles [3]float32,
 	fparam1, fparam2 float32,
 	iparam1, iparam2 int,
 	bparam1, bparam2 bool,
 ) {
+	bp1 := 0
+	if bparam1 {
+		bp1 = 1
+	}
+
+	bp2 := 0
+	if bparam2 {
+		bp2 = 1
+	}
+
 	C.engineFuncsPlaybackEvent(
 		ef.p,
 		C.int(flags),
-		C.int(clientIndex),
-		C.int(eventIndex),
+		invoker.p,
+		C.uint16(eventIndex),
 		C.float(delay),
 		(*C.float)(&origin[0]),
 		(*C.float)(&angles[0]),
-		C.int(fparam1),
-		C.int(fparam2),
+		C.float(fparam1),
+		C.float(fparam2),
 		C.int(iparam1),
 		C.int(iparam2),
-		C.int(bparam1),
-		C.int(bparam2),
+		C.int(bp1),
+		C.int(bp2),
 	)
 }
 
-// SetFatPVS Sets the PVS of an entity.
-func (ef *EngineFuncs) SetFatPVS(origin [3]float32, pvs []byte) {
+// SetFatPVS Adds the given origin to the current PVS.
+func (ef *EngineFuncs) SetFatPVS(origin [3]float32) {
 	C.engineFuncsSetFatPVS(
 		ef.p,
 		(*C.float)(&origin[0]),
-		(*C.byte)(&pvs[0]),
 	)
 }
 
-// SetFatPAS Sets the PAS of an entity.
-func (ef *EngineFuncs) SetFatPAS(origin [3]float32, pas []byte) {
+// SetFatPAS Adds the given origin to the current PAS.
+func (ef *EngineFuncs) SetFatPAS(origin [3]float32) {
 	C.engineFuncsSetFatPAS(
 		ef.p,
 		(*C.float)(&origin[0]),
-		(*C.byte)(&pas[0]),
 	)
-}
-
-// CheckVisibility Checks if an entity is visible from another entity.
-// Returns true if the entity is visible.
-func (ef *EngineFuncs) CheckVisibility(entity, client *Edict) bool {
-	return int(C.engineFuncsCheckVisibility(ef.p, entity.p, client.p)) == 1
 }
 
 // CvarDirectSet Directly sets a cvar value.
