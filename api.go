@@ -121,6 +121,5 @@ void SetDLLFunctionsPost(DLL_FUNCTIONS *pFunctionTable) {
 }
 
 
-
 */
 import "C"

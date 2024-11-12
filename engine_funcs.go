@@ -678,12 +678,16 @@ import (
 type EngineFuncs struct {
 	p          *C.enginefuncs_t
 	globalVars *GlobalVars
+
+	stringCache *inmemoryCache[string, int]
 }
 
 func NewEngineFuncs(p *C.enginefuncs_t, globalVars *GlobalVars) *EngineFuncs {
 	return &EngineFuncs{
 		p:          p,
 		globalVars: globalVars,
+
+		stringCache: newInmemoryCache[string, int](),
 	}
 }
 
@@ -786,14 +790,28 @@ func (ef *EngineFuncs) CreateNamedEntity(className string) *Edict {
 	cs := C.CString(className)
 	defer C.free(unsafe.Pointer(cs))
 
-	engineString := C.engineFuncsAllocString(ef.p, cs)
+	engineString := ef.AllocString(className)
 
-	e := C.engineFuncsCreateNamedEntity(ef.p, engineString)
+	e := C.engineFuncsCreateNamedEntity(ef.p, C.int(engineString))
 	return edictFromC(ef.globalVars.p, e)
 }
 
 func (ef *EngineFuncs) RemoveEntity(e *Edict) {
 	C.engineFuncsRemoveEntity(ef.p, e.p)
+}
+
+func (ef *EngineFuncs) AllocString(s string) int {
+	if v, ok := ef.stringCache.Get(s); ok {
+		return v
+	}
+
+	cs := C.CString(s)
+	defer C.free(unsafe.Pointer(cs))
+
+	alloc := int(C.engineFuncsAllocString(ef.p, cs))
+	ef.stringCache.Set(s, alloc)
+
+	return alloc
 }
 
 func (ef *EngineFuncs) TraceLine(
