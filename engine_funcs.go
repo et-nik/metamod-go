@@ -5,6 +5,7 @@ package main
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <com_model.h>
 
 #define MAX_SERVER_COMMAND_CALLBACKS 128
 #define SERVER_COMMAND_CALLBACKS_CATEGORY "server_commands"
@@ -168,8 +169,8 @@ void engineFuncsTraceModel(struct enginefuncs_s *t, const float *v1, const float
 	(*t->pfnTraceModel)(v1, v2, hullNumber, pent, ptr);
 }
 
-const char* engineFuncsTraceTexture(struct enginefuncs_s *t, edict_t *pent, const float *v1, const float *v2) {
-	return (*t->pfnTraceTexture)(pent, v1, v2);
+texture_t* engineFuncsTraceTexture(struct enginefuncs_s *t, edict_t *pent, const float *v1, const float *v2) {
+	return (texture_t*)(*t->pfnTraceTexture)(pent, v1, v2);
 }
 
 void engineFuncsGetAimVector(struct enginefuncs_s *t, edict_t *ent, float speed, float *rgflReturn) {
@@ -272,12 +273,12 @@ void engineFuncsEngineFprintf(struct enginefuncs_s *t, FILE *pfile, char *szFmt)
 	(*t->pfnEngineFprintf)(pfile, szFmt);
 }
 
-void engineFuncsPvAllocEntPrivateData(struct enginefuncs_s *t, edict_t *ent, int32 cb) {
-	(*t->pfnPvAllocEntPrivateData)(ent, cb);
+void* engineFuncsPvAllocEntPrivateData(struct enginefuncs_s *t, edict_t *ent, int32 cb) {
+	return (*t->pfnPvAllocEntPrivateData)(ent, cb);
 }
 
-void engineFuncsPvEntPrivateData(struct enginefuncs_s *t, edict_t *ent) {
-	(*t->pfnPvEntPrivateData)(ent);
+void* engineFuncsPvEntPrivateData(struct enginefuncs_s *t, edict_t *ent) {
+	return (*t->pfnPvEntPrivateData)(ent);
 }
 
 void engineFuncsFreeEntPrivateData(struct enginefuncs_s *t, edict_t *ent) {
@@ -416,8 +417,8 @@ void engineFuncsCrosshairAngle(struct enginefuncs_s *t, const edict_t *pClient, 
 	(*t->pfnCrosshairAngle)(pClient, pitch, yaw);
 }
 
-byte* engineFuncsLoadFileForMe(struct enginefuncs_s *t, const char *filename, int *pLength) {
-	return (*t->pfnLoadFileForMe)(filename, pLength);
+void* engineFuncsLoadFileForMe(struct enginefuncs_s *t, const char *filename, int *pLength) {
+	return (void*)(*t->pfnLoadFileForMe)(filename, pLength);
 }
 
 void engineFuncsFreeFile(struct enginefuncs_s *t, void *buffer) {
@@ -672,7 +673,13 @@ edict_t* engineFuncsPEntityOfEntIndexAllEntities(struct enginefuncs_s *t, int iE
 import "C"
 
 import (
+	"strings"
 	"unsafe"
+)
+
+const (
+	maxUserMsgName = 12
+	maxPath        = 260
 )
 
 type EngineFuncs struct {
@@ -721,6 +728,11 @@ func (ef *EngineFuncs) AddServerCommand(name string, callback func(int, ...strin
 	C.engineFuncsAddServerCommand(ef.p, cs, f)
 }
 
+// EntityOfEntIndex Gets the edict at the given entity index.
+// If the given index is not valid, returns null.
+//   - Otherwise, if the entity at the given index is not in use, returns null.
+//   - Otherwise, if the entity at the given index is equal or more than svs.maxclients and does not have a CBaseEntity instance, returns null.
+//   - Otherwise, returns the entity.
 func (ef *EngineFuncs) EntityOfEntIndex(index int) *Edict {
 	edict := C.engineFuncsEntityOfEntIndex(ef.p, C.int(index))
 
@@ -836,4 +848,722 @@ func (ef *EngineFuncs) TraceLine(
 	)
 
 	return traceResultFromC(P.GlobalVars.p, tr)
+}
+
+// TraceToss Traces a toss.
+// This simulates tossing the entity using its current origin, velocity, angular velocity, angles and gravity.
+// Note that this does not use the same code as MOVETYPE_TOSS, and may return different results.
+func (ef *EngineFuncs) TraceToss(pent, pentToIgnore *Edict) *TraceResult {
+	var tr C.TraceResult
+
+	var pentToIgnoreC *C.edict_t
+	if pentToIgnore != nil {
+		pentToIgnoreC = pentToIgnore.p
+	}
+
+	C.engineFuncsTraceToss(
+		ef.p,
+		pent.p,
+		pentToIgnoreC,
+		&tr,
+	)
+
+	return traceResultFromC(P.GlobalVars.p, tr)
+}
+
+// TraceMonsterHull Performs a trace between a starting and ending position, using the given entity's mins and maxs.
+// This can be any entity, not just monsters.
+// Returns true if the trace was entirely in a solid object, or if it hit something.
+func (ef *EngineFuncs) TraceMonsterHull(
+	pent *Edict,
+	v1, v2 [3]float32,
+	noMonsters int,
+	pentToSkip *Edict,
+) (*TraceResult, int) {
+	var tr C.TraceResult
+
+	var pentToSkipC *C.edict_t
+	if pentToSkip != nil {
+		pentToSkipC = pentToSkip.p
+	}
+
+	result := C.engineFuncsTraceMonsterHull(
+		ef.p,
+		pent.p,
+		(*C.float)(&v1[0]),
+		(*C.float)(&v2[0]),
+		C.int(noMonsters),
+		pentToSkipC,
+		&tr,
+	)
+
+	return traceResultFromC(P.GlobalVars.p, tr), int(result)
+}
+
+// TraceHull Performs a trace between a starting and ending position, using the given hull number.
+func (ef *EngineFuncs) TraceHull(
+	v1, v2 [3]float32,
+	noMonsters, hullNumber int,
+	pentToSkip *Edict,
+) *TraceResult {
+	var tr C.TraceResult
+
+	var pentToSkipC *C.edict_t
+	if pentToSkip != nil {
+		pentToSkipC = pentToSkip.p
+	}
+
+	C.engineFuncsTraceHull(
+		ef.p,
+		(*C.float)(&v1[0]),
+		(*C.float)(&v2[0]),
+		C.int(noMonsters),
+		C.int(hullNumber),
+		pentToSkipC,
+		&tr,
+	)
+
+	return traceResultFromC(P.GlobalVars.p, tr)
+}
+
+// TraceModel Performs a trace between a starting and ending position.
+// Similar to TraceHull, but will instead perform a trace in the given world hull using the given entity's model's hulls.
+// For studio models this will use the model's hitboxes.
+// If the given entity's model is a studio model, uses its hitboxes.
+// If it's a brush model, the brush model's hull for the given hull number is used (this may differ if custom brush hull sizes are in use).
+// Otherwise, the entity bounds are converted into a hull.
+func (ef *EngineFuncs) TraceModel(
+	v1, v2 [3]float32,
+	hullNumber int,
+	pent *Edict,
+) *TraceResult {
+	var tr C.TraceResult
+
+	C.engineFuncsTraceModel(
+		ef.p,
+		(*C.float)(&v1[0]),
+		(*C.float)(&v2[0]),
+		C.int(hullNumber),
+		pent.p,
+		&tr,
+	)
+
+	return traceResultFromC(P.GlobalVars.p, tr)
+}
+
+// TraceTexture Used to get texture info.
+// The given entity must have a brush model set.
+// If the traceline intersects the model, the texture of the surface it intersected is returned.
+func (ef *EngineFuncs) TraceTexture(
+	pent *Edict,
+	v1, v2 [3]float32,
+) *Texture {
+	texture := C.engineFuncsTraceTexture(
+		ef.p,
+		pent.p,
+		(*C.float)(&v1[0]),
+		(*C.float)(&v2[0]),
+	)
+
+	return textureFromC(texture)
+}
+
+func (ef *EngineFuncs) ServerCommand(str string) {
+	if str == "" {
+		return
+	}
+
+	if !strings.HasSuffix(str, "\n") || !strings.HasSuffix(str, ";") {
+		str += "\n"
+	}
+
+	cs := C.CString(str)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsServerCommand(ef.p, cs)
+}
+
+func (ef *EngineFuncs) ServerExecute() {
+	C.engineFuncsServerExecute(ef.p)
+}
+
+// ClientCommand Sends a command to the client.
+func (ef *EngineFuncs) ClientCommand(pEdict *Edict, format string) {
+	if pEdict == nil {
+		return
+	}
+
+	if format == "" {
+		return
+	}
+
+	cs := C.CString(format)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsClientCommand(ef.p, pEdict.p, cs)
+}
+
+// ParticleEffect Creates a particle effect.
+func (ef *EngineFuncs) ParticleEffect(
+	origin, direction [3]float32,
+	color, count float32,
+) {
+	C.engineFuncsParticleEffect(
+		ef.p,
+		(*C.float)(&origin[0]),
+		(*C.float)(&direction[0]),
+		C.float(color),
+		C.float(count),
+	)
+}
+
+// LightStyle Sets a light style.
+func (ef *EngineFuncs) LightStyle(style int, value string) {
+	cs := C.CString(value)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsLightStyle(ef.p, C.int(style), cs)
+}
+
+// DecalIndex Returns the index of a decal.
+func (ef *EngineFuncs) DecalIndex(name string) int {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	return int(C.engineFuncsDecalIndex(ef.p, cs))
+}
+
+// PointContents Gets the contents of the given location in the world.
+func (ef *EngineFuncs) PointContents(v [3]float32) int {
+	return int(C.engineFuncsPointContents(
+		ef.p,
+		(*C.float)(&v[0]),
+	))
+}
+
+// CVarRegister Registers a cvar.
+// Sets the flag FCVAR_EXTDLL on the cvar.
+func (ef *EngineFuncs) CVarRegister(cvar *Cvar) {
+	C.engineFuncsCVarRegister(ef.p, cvar.p)
+}
+
+// CVarGetString Gets the value of a cvar as a string.
+func (ef *EngineFuncs) CVarGetString(name string) string {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	return C.GoString(C.engineFuncsCVarGetString(ef.p, cs))
+}
+
+// CVarGetFloat Gets the value of a cvar as a float.
+func (ef *EngineFuncs) CVarGetFloat(name string) float32 {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	return float32(C.engineFuncsCVarGetFloat(ef.p, cs))
+}
+
+// CVarSetFloat Sets the value of a cvar as a float.
+func (ef *EngineFuncs) CVarSetFloat(name string, value float32) {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsCVarSetFloat(ef.p, cs, C.float(value))
+}
+
+// CVarSetString Sets the value of a cvar as a string.
+func (ef *EngineFuncs) CVarSetString(name, value string) {
+	csName := C.CString(name)
+	defer C.free(unsafe.Pointer(csName))
+
+	csValue := C.CString(value)
+	defer C.free(unsafe.Pointer(csValue))
+
+	C.engineFuncsCVarSetString(ef.p, csName, csValue)
+}
+
+// AlertMessage Sends a message to the server console.
+func (ef *EngineFuncs) AlertMessage(alertType AlertType, msg string) {
+	cs := C.CString(msg)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsAlertMessage(ef.p, C.ALERT_TYPE(alertType), cs)
+}
+
+// PvAllocEntPrivateData Allocates memory for CBaseEntity instances.
+// The memory is freed when the entity is removed.
+// It returns a pointer to the allocated memory.
+func (ef *EngineFuncs) PvAllocEntPrivateData(ent *Edict, size int32) unsafe.Pointer {
+	return C.engineFuncsPvAllocEntPrivateData(ef.p, ent.p, C.int32(size))
+}
+
+// PvEntPrivateData Gets the private data of an entity.
+func (ef *EngineFuncs) PvEntPrivateData(ent *Edict) unsafe.Pointer {
+	return C.engineFuncsPvEntPrivateData(ef.p, ent.p)
+}
+
+// FreeEntPrivateData Frees the private data of an entity.
+func (ef *EngineFuncs) FreeEntPrivateData(ent *Edict) {
+	C.engineFuncsFreeEntPrivateData(ef.p, ent.p)
+}
+
+// SzFromIndex Gets a string from an index.
+func (ef *EngineFuncs) SzFromIndex(index int) string {
+	return C.GoString(C.engineFuncsSzFromIndex(ef.p, C.int(index)))
+}
+
+// GetVarsOfEnt Gets the entvars_t of an entity.
+func (ef *EngineFuncs) GetVarsOfEnt(ent *Edict) *EntVars {
+	return entVarsFromC(ef.globalVars.p, C.engineFuncsGetVarsOfEnt(ef.p, ent.p))
+}
+
+// IndexOfEdict Gets the index of an entity.
+func (ef *EngineFuncs) IndexOfEdict(pEdict *Edict) int {
+	return int(C.engineFuncsIndexOfEdict(ef.p, pEdict.p))
+}
+
+// PEntityOfEntIndex Gets the edict at the given entity index.
+// If the given index is not valid, returns null.
+//   - Otherwise, if the entity at the given index is not in use, returns null.
+//   - Otherwise, if the entity at the given index is equal or more than svs.maxclients and does not have a CBaseEntity instance, returns null.
+//   - Otherwise, returns the entity.
+func (ef *EngineFuncs) PEntityOfEntIndex(index int) *Edict {
+	return ef.EntityOfEntIndex(index)
+}
+
+// FindEntityByVars Finds an entity by its vars.
+// This will enumerate all entities, so this operation can be very expensive.
+func (ef *EngineFuncs) FindEntityByVars(vars *EntVars) *Edict {
+	return edictFromC(ef.globalVars.p, C.engineFuncsFindEntityByVars(ef.p, vars.p))
+}
+
+// GetModelPtr Gets the model pointer of an entity.
+func (ef *EngineFuncs) GetModelPtr(pEdict *Edict) unsafe.Pointer {
+	return C.engineFuncsGetModelPtr(ef.p, pEdict.p)
+}
+
+// RegUserMsg Registers a user message.
+func (ef *EngineFuncs) RegUserMsg(name string, size int) int {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	return int(C.engineFuncsRegUserMsg(ef.p, cs, C.int(size)))
+}
+
+// FunctionFromName Gets the function ID from a name.
+func (ef *EngineFuncs) FunctionFromName(name string) uint32 {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	return uint32(C.engineFuncsFunctionFromName(ef.p, cs))
+}
+
+// NameForFunction Gets the name of a function.
+func (ef *EngineFuncs) NameForFunction(function uint32) string {
+	return C.GoString(C.engineFuncsNameForFunction(ef.p, C.uint32(function)))
+}
+
+// ClientPrintf Prints a message to a client.
+func (ef *EngineFuncs) ClientPrintf(pEdict *Edict, ptype PrintType, msg string) {
+	cs := C.CString(msg)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsClientPrintf(ef.p, pEdict.p, C.PRINT_TYPE(ptype), cs)
+}
+
+// ServerPrint Prints a message to the server console.
+func (ef *EngineFuncs) ServerPrint(msg string) {
+	cs := C.CString(msg)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsServerPrint(ef.p, cs)
+}
+
+func (ef *EngineFuncs) GetAttachment(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *[3]float32) {
+	C.engineFuncsGetAttachment(ef.p, pEdict.p, C.int(attachmentIndex), (*C.float)(&rgflOrigin[0]), (*C.float)(&rgflAngles[0]))
+}
+
+// RandomLong Generates a random long number between low and high.
+func (ef *EngineFuncs) RandomLong(low, high int32) int32 {
+	return int32(C.engineFuncsRandomLong(ef.p, C.int32(low), C.int32(high)))
+}
+
+func (ef *EngineFuncs) RandomFloat(low, high float32) float32 {
+	return float32(C.engineFuncsRandomFloat(ef.p, C.float(low), C.float(high)))
+}
+
+func (ef *EngineFuncs) SetView(pClient, pViewent *Edict) {
+	C.engineFuncsSetView(ef.p, pClient.p, pViewent.p)
+}
+
+func (ef *EngineFuncs) Time() float32 {
+	return float32(C.engineFuncsTime(ef.p))
+}
+
+// CrosshairAngle Sets the angles of the given player's crosshairs to the given settings.
+// Set both to 0 to disable.
+func (ef *EngineFuncs) CrosshairAngle(pClient *Edict, pitch, yaw float32) {
+	C.engineFuncsCrosshairAngle(ef.p, pClient.p, C.float(pitch), C.float(yaw))
+}
+
+// LoadFileForMe Loads a file from disk.
+// filename Name of the file. Path starts in the game directory.
+func (ef *EngineFuncs) LoadFileForMe(filename string) ([]byte, error) {
+	cs := C.CString(filename)
+	defer C.free(unsafe.Pointer(cs))
+
+	var length C.int
+	bufferPtr := C.engineFuncsLoadFileForMe(ef.p, cs, &length)
+	if bufferPtr == nil {
+		return nil, nil
+	}
+
+	defer C.engineFuncsFreeFile(ef.p, bufferPtr)
+
+	return C.GoBytes(bufferPtr, length), nil
+}
+
+func (ef *EngineFuncs) FreeFile(buffer []byte) {
+	C.engineFuncsFreeFile(ef.p, unsafe.Pointer(&buffer[0]))
+}
+
+func (ef *EngineFuncs) EndSection(pszSectionName string) {
+	cs := C.CString(pszSectionName)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsEndSection(ef.p, cs)
+}
+
+// GetGameDir Gets the game directory.
+func (ef *EngineFuncs) GetGameDir() string {
+	var szGetGameDir [maxPath]byte
+	C.engineFuncsGetGameDir(ef.p, (*C.char)(unsafe.Pointer(&szGetGameDir[0])))
+
+	return C.GoString((*C.char)(unsafe.Pointer(&szGetGameDir[0])))
+}
+
+// CVarRegisterVariable Registers a cvar.
+// Identical to CVarRegister, except it doesn't set the CvarExtdll flag.
+func (ef *EngineFuncs) CVarRegisterVariable(variable *Cvar) {
+	C.engineFuncsCvar_RegisterVariable(ef.p, variable.p)
+}
+
+// FadeClientVolume Fades the volume of a client.
+func (ef *EngineFuncs) FadeClientVolume(pEdict *Edict, fadePercent, fadeOutSeconds, holdTime, fadeInSeconds int) {
+	C.engineFuncsFadeClientVolume(ef.p, pEdict.p, C.int(fadePercent), C.int(fadeOutSeconds), C.int(holdTime), C.int(fadeInSeconds))
+}
+
+// SetClientMaxspeed Sets the max speed of a client.
+func (ef *EngineFuncs) SetClientMaxspeed(e *Edict, maxSpeed float32) {
+	C.engineFuncsSetClientMaxspeed(ef.p, e.p, C.float(maxSpeed))
+}
+
+// CreateFakeClient Creates a fake client.
+func (ef *EngineFuncs) CreateFakeClient(netname string) *Edict {
+	cs := C.CString(netname)
+	defer C.free(unsafe.Pointer(cs))
+
+	return edictFromC(ef.globalVars.p, C.engineFuncsCreateFakeClient(ef.p, cs))
+}
+
+// RunPlayerMove Runs player movement for a fake client.
+func (ef *EngineFuncs) RunPlayerMove(
+	fakeClient *Edict,
+	viewAngles [3]float32,
+	forwardMove, sideMove, upMove float32,
+	buttons uint16,
+	impulse uint16,
+	msec uint16,
+) {
+	C.engineFuncsRunPlayerMove(
+		ef.p,
+		fakeClient.p,
+		(*C.float)(&viewAngles[0]),
+		C.float(forwardMove),
+		C.float(sideMove),
+		C.float(upMove),
+		C.ushort(buttons),
+		C.byte(impulse),
+		C.byte(msec),
+	)
+}
+
+// NumberOfEntities Gets the number of entities.
+func (ef *EngineFuncs) NumberOfEntities() int {
+	return int(C.engineFuncsNumberOfEntities(ef.p))
+}
+
+// GetInfoKeyBuffer Gets the info key buffer of an entity.
+func (ef *EngineFuncs) GetInfoKeyBuffer(e *Edict) string {
+	return C.GoString(C.engineFuncsGetInfoKeyBuffer(ef.p, e.p))
+}
+
+// InfoKeyValue Gets the value of a key in an info buffer.
+func (ef *EngineFuncs) InfoKeyValue(infobuffer, key string) string {
+	csInfoBuffer := C.CString(infobuffer)
+	defer C.free(unsafe.Pointer(csInfoBuffer))
+
+	csKey := C.CString(key)
+	defer C.free(unsafe.Pointer(csKey))
+
+	return C.GoString(C.engineFuncsInfoKeyValue(ef.p, csInfoBuffer, csKey))
+}
+
+// SetKeyValue Sets the value of a key in an info buffer.
+func (ef *EngineFuncs) SetKeyValue(infobuffer, key, value string) {
+	csInfoBuffer := C.CString(infobuffer)
+	defer C.free(unsafe.Pointer(csInfoBuffer))
+
+	csKey := C.CString(key)
+	defer C.free(unsafe.Pointer(csKey))
+
+	csValue := C.CString(value)
+	defer C.free(unsafe.Pointer(csValue))
+
+	C.engineFuncsSetKeyValue(ef.p, csInfoBuffer, csKey, csValue)
+}
+
+// SetClientKeyValue Sets the value of a key in an info buffer for a client.
+func (ef *EngineFuncs) SetClientKeyValue(clientIndex int, infobuffer, key, value string) {
+	csInfoBuffer := C.CString(infobuffer)
+	defer C.free(unsafe.Pointer(csInfoBuffer))
+
+	csKey := C.CString(key)
+	defer C.free(unsafe.Pointer(csKey))
+
+	csValue := C.CString(value)
+	defer C.free(unsafe.Pointer(csValue))
+
+	C.engineFuncsSetClientKeyValue(ef.p, C.int(clientIndex), csInfoBuffer, csKey, csValue)
+}
+
+// IsMapValid Checks if a map is valid.
+func (ef *EngineFuncs) IsMapValid(filename string) int {
+	cs := C.CString(filename)
+	defer C.free(unsafe.Pointer(cs))
+
+	return int(C.engineFuncsIsMapValid(ef.p, cs))
+}
+
+// StaticDecal Creates a static decal.
+func (ef *EngineFuncs) StaticDecal(origin [3]float32, decalIndex, entityIndex, modelIndex int) {
+	C.engineFuncsStaticDecal(
+		ef.p,
+		(*C.float)(&origin[0]),
+		C.int(decalIndex),
+		C.int(entityIndex),
+		C.int(modelIndex),
+	)
+}
+
+// PrecacheGeneric Precaches a generic.
+// If this is called after ServerActivate, triggers a host error.
+func (ef *EngineFuncs) PrecacheGeneric(s string) int {
+	cs := C.CString(s)
+	defer C.free(unsafe.Pointer(cs))
+
+	return int(C.engineFuncsPrecacheGeneric(ef.p, cs))
+}
+
+// GetPlayerUserId Returns the server assigned userid for this player.
+func (ef *EngineFuncs) GetPlayerUserId(e *Edict) int {
+	return int(C.engineFuncsGetPlayerUserId(ef.p, e.p))
+}
+
+// BuildSoundMsg Builds a sound message.
+// entity 	- Entity that is playing the sound.
+// channel 	- Channel to play the sound on.
+// sample 	- Sound to play.
+// volume 	- Volume of the sound. Must be in the range [ 0, 1 ].
+// attenuation - Attenuation.
+// flags - Sound flags.
+// pitch - Pitch. Must be in the range [ 0, 255 ].
+// msgDest - Message type.
+// msgID - Message ID.
+// origin - Origin in the world to use for PAS and PVS messages.
+// ed - Client to send the message to for message types that target one client.
+func (ef *EngineFuncs) BuildSoundMsg(
+	entity *Edict,
+	channel int,
+	sample string,
+	volume, attenuation float32,
+	flags, pitch, msgType, msgID int,
+	origin [3]float32,
+	ed *Edict,
+) {
+	csSample := C.CString(sample)
+	defer C.free(unsafe.Pointer(csSample))
+
+	C.engineFuncsBuildSoundMsg(
+		ef.p,
+		entity.p,
+		C.int(channel),
+		csSample,
+		C.float(volume),
+		C.float(attenuation),
+		C.int(flags),
+		C.int(pitch),
+		C.int(msgType),
+		C.int(msgID),
+		(*C.float)(&origin[0]),
+		ed.p,
+	)
+}
+
+// IsDedicatedServer Checks if the server is dedicated.
+func (ef *EngineFuncs) IsDedicatedServer() bool {
+	return int(C.engineFuncsIsDedicatedServer(ef.p)) == 1
+}
+
+// CVarGetPointer Gets the pointer to a cvar.
+func (ef *EngineFuncs) CVarGetPointer(name string) *Cvar {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	return cvarFromC(C.engineFuncsCVarGetPointer(ef.p, cs))
+}
+
+// GetPlayerWONId Gets the WON ID of a player.
+func (ef *EngineFuncs) GetPlayerWONId(e *Edict) int {
+	return int(C.engineFuncsGetPlayerWONId(ef.p, e.p))
+}
+
+// InfoRemoveKey Removes a key from an info buffer.
+func (ef *EngineFuncs) InfoRemoveKey(infobuffer, key string) {
+	csInfoBuffer := C.CString(infobuffer)
+	defer C.free(unsafe.Pointer(csInfoBuffer))
+
+	csKey := C.CString(key)
+	defer C.free(unsafe.Pointer(csKey))
+
+	C.engineFuncsInfoRemoveKey(ef.p, csInfoBuffer, csKey)
+}
+
+// GetPhysicsKeyValue Gets the value of a key in a physics keyvalue buffer.
+func (ef *EngineFuncs) GetPhysicsKeyValue(client *Edict, key string) string {
+	csKey := C.CString(key)
+	defer C.free(unsafe.Pointer(csKey))
+
+	return C.GoString(C.engineFuncsGetPhysicsKeyValue(ef.p, client.p, csKey))
+}
+
+// SetPhysicsKeyValue Sets the value of a key in a physics keyvalue buffer.
+func (ef *EngineFuncs) SetPhysicsKeyValue(client *Edict, key, value string) {
+	csKey := C.CString(key)
+	defer C.free(unsafe.Pointer(csKey))
+
+	csValue := C.CString(value)
+	defer C.free(unsafe.Pointer(csValue))
+
+	C.engineFuncsSetPhysicsKeyValue(ef.p, client.p, csKey, csValue)
+}
+
+// GetPhysicsInfoString Gets the physics info string of an entity.
+func (ef *EngineFuncs) GetPhysicsInfoString(client *Edict) string {
+	return C.GoString(C.engineFuncsGetPhysicsInfoString(ef.p, client.p))
+}
+
+// PrecacheEvent Precaches an event.
+// It returns the event index.
+func (ef *EngineFuncs) PrecacheEvent(eventType int, eventName string) int {
+	csEventName := C.CString(eventName)
+	defer C.free(unsafe.Pointer(csEventName))
+
+	return int(C.engineFuncsPrecacheEvent(ef.p, C.int(eventType), csEventName))
+}
+
+// PlaybackEvent Plays an event.
+// flags - Event flags.
+// clientIndex - Client that triggered the event.
+// eventIndex - Event index. @see PrecacheEvent
+// delay - Delay before the event should be run.
+// origin - If not g_vecZero, this is the origin parameter sent to the clients.
+// angles - If not g_vecZero, this is the angles parameter sent to the clients.
+// fparam1 - Float parameter 1.
+// fparam2 - Float parameter 2.
+// iparam1 - Integer parameter 1.
+// iparam2 - Integer parameter 2.
+// bparam1 - Boolean parameter 1.
+// bparam2 - Boolean parameter 2.
+func (ef *EngineFuncs) PlaybackEvent(
+	flags, clientIndex, eventIndex int,
+	delay float32,
+	origin, angles [3]float32,
+	fparam1, fparam2 float32,
+	iparam1, iparam2 int,
+	bparam1, bparam2 bool,
+) {
+	C.engineFuncsPlaybackEvent(
+		ef.p,
+		C.int(flags),
+		C.int(clientIndex),
+		C.int(eventIndex),
+		C.float(delay),
+		(*C.float)(&origin[0]),
+		(*C.float)(&angles[0]),
+		C.int(fparam1),
+		C.int(fparam2),
+		C.int(iparam1),
+		C.int(iparam2),
+		C.int(bparam1),
+		C.int(bparam2),
+	)
+}
+
+// SetFatPVS Sets the PVS of an entity.
+func (ef *EngineFuncs) SetFatPVS(origin [3]float32, pvs []byte) {
+	C.engineFuncsSetFatPVS(
+		ef.p,
+		(*C.float)(&origin[0]),
+		(*C.byte)(&pvs[0]),
+	)
+}
+
+// SetFatPAS Sets the PAS of an entity.
+func (ef *EngineFuncs) SetFatPAS(origin [3]float32, pas []byte) {
+	C.engineFuncsSetFatPAS(
+		ef.p,
+		(*C.float)(&origin[0]),
+		(*C.byte)(&pas[0]),
+	)
+}
+
+// CheckVisibility Checks if an entity is visible from another entity.
+// Returns true if the entity is visible.
+func (ef *EngineFuncs) CheckVisibility(entity, client *Edict) bool {
+	return int(C.engineFuncsCheckVisibility(ef.p, entity.p, client.p)) == 1
+}
+
+// CvarDirectSet Directly sets a cvar value.
+func (ef *EngineFuncs) CvarDirectSet(cvar *Cvar, value string) {
+	csValue := C.CString(value)
+	defer C.free(unsafe.Pointer(csValue))
+
+	C.engineFuncsCvar_DirectSet(ef.p, cvar.p, csValue)
+}
+
+// GetPlayerStats Gets ping and packet loss of a player.
+func (ef *EngineFuncs) GetPlayerStats(client *Edict) (ping, packetLoss int) {
+	var cp, cl C.int
+	C.engineFuncsGetPlayerStats(ef.p, client.p, &cp, &cl)
+	return int(cp), int(cl)
+}
+
+// GetPlayerAuthId Gets the auth ID of a player.
+func (ef *EngineFuncs) GetPlayerAuthId(client *Edict) string {
+	return C.GoString(C.engineFuncsGetPlayerAuthId(ef.p, client.p))
+}
+
+func (ef *EngineFuncs) QueryClientCvarValue(player *Edict, cvarName string) {
+	cs := C.CString(cvarName)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsQueryClientCvarValue(ef.p, player.p, cs)
+}
+
+func (ef *EngineFuncs) QueryClientCvarValue2(player *Edict, cvarName string, requestID int) {
+	cs := C.CString(cvarName)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsQueryClientCvarValue2(ef.p, player.p, cs, C.int(requestID))
 }

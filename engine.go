@@ -2,6 +2,7 @@ package main
 
 /*
 #include <eiface.h>
+#include <com_model.h>
 
 const char* ReadString(globalvars_t *gpGlobals, int offset) {
 	return (const char *)(gpGlobals->pStringBase + (unsigned int)(offset));
@@ -16,6 +17,25 @@ import "C"
 
 const (
 	MaxEntLeafs = 48
+)
+
+type AlertType int
+
+const (
+	AlertTypeNotice    AlertType = iota
+	AlertTypeConsole             // same as at_notice, but forces a ConPrintf, not a message box
+	AlertTypeAIConsole           // same as at_console, but only shown if developer level is 2!
+	AlertTypeWarning
+	AlertTypeError
+	AlertTypeLogged // Server print to console ( only in multiplayer games ).
+)
+
+type PrintType int
+
+const (
+	PrintTypeConsole PrintType = iota
+	PrintTypeCenter
+	PrintTypeChat
 )
 
 type Link struct {
@@ -40,20 +60,6 @@ func (l *Link) ToCLinkT() *C.link_t {
 type Edict struct {
 	p          *C.edict_t
 	globalVars *C.globalvars_t
-
-	//Free         bool
-	//SerialNumber int
-	//Area         *Link
-	//
-	//HeadNode int
-	//NumLeafs int
-	//LeafNums [MaxEntLeafs]int16
-	//
-	//FreeTime float64
-	//
-	//PvPrivateData unsafe.Pointer
-	//
-	//V EntVars
 }
 
 func edictFromC(globalVars *C.globalvars_t, e *C.edict_t) *Edict {
@@ -78,7 +84,7 @@ func (e *Edict) SerialNumber() int {
 }
 
 func (e *Edict) EntVars() *EntVars {
-	return EntVarsFromC(e.globalVars, &e.p.v)
+	return entVarsFromC(e.globalVars, &e.p.v)
 }
 
 //func (e *Edict) ToCEdictT() *C.edict_t {
@@ -168,7 +174,7 @@ type EntVars struct {
 	globalVars *C.globalvars_t
 }
 
-func EntVarsFromC(globalVars *C.globalvars_t, ev *C.entvars_t) *EntVars {
+func entVarsFromC(globalVars *C.globalvars_t, ev *C.entvars_t) *EntVars {
 	if ev == nil {
 		return nil
 	}
@@ -1360,4 +1366,47 @@ func traceResultFromC(globalVars *C.globalvars_t, tr C.TraceResult) *TraceResult
 	}
 
 	return result
+}
+
+const (
+	mipLevels = 4
+)
+
+type Texture struct {
+	Name           string
+	Width          uint32
+	Height         uint32
+	AnimTotal      int
+	AnimMin        int
+	AnimMax        int
+	AnimNext       *Texture
+	AlternateAnims *Texture
+	Offsets        [mipLevels]uint32
+	PalOffset      uint32
+}
+
+func textureFromC(t *C.texture_t) *Texture {
+	texture := &Texture{
+		Name:      C.GoString(&t.name[0]),
+		Width:     uint32(t.width),
+		Height:    uint32(t.height),
+		AnimTotal: int(t.anim_total),
+		AnimMin:   int(t.anim_min),
+		AnimMax:   int(t.anim_max),
+		PalOffset: uint32(t.paloffset),
+	}
+
+	if t.anim_next != nil {
+		texture.AnimNext = textureFromC(t.anim_next)
+	}
+
+	if t.alternate_anims != nil {
+		texture.AlternateAnims = textureFromC(t.alternate_anims)
+	}
+
+	for i := 0; i < mipLevels; i++ {
+		texture.Offsets[i] = uint32(t.offsets[i])
+	}
+
+	return texture
 }
