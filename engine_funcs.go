@@ -826,6 +826,15 @@ func (ef *EngineFuncs) AllocString(s string) int {
 	return alloc
 }
 
+// SzFromIndex Gets a string from an index.
+func (ef *EngineFuncs) SzFromIndex(index int) string {
+	return C.GoString(C.engineFuncsSzFromIndex(ef.p, C.int(index)))
+}
+
+func (ef *EngineFuncs) StringFromIndex(index int) string {
+	return ef.SzFromIndex(index)
+}
+
 func (ef *EngineFuncs) TraceLine(
 	v1, v2 [3]float32,
 	noMonsters int,
@@ -1105,11 +1114,6 @@ func (ef *EngineFuncs) PvEntPrivateData(ent *Edict) unsafe.Pointer {
 // FreeEntPrivateData Frees the private data of an entity.
 func (ef *EngineFuncs) FreeEntPrivateData(ent *Edict) {
 	C.engineFuncsFreeEntPrivateData(ef.p, ent.p)
-}
-
-// SzFromIndex Gets a string from an index.
-func (ef *EngineFuncs) SzFromIndex(index int) string {
-	return C.GoString(C.engineFuncsSzFromIndex(ef.p, C.int(index)))
 }
 
 // GetVarsOfEnt Gets the entvars_t of an entity.

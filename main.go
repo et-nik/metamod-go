@@ -69,6 +69,33 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_
 		fmt.Println()
 	})
 
+	P.EngineFuncs.AddServerCommand("hook", func(argc int, argv ...string) {
+		if argc < 2 {
+			fmt.Println("Usage: hook <entityIndex>")
+			return
+		}
+
+		entityIndex, err := strconv.Atoi(argv[1])
+		if err != nil {
+			fmt.Println("Invalid entity index")
+			return
+		}
+
+		edict := P.EngineFuncs.EntityOfEntIndex(entityIndex)
+		if edict == nil {
+			fmt.Println("Entity not found")
+			return
+		}
+
+		fmt.Println()
+		fmt.Println("=====================================")
+		fmt.Println("Hooking entity...")
+
+		hookEntity(edict)
+		fmt.Println("Looks like it worked!")
+		fmt.Println("=====================================")
+	})
+
 	P.EngineFuncs.AddServerCommand("entinfo", func(argc int, argv ...string) {
 		if argc < 2 {
 			fmt.Println("Usage: entinfo <entityIndex>")
@@ -94,6 +121,7 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_
 		fmt.Println("Entity info")
 		fmt.Println("Index:", entityIndex)
 		fmt.Println("SerialNumber:", edict.SerialNumber())
+		fmt.Println("Netname:", edict.EntVars().NetName())
 		fmt.Println("Classname:", entVars.ClassName())
 		fmt.Println("Globalname:", entVars.GlobalName())
 		fmt.Println("Origin:", entVars.Origin())
