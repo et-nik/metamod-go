@@ -69,33 +69,6 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_
 		fmt.Println()
 	})
 
-	P.EngineFuncs.AddServerCommand("hook", func(argc int, argv ...string) {
-		if argc < 2 {
-			fmt.Println("Usage: hook <entityIndex>")
-			return
-		}
-
-		entityIndex, err := strconv.Atoi(argv[1])
-		if err != nil {
-			fmt.Println("Invalid entity index")
-			return
-		}
-
-		edict := P.EngineFuncs.EntityOfEntIndex(entityIndex)
-		if edict == nil {
-			fmt.Println("Entity not found")
-			return
-		}
-
-		fmt.Println()
-		fmt.Println("=====================================")
-		fmt.Println("Hooking entity...")
-
-		hookEntity(edict)
-		fmt.Println("Looks like it worked!")
-		fmt.Println("=====================================")
-	})
-
 	P.EngineFuncs.AddServerCommand("entinfo", func(argc int, argv ...string) {
 		if argc < 2 {
 			fmt.Println("Usage: entinfo <entityIndex>")
@@ -202,9 +175,7 @@ func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFun
 	setCGlobalPluginInfo(pluginInfo)
 
 	P.Info = pluginInfo
-	P.MetaUtilFuncs = &MUtilFuncs{
-		p: pMetaUtilFuncs,
-	}
+	P.MetaUtilFuncs = newMUtilFuncsFromC(pMetaUtilFuncs)
 
 	P.MetaUtilFuncs.LogDeveloper("Meta_Query called")
 

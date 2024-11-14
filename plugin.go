@@ -8,10 +8,12 @@ var P = &Plugin{
 }
 
 type Plugin struct {
-	Info          *PluginInfo
-	GlobalVars    *GlobalVars
+	Info *PluginInfo
+
+	GlobalVars  *GlobalVars
+	MetaGlobals *MetaGlobals
+
 	EngineFuncs   *EngineFuncs
-	MetaGlobals   *MetaGlobals
 	MetaUtilFuncs *MUtilFuncs
 
 	EngineHooks     *EngineHooks

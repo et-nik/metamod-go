@@ -8,7 +8,6 @@ import "C"
 //export goHookMessageBegin
 func goHookMessageBegin(msgDest C.int, msgType C.int, pOrigin *C.float, pEdict *C.edict_t) {
 	if P.EngineHooks != nil && P.EngineHooks.MessageBegin != nil {
-
 		var origin *float32
 		if pOrigin != nil {
 			*origin = float32(*pOrigin)

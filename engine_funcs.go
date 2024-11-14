@@ -129,7 +129,7 @@ void engineFuncsEntIsOnFloor(struct enginefuncs_s *t, edict_t *ent) {
 	(*t->pfnEntIsOnFloor)(ent);
 }
 
-void engineFuncsDropToFloor(struct enginefuncs_s *t, edict_t *ent) {
+int engineFuncsDropToFloor(struct enginefuncs_s *t, edict_t *ent) {
 	(*t->pfnDropToFloor)(ent);
 }
 

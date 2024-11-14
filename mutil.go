@@ -45,6 +45,10 @@ type MUtilFuncs struct {
 	p *C.mutil_funcs_t
 }
 
+func newMUtilFuncsFromC(p *C.mutil_funcs_t) *MUtilFuncs {
+	return &MUtilFuncs{p}
+}
+
 func (m *MUtilFuncs) LogConsole(msg string) {
 	if m.p == nil {
 		return

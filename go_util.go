@@ -8,7 +8,6 @@ import (
 
 //export callGoFunction
 func callGoFunction(f unsafe.Pointer, argc C.int, argv **C.char) {
-
 	gargc := int(argc)
 	gargv := make([]string, int(argc))
 
