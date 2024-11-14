@@ -125,16 +125,16 @@ void engineFuncsMakeStatic(struct enginefuncs_s *t, edict_t *ent) {
 	(*t->pfnMakeStatic)(ent);
 }
 
-void engineFuncsEntIsOnFloor(struct enginefuncs_s *t, edict_t *ent) {
-	(*t->pfnEntIsOnFloor)(ent);
+int engineFuncsEntIsOnFloor(struct enginefuncs_s *t, edict_t *ent) {
+	return (*t->pfnEntIsOnFloor)(ent);
 }
 
 int engineFuncsDropToFloor(struct enginefuncs_s *t, edict_t *ent) {
 	(*t->pfnDropToFloor)(ent);
 }
 
-void engineFuncsWalkMove(struct enginefuncs_s *t, edict_t *ent, float yaw, float dist, int iMode) {
-	(*t->pfnWalkMove)(ent, yaw, dist, iMode);
+int engineFuncsWalkMove(struct enginefuncs_s *t, edict_t *ent, float yaw, float dist, int iMode) {
+	return (*t->pfnWalkMove)(ent, yaw, dist, iMode);
 }
 
 void engineFuncsSetOrigin(struct enginefuncs_s *t, edict_t *e, const float *rgflOrigin) {
@@ -719,6 +719,142 @@ func (ef *EngineFuncs) SetModel(e *Edict, model string) {
 	C.engineFuncsSetModel(ef.p, e.p, cs)
 }
 
+func (ef *EngineFuncs) ModelIndex(name string) int {
+	cs := C.CString(name)
+	defer C.free(unsafe.Pointer(cs))
+
+	return int(C.engineFuncsModelIndex(ef.p, cs))
+}
+
+func (ef *EngineFuncs) ModelFrames(index int) int {
+	return int(C.engineFuncsModelFrames(ef.p, C.int(index)))
+}
+
+func (ef *EngineFuncs) SetSize(e *Edict, mins, maxs [3]float32) {
+	C.engineFuncsSetSize(
+		ef.p,
+		e.p,
+		(*C.float)(&mins[0]),
+		(*C.float)(&maxs[0]),
+	)
+}
+
+func (ef *EngineFuncs) ChangeLevel(levelName string, landmark string) {
+	csLevelName := C.CString(levelName)
+	defer C.free(unsafe.Pointer(csLevelName))
+
+	var csLandmark *C.char
+	if landmark != "" {
+		csLandmark = C.CString(landmark)
+		defer C.free(unsafe.Pointer(csLandmark))
+	}
+
+	C.engineFuncsChangeLevel(ef.p, csLevelName, csLandmark)
+}
+
+func (ef *EngineFuncs) VecToYaw(vec [3]float32) float32 {
+	return float32(C.engineFuncsVecToYaw(ef.p, (*C.float)(&vec[0])))
+}
+
+func (ef *EngineFuncs) VecToAngles(vec [3]float32) [3]float32 {
+	var angles [3]float32
+	C.engineFuncsVecToAngles(ef.p, (*C.float)(&vec[0]), (*C.float)(&angles[0]))
+
+	return angles
+}
+
+func (ef *EngineFuncs) MoveToOrigin(e *Edict, goal [3]float32, dist float32, moveType MoveType) {
+	C.engineFuncsMoveToOrigin(
+		ef.p,
+		e.p,
+		(*C.float)(&goal[0]),
+		C.float(dist),
+		C.int(int(moveType)),
+	)
+}
+
+func (ef *EngineFuncs) ChangeYaw(e *Edict) {
+	C.engineFuncsChangeYaw(ef.p, e.p)
+}
+
+func (ef *EngineFuncs) ChangePitch(e *Edict) {
+	C.engineFuncsChangePitch(ef.p, e.p)
+}
+
+func (ef *EngineFuncs) FindEntityByString(start *Edict, field FindEntityField, value string) *Edict {
+	csField := C.CString(string(field))
+	defer C.free(unsafe.Pointer(csField))
+
+	csValue := C.CString(value)
+	defer C.free(unsafe.Pointer(csValue))
+
+	e := C.engineFuncsFindEntityByString(ef.p, start.p, csField, csValue)
+
+	return edictFromC(ef.globalVars.p, e)
+}
+
+func (ef *EngineFuncs) GetEntityIllum(e *Edict) int {
+	return int(C.engineFuncsGetEntityIllum(ef.p, e.p))
+}
+
+func (ef *EngineFuncs) FindEntityInSphere(start *Edict, origin [3]float32, radius float32) *Edict {
+	e := C.engineFuncsFindEntityInSphere(
+		ef.p,
+		start.p,
+		(*C.float)(&origin[0]),
+		C.float(radius),
+	)
+
+	return edictFromC(ef.globalVars.p, e)
+}
+
+// FindClientInPVS Finds a client in the Potentially Visible Set of the given entity.
+func (ef *EngineFuncs) FindClientInPVS(e *Edict) *Edict {
+	edict := C.engineFuncsFindClientInPVS(ef.p, e.p)
+
+	return edictFromC(ef.globalVars.p, edict)
+}
+
+func (ef *EngineFuncs) EntitiesInPVS(e *Edict) *Edict {
+	edict := C.engineFuncsEntitiesInPVS(ef.p, e.p)
+
+	return edictFromC(ef.globalVars.p, edict)
+}
+
+func (ef *EngineFuncs) MakeVectors(angles [3]float32) {
+	C.engineFuncsMakeVectors(ef.p, (*C.float)(&angles[0]))
+}
+
+func (ef *EngineFuncs) AngleVectors(vector [3]float32, forward, right, up [3]float32) {
+	C.engineFuncsAngleVectors(
+		ef.p,
+		(*C.float)(&vector[0]),
+		(*C.float)(&forward[0]),
+		(*C.float)(&right[0]),
+		(*C.float)(&up[0]),
+	)
+}
+
+func (ef *EngineFuncs) MakeStatic(e *Edict) {
+	C.engineFuncsMakeStatic(ef.p, e.p)
+}
+
+func (ef *EngineFuncs) EntIsOnFloor(e *Edict) bool {
+	return int(C.engineFuncsEntIsOnFloor(ef.p, e.p)) == 1
+}
+
+func (ef *EngineFuncs) DropToFloor(e *Edict) int {
+	return int(C.engineFuncsDropToFloor(ef.p, e.p))
+}
+
+func (ef *EngineFuncs) WalkMove(e *Edict, yaw float32, dist float32, mode WalkMoveMode) int {
+	return int(C.engineFuncsWalkMove(ef.p, e.p, C.float(yaw), C.float(dist), C.int(mode)))
+}
+
+// --
+
+// --
+
 func (ef *EngineFuncs) AddServerCommand(name string, callback func(int, ...string)) {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
@@ -795,6 +931,7 @@ func (ef *EngineFuncs) MessageWriteEntity(id int) {
 
 func (ef *EngineFuncs) CreateEntity() *Edict {
 	e := C.engineFuncsCreateEntity(ef.p)
+
 	return edictFromC(ef.globalVars.p, e)
 }
 
@@ -805,6 +942,7 @@ func (ef *EngineFuncs) CreateNamedEntity(className string) *Edict {
 	engineString := ef.AllocString(className)
 
 	e := C.engineFuncsCreateNamedEntity(ef.p, C.int(engineString))
+
 	return edictFromC(ef.globalVars.p, e)
 }
 

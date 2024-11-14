@@ -22,29 +22,6 @@ int MakeString(globalvars_t *gpGlobals, char *str) {
 */
 import "C"
 
-const (
-	MaxEntLeafs = 48
-)
-
-type AlertType int
-
-const (
-	AlertTypeNotice    AlertType = iota
-	AlertTypeConsole             // same as at_notice, but forces a ConPrintf, not a message box
-	AlertTypeAIConsole           // same as at_console, but only shown if developer level is 2!
-	AlertTypeWarning
-	AlertTypeError
-	AlertTypeLogged // Server print to console ( only in multiplayer games ).
-)
-
-type PrintType int
-
-const (
-	PrintTypeConsole PrintType = iota
-	PrintTypeCenter
-	PrintTypeChat
-)
-
 type Link struct {
 	Next *Link
 	Prev *Link
@@ -93,32 +70,6 @@ func (e *Edict) SerialNumber() int {
 func (e *Edict) EntVars() *EntVars {
 	return entVarsFromC(e.globalVars, &e.p.v)
 }
-
-//func (e *Edict) ToCEdictT() *C.edict_t {
-//	free := 0
-//	if e.Free {
-//		free = 1
-//	}
-//
-//	leafNums := [MaxEntLeafs]C.short{}
-//	for i, leafNum := range e.LeafNums {
-//		leafNums[i] = C.short(leafNum)
-//	}
-//
-//	return &C.edict_t{
-//		free:         C.qboolean(C.int(free)),
-//		serialnumber: C.int(e.SerialNumber),
-//		area:         *e.Area.ToCLinkT(),
-//
-//		headnode:  C.int(e.HeadNode),
-//		num_leafs: C.int(e.NumLeafs),
-//		leafnums:  leafNums,
-//
-//		freetime:      C.float(e.FreeTime),
-//		pvPrivateData: e.PvPrivateData,
-//		//v:             *e.V.ToCEntVarsT(),
-//	}
-//}
 
 type GlobalVars struct {
 	p *C.globalvars_t
@@ -2358,10 +2309,6 @@ func traceResultFromC(globalVars *C.globalvars_t, tr C.TraceResult) *TraceResult
 
 	return result
 }
-
-const (
-	mipLevels = 4
-)
 
 type Texture struct {
 	Name           string
