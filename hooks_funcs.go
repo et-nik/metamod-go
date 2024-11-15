@@ -4,6 +4,8 @@ package main
 #include <eiface.h>
 
 extern vec3_t* castPtrToVec3(float *ptr);
+extern void setVec3FloatPtr(float x, float y, float z, float* ptr);
+
 */
 import "C"
 import "unsafe"
@@ -642,21 +644,17 @@ func goHookTraceTexture(pTextureEntity *C.edict_t, v1, v2 *C.float) *C.char {
 }
 
 //export goHookGetAimVector
-func goHookGetAimVector(pent *C.edict_t, speed C.float, ptr *C.float) C.int {
+func goHookGetAimVector(pent *C.edict_t, speed C.float, ptr *C.float) {
 	if P.EngineHooks != nil && P.EngineHooks.GetAimVector != nil {
 		metaResult, result := P.EngineHooks.GetAimVector(edictFromC(P.GlobalVars.p, pent), float32(speed))
 		P.MetaGlobals.SetMres(metaResult.MetaRes)
 
-		*ptr = C.float(result[0])
-		*(ptr + 1) = C.float(result[1])
-		*(ptr + 2) = C.float(result[2])
+		C.setVec3FloatPtr(C.float(result[0]), C.float(result[1]), C.float(result[2]), ptr)
 
-		return 0
+		return
 	}
 
 	P.MetaGlobals.SetMres(MetaResIgnored)
-
-	return 0
 }
 
 //export goHookServerCommand
@@ -695,10 +693,592 @@ func goHookClientCommand(pEdict *C.edict_t, format *C.char) {
 	P.MetaGlobals.SetMres(MetaResIgnored)
 }
 
-////export goHookAddServerCommand
-//func goHookAddServerCommand(s *C.char, f unsafe.Pointer) {
-//	if P.EngineHooks != nil && P.EngineHooks.AddServerCommand != nil {
-//		r := P.EngineHooks.AddServerCommand(C.GoString(s), f)
+//export goHookAddServerCommand
+func goHookAddServerCommand(s *C.char, f unsafe.Pointer) {
+	if P.EngineHooks != nil && P.EngineHooks.AddServerCommand != nil {
+		r := P.EngineHooks.AddServerCommand(C.GoString(s), f)
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookParticleEffect
+func goHookParticleEffect(origin, direction *C.float, color, count C.float) {
+	if P.EngineHooks != nil && P.EngineHooks.ParticleEffect != nil {
+		originVec := C.castPtrToVec3(origin)
+		directionVec := C.castPtrToVec3(direction)
+
+		r := P.EngineHooks.ParticleEffect(
+			[3]float32{float32(originVec[0]), float32(originVec[1]), float32(originVec[2])},
+			[3]float32{float32(directionVec[0]), float32(directionVec[1]), float32(directionVec[2])},
+			float32(color),
+			float32(count),
+		)
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookLightStyle
+func goHookLightStyle(style C.int, value *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.LightStyle != nil {
+		r := P.EngineHooks.LightStyle(int(style), C.GoString(value))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookDecalIndex
+func goHookDecalIndex(s *C.char) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.DecalIndex != nil {
+		metaResult, result := P.EngineHooks.DecalIndex(C.GoString(s))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookPointContents
+func goHookPointContents(v *C.float) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.PointContents != nil {
+		vVec := C.castPtrToVec3(v)
+
+		metaResult, result := P.EngineHooks.PointContents([3]float32{float32(vVec[0]), float32(vVec[1]), float32(vVec[2])})
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookMessageBegin
+func goHookMessageBegin(msgDest C.int, msgType C.int, pOrigin *C.float, pEdict *C.edict_t) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageBegin != nil {
+		var origin *float32
+		if pOrigin != nil {
+			*origin = float32(*pOrigin)
+		}
+
+		r := P.EngineHooks.MessageBegin(int(msgDest), int(msgType), origin, edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(r.MetaRes)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageEnd
+func goHookMessageEnd() {
+	if P.EngineHooks != nil && P.EngineHooks.MessageEnd != nil {
+		r := P.EngineHooks.MessageEnd()
+		P.MetaGlobals.SetMres(r.MetaRes)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteByte
+func goHookMessageWriteByte(b C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteByte != nil {
+		r := P.EngineHooks.MessageWriteByte(int(b))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteChar
+func goHookMessageWriteChar(c C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteChar != nil {
+		r := P.EngineHooks.MessageWriteChar(int(c))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteShort
+func goHookMessageWriteShort(s C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteShort != nil {
+		r := P.EngineHooks.MessageWriteShort(int(s))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteLong
+func goHookMessageWriteLong(l C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteLong != nil {
+		r := P.EngineHooks.MessageWriteLong(int(l))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteAngle
+func goHookMessageWriteAngle(f C.float) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteAngle != nil {
+		r := P.EngineHooks.MessageWriteAngle(float32(f))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteCoord
+func goHookMessageWriteCoord(f C.float) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteCoord != nil {
+		r := P.EngineHooks.MessageWriteCoord(float32(f))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteString
+func goHookMessageWriteString(s *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteString != nil {
+		r := P.EngineHooks.MessageWriteString(C.GoString(s))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookMessageWriteEntity
+func goHookMessageWriteEntity(id C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.MessageWriteEntity != nil {
+		r := P.EngineHooks.MessageWriteEntity(int(id))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookCVarRegister
+func goHookCVarRegister(cvar *C.cvar_t) {
+	if P.EngineHooks != nil && P.EngineHooks.CVarRegister != nil {
+		metaResult := P.EngineHooks.CVarRegister(cvarFromC(cvar))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookCVarGetString
+func goHookCVarGetString(s *C.char) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.CVarGetString != nil {
+		metaResult, result := P.EngineHooks.CVarGetString(C.GoString(s))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookCVarGetFloat
+func goHookCVarGetFloat(s *C.char) C.float {
+	if P.EngineHooks != nil && P.EngineHooks.CVarGetFloat != nil {
+		metaResult, result := P.EngineHooks.CVarGetFloat(C.GoString(s))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.float(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookCVarSetFloat
+func goHookCVarSetFloat(s *C.char, value C.float) {
+	if P.EngineHooks != nil && P.EngineHooks.CVarSetFloat != nil {
+		r := P.EngineHooks.CVarSetFloat(C.GoString(s), float32(value))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookCVarSetString
+func goHookCVarSetString(s, value *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.CVarSetString != nil {
+		r := P.EngineHooks.CVarSetString(C.GoString(s), C.GoString(value))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookAlertMessage
+func goHookAlertMessage(level C.ALERT_TYPE, format *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.AlertMessage != nil {
+		r := P.EngineHooks.AlertMessage(AlertType(level), C.GoString(format))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookPvAllocEntPrivateData
+func goHookPvAllocEntPrivateData(pEdict *C.edict_t, cb C.int32) unsafe.Pointer {
+	if P.EngineHooks != nil && P.EngineHooks.PvAllocEntPrivateData != nil {
+		metaResult, result := P.EngineHooks.PvAllocEntPrivateData(edictFromC(P.GlobalVars.p, pEdict), int32(cb))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return result
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookPvEntPrivateData
+func goHookPvEntPrivateData(pEdict *C.edict_t) unsafe.Pointer {
+	if P.EngineHooks != nil && P.EngineHooks.PvEntPrivateData != nil {
+		metaResult, result := P.EngineHooks.PvEntPrivateData(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return result
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookFreeEntPrivateData
+func goHookFreeEntPrivateData(pEdict *C.edict_t) {
+	if P.EngineHooks != nil && P.EngineHooks.FreeEntPrivateData != nil {
+		r := P.EngineHooks.FreeEntPrivateData(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookGetVarsOfEnt
+func goHookGetVarsOfEnt(pEdict *C.edict_t) *C.entvars_t {
+	if P.EngineHooks != nil && P.EngineHooks.GetVarsOfEnt != nil {
+		metaResult, result := P.EngineHooks.GetVarsOfEnt(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return result.p
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookIndexOfEdict
+func goHookIndexOfEdict(pEdict *C.edict_t) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.IndexOfEdict != nil {
+		metaResult, result := P.EngineHooks.IndexOfEdict(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookPEntityOfEntIndex
+func goHookPEntityOfEntIndex(index C.int) *C.edict_t {
+	if P.EngineHooks != nil && P.EngineHooks.PEntityOfEntIndex != nil {
+		metaResult, result := P.EngineHooks.PEntityOfEntIndex(int(index))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return result.p
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookFindEntityByVars
+func goHookFindEntityByVars(vars *C.entvars_t) *C.edict_t {
+	if P.EngineHooks != nil && P.EngineHooks.FindEntityByVars != nil {
+		metaResult, result := P.EngineHooks.FindEntityByVars(entVarsFromC(P.GlobalVars.p, vars))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return result.p
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookGetModelPtr
+func goHookGetModelPtr(pEdict *C.edict_t) *C.void {
+	if P.EngineHooks != nil && P.EngineHooks.GetModelPtr != nil {
+		metaResult, result := P.EngineHooks.GetModelPtr(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return (*C.void)(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookRegUserMsg
+func goHookRegUserMsg(name *C.char, size C.int) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.RegUserMsg != nil {
+		metaResult, result := P.EngineHooks.RegUserMsg(C.GoString(name), int(size))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookFunctionFromName
+func goHookFunctionFromName(name *C.char) C.uint32 {
+	if P.EngineHooks != nil && P.EngineHooks.FunctionFromName != nil {
+		metaResult, result := P.EngineHooks.FunctionFromName(C.GoString(name))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.uint32(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookNameForFunction
+func goHookNameForFunction(function C.uint32) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.NameForFunction != nil {
+		metaResult, result := P.EngineHooks.NameForFunction(uint32(function))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookClientPrint
+func goHookClientPrint(pEdict *C.edict_t, level C.PRINT_TYPE, msg *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.ClientPrint != nil {
+		metaResult := P.EngineHooks.ClientPrint(edictFromC(P.GlobalVars.p, pEdict), PrintType(level), C.GoString(msg))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookServerPrint
+func goHookServerPrint(msg *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.ServerPrint != nil {
+		metaResult := P.EngineHooks.ServerPrint(C.GoString(msg))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookGetAttachment
+func goHookGetAttachment(pEdict *C.edict_t, attachment C.int, origin, angles *C.float) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.GetAttachment != nil {
+
+		gorigin := [3]float32{}
+		gangles := [3]float32{}
+
+		metaResult := P.EngineHooks.GetAttachment(
+			edictFromC(P.GlobalVars.p, pEdict),
+			int(attachment),
+			&gorigin,
+			&gangles,
+		)
+
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		C.setVec3FloatPtr(C.float(gorigin[0]), C.float(gorigin[1]), C.float(gorigin[2]), origin)
+		C.setVec3FloatPtr(C.float(gangles[0]), C.float(gangles[1]), C.float(gangles[2]), angles)
+
+		return 0
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookRandomLong
+func goHookRandomLong(low, high C.int) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.RandomLong != nil {
+		metaResult, result := P.EngineHooks.RandomLong(int32(low), int32(high))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookRandomFloat
+func goHookRandomFloat(low, high C.float) C.float {
+	if P.EngineHooks != nil && P.EngineHooks.RandomFloat != nil {
+		metaResult, result := P.EngineHooks.RandomFloat(float32(low), float32(high))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.float(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookSetView
+func goHookSetView(pClient, pEdict *C.edict_t) {
+	if P.EngineHooks != nil && P.EngineHooks.SetView != nil {
+		r := P.EngineHooks.SetView(edictFromC(P.GlobalVars.p, pClient), edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookTime
+func goHookTime() C.float {
+	if P.EngineHooks != nil && P.EngineHooks.Time != nil {
+		metaResult, result := P.EngineHooks.Time()
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.float(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookCrosshairAngle
+func goHookCrosshairAngle(pClient *C.edict_t, pitch, yaw C.float) {
+	if P.EngineHooks != nil && P.EngineHooks.CrosshairAngle != nil {
+		r := P.EngineHooks.CrosshairAngle(edictFromC(P.GlobalVars.p, pClient), float32(pitch), float32(yaw))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookLoadFileForMe
+func goHookLoadFileForMe(name *C.char, _ *C.int) *C.byte {
+	if P.EngineHooks != nil && P.EngineHooks.LoadFileForMe != nil {
+		metaResult, result, err := P.EngineHooks.LoadFileForMe(C.GoString(name))
+		if err != nil {
+			return nil
+		}
+
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return (*C.byte)(unsafe.Pointer(&result[0]))
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookFreeFile
+//func goHookFreeFile(buffer *C.byte) {
+//	if P.EngineHooks != nil && P.EngineHooks.FreeFile != nil {
+//		r := P.EngineHooks.FreeFile(buffer)
 //		P.MetaGlobals.SetMres(r.MetaRes)
 //
 //		return
@@ -706,28 +1286,522 @@ func goHookClientCommand(pEdict *C.edict_t, format *C.char) {
 //
 //	P.MetaGlobals.SetMres(MetaResIgnored)
 //}
+
+//export goHookGetGameDir
+func goHookGetGameDir() *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.GetGameDir != nil {
+		metaResult, result := P.EngineHooks.GetGameDir()
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookCvar_RegisterVariable
+func goHookCvar_RegisterVariable(cvar *C.cvar_t) {
+	if P.EngineHooks != nil && P.EngineHooks.CVarRegisterVariable != nil {
+		metaResult := P.EngineHooks.CVarRegisterVariable(cvarFromC(cvar))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookFadeClientVolume
+func goHookFadeClientVolume(pEdict *C.edict_t, fadePercent, fadeOutSeconds, holdTime, fadeInSeconds C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.FadeClientVolume != nil {
+		r := P.EngineHooks.FadeClientVolume(
+			edictFromC(P.GlobalVars.p, pEdict),
+			int(fadePercent),
+			int(fadeOutSeconds),
+			int(holdTime),
+			int(fadeInSeconds),
+		)
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookSetClientMaxspeed
+func goHookSetClientMaxspeed(pEdict *C.edict_t, speed C.float) {
+	if P.EngineHooks != nil && P.EngineHooks.SetClientMaxspeed != nil {
+		r := P.EngineHooks.SetClientMaxspeed(edictFromC(P.GlobalVars.p, pEdict), float32(speed))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookCreateFakeClient
+func goHookCreateFakeClient(name *C.char) *C.edict_t {
+	if P.EngineHooks != nil && P.EngineHooks.CreateFakeClient != nil {
+		metaResult, result := P.EngineHooks.CreateFakeClient(C.GoString(name))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result.p != nil {
+			return result.p
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookRunPlayerMove
+func goHookRunPlayerMove(pEdict *C.edict_t, viewangles, forwardmove, sidemove, upmove *C.float, buttons C.ushort, impulse, msec C.byte) {
+	if P.EngineHooks != nil && P.EngineHooks.RunPlayerMove != nil {
+		v := C.castPtrToVec3(viewangles)
+
+		r := P.EngineHooks.RunPlayerMove(
+			edictFromC(P.GlobalVars.p, pEdict),
+			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			float32(*forwardmove),
+			float32(*sidemove),
+			float32(*upmove),
+			uint16(buttons),
+			uint16(impulse),
+			uint16(msec),
+		)
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookNumberOfEntities
+func goHookNumberOfEntities() C.int {
+	if P.EngineHooks != nil && P.EngineHooks.NumberOfEntities != nil {
+		metaResult, result := P.EngineHooks.NumberOfEntities()
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookGetInfoKeyBuffer
+func goHookGetInfoKeyBuffer(pEdict *C.edict_t) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.GetInfoKeyBuffer != nil {
+		metaResult, result := P.EngineHooks.GetInfoKeyBuffer(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return (*C.char)(unsafe.Pointer(&result[0]))
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookInfoKeyValue
+func goHookInfoKeyValue(info, key *C.char) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.InfoKeyValue != nil {
+		metaResult, result := P.EngineHooks.InfoKeyValue([]byte(C.GoString(info)), C.GoString(key))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookSetKeyValue
+func goHookSetKeyValue(info, key, value *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.SetKeyValue != nil {
+		r := P.EngineHooks.SetKeyValue([]byte(C.GoString(info)), C.GoString(key), C.GoString(value))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookSetClientKeyValue
+func goHookSetClientKeyValue(clientIndex C.int, key, value *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.SetClientKeyValue != nil {
+		r := P.EngineHooks.SetClientKeyValue(int(clientIndex), C.GoString(key), C.GoString(value))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookIsMapValid
+func goHookIsMapValid(mapName *C.char) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.IsMapValid != nil {
+		metaResult, result := P.EngineHooks.IsMapValid(C.GoString(mapName))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result {
+			return 1
+		}
+
+		return 0
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookStaticDecal
+func goHookStaticDecal(origin *C.float, decalIndex, entityIndex, modelIndex C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.StaticDecal != nil {
+		v := C.castPtrToVec3(origin)
+
+		r := P.EngineHooks.StaticDecal(
+			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			int(decalIndex),
+			int(entityIndex),
+			int(modelIndex),
+		)
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookPrecacheGeneric
+func goHookPrecacheGeneric(s *C.char) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.PrecacheGeneric != nil {
+		metaResult, result := P.EngineHooks.PrecacheGeneric(C.GoString(s))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookGetPlayerUserId
+func goHookGetPlayerUserId(pEdict *C.edict_t) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.GetPlayerUserId != nil {
+		metaResult, result := P.EngineHooks.GetPlayerUserId(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookIsDedicatedServer
+func goHookIsDedicatedServer() C.int {
+	if P.EngineHooks != nil && P.EngineHooks.IsDedicatedServer != nil {
+		metaResult, result := P.EngineHooks.IsDedicatedServer()
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result {
+			return 1
+		}
+
+		return 0
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookCVarGetPointer
+func goHookCVarGetPointer(name *C.char) *C.cvar_t {
+	if P.EngineHooks != nil && P.EngineHooks.CVarGetPointer != nil {
+		metaResult, result := P.EngineHooks.CVarGetPointer(C.GoString(name))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return result.p
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookGetPlayerWONId
+func goHookGetPlayerWONId(pEdict *C.edict_t) C.uint {
+	if P.EngineHooks != nil && P.EngineHooks.GetPlayerWONID != nil {
+		metaResult, result := P.EngineHooks.GetPlayerWONID(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.uint(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookInfo_RemoveKey
+func goHookInfo_RemoveKey(info, key *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.InfoRemoveKey != nil {
+		r := P.EngineHooks.InfoRemoveKey(C.GoString(info), C.GoString(key))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookGetPhysicsKeyValue
+func goHookGetPhysicsKeyValue(pEdict *C.edict_t, key *C.char) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.GetPhysicsKeyValue != nil {
+		metaResult, result := P.EngineHooks.GetPhysicsKeyValue(edictFromC(P.GlobalVars.p, pEdict), C.GoString(key))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookSetPhysicsKeyValue
+func goHookSetPhysicsKeyValue(pEdict *C.edict_t, key, value *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.SetPhysicsKeyValue != nil {
+		r := P.EngineHooks.SetPhysicsKeyValue(edictFromC(P.GlobalVars.p, pEdict), C.GoString(key), C.GoString(value))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookGetPhysicsInfoString
+func goHookGetPhysicsInfoString(pEdict *C.edict_t) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.GetPhysicsInfoString != nil {
+		metaResult, result := P.EngineHooks.GetPhysicsInfoString(edictFromC(P.GlobalVars.p, pEdict))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookPrecacheEvent
+func goHookPrecacheEvent(eventType C.int, eventName *C.char) C.int {
+	if P.EngineHooks != nil && P.EngineHooks.PrecacheEvent != nil {
+		metaResult, result := P.EngineHooks.PrecacheEvent(int(eventType), C.GoString(eventName))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return C.int(result)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return 0
+}
+
+//export goHookPlaybackEvent
+func goHookPlaybackEvent(
+	flags C.int,
+	pInvoker *C.edict_t,
+	eventIndex C.ushort,
+	delay C.float,
+	origin, angles *C.float,
+	fparam1, fparam2 C.float,
+	iparam1, iparam2 C.int,
+	bparam1, bparam2 C.int,
+) {
+	if P.EngineHooks != nil && P.EngineHooks.PlaybackEvent != nil {
+		originVec := C.castPtrToVec3(origin)
+		anglesVec := C.castPtrToVec3(angles)
+
+		boolParam1 := int(bparam1) == 1
+		boolParam2 := int(bparam2) == 1
+
+		metaResult := P.EngineHooks.PlaybackEvent(
+			int(flags),
+			edictFromC(P.GlobalVars.p, pInvoker),
+			uint16(eventIndex),
+			float32(delay),
+			[3]float32{float32(originVec[0]), float32(originVec[1]), float32(originVec[2])},
+			[3]float32{float32(anglesVec[0]), float32(anglesVec[1]), float32(anglesVec[2])},
+			float32(fparam1),
+			float32(fparam2),
+			int(iparam1),
+			int(iparam2),
+			boolParam1,
+			boolParam2,
+		)
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookSetFatPVS
+func goHookSetFatPVS(origin *C.float) *C.byte {
+	if P.EngineHooks != nil && P.EngineHooks.SetFatPVS != nil {
+		v := C.castPtrToVec3(origin)
+
+		metaResult, result := P.EngineHooks.SetFatPVS([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return (*C.byte)(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookSetFatPAS
+func goHookSetFatPAS(origin *C.float) *C.byte {
+	if P.EngineHooks != nil && P.EngineHooks.SetFatPAS != nil {
+		v := C.castPtrToVec3(origin)
+
+		metaResult, result := P.EngineHooks.SetFatPAS([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != nil {
+			return (*C.byte)(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookCvar_DirectSet
+func goHookCvar_DirectSet(cvar *C.cvar_t, value *C.char) {
+	if P.EngineHooks != nil && P.EngineHooks.CvarDirectSet != nil {
+		r := P.EngineHooks.CvarDirectSet(cvarFromC(cvar), C.GoString(value))
+		P.MetaGlobals.SetMres(r.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+//export goHookGetPlayerStats
+func goHookGetPlayerStats(pClient *C.edict_t, ping, packetLoss *C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.GetPlayerStats != nil {
+		metaResult, pingResult, lossResult := P.EngineHooks.GetPlayerStats(edictFromC(P.GlobalVars.p, pClient))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		*ping = C.int(pingResult)
+		*packetLoss = C.int(lossResult)
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}
+
+// const char *(*pfnGetPlayerAuthId)(edict_t *e);
 //
-////export goHookMessageBegin
-//func goHookMessageBegin(msgDest C.int, msgType C.int, pOrigin *C.float, pEdict *C.edict_t) {
-//	if P.EngineHooks != nil && P.EngineHooks.MessageBegin != nil {
-//		var origin *float32
-//		if pOrigin != nil {
-//			*origin = float32(*pOrigin)
-//		}
-//
-//		r := P.EngineHooks.MessageBegin(int(msgDest), int(msgType), origin, edictFromC(P.GlobalVars.p, pEdict))
-//		P.MetaGlobals.SetMres(r.MetaRes)
-//	}
-//
-//	P.MetaGlobals.SetMres(MetaResIgnored)
-//}
-//
-////export goHookMessageEnd
-//func goHookMessageEnd() {
-//	if P.EngineHooks != nil && P.EngineHooks.MessageEnd != nil {
-//		r := P.EngineHooks.MessageEnd()
-//		P.MetaGlobals.SetMres(r.MetaRes)
-//	}
-//
-//	P.MetaGlobals.SetMres(MetaResIgnored)
-//}
+//export goHookGetPlayerAuthId
+func goHookGetPlayerAuthId(pClient *C.edict_t) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.GetPlayerAuthId != nil {
+		metaResult, result := P.EngineHooks.GetPlayerAuthId(edictFromC(P.GlobalVars.p, pClient))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookQueryClientCvarValue
+func goHookQueryClientCvarValue(pClient *C.edict_t, cvarName *C.char) *C.char {
+	if P.EngineHooks != nil && P.EngineHooks.QueryClientCvarValue != nil {
+		metaResult, result := P.EngineHooks.QueryClientCvarValue(edictFromC(P.GlobalVars.p, pClient), C.GoString(cvarName))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+
+	return nil
+}
+
+//export goHookQueryClientCvarValue2
+func goHookQueryClientCvarValue2(pClient *C.edict_t, cvarName *C.char, requestID C.int) {
+	if P.EngineHooks != nil && P.EngineHooks.QueryClientCvarValue2 != nil {
+		metaResult := P.EngineHooks.QueryClientCvarValue2(edictFromC(P.GlobalVars.p, pClient), C.GoString(cvarName), int(requestID))
+		P.MetaGlobals.SetMres(metaResult.MetaRes)
+
+		return
+	}
+
+	P.MetaGlobals.SetMres(MetaResIgnored)
+}

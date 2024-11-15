@@ -906,7 +906,7 @@ typedef struct enginefuncs_s
 	*	@param pLength If not null, is set to the size of the file, in bytes.
 	*	@return Pointer to the file buffer, or null if the file could not be loaded.
 	*/
-	byte *(*pfnLoadFileForMe)(char *filename, int *pLength);
+	byte *(*pfnLoadFileForMe)(char *filename, int *by);
 
 	/**
 	*	Frees the buffer provided by pfnLoadFileForMe.

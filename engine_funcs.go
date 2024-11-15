@@ -937,20 +937,20 @@ func (ef *EngineFuncs) MessageEnd() {
 	C.engineFuncsMessageEnd(ef.p)
 }
 
-func (ef *EngineFuncs) MessageWriteByte(i int) {
-	C.engineFuncsWriteByte(ef.p, C.int(i))
+func (ef *EngineFuncs) MessageWriteByte(b int) {
+	C.engineFuncsWriteByte(ef.p, C.int(b))
 }
 
-func (ef *EngineFuncs) MessageWriteChar(i int) {
-	C.engineFuncsWriteChar(ef.p, C.int(i))
+func (ef *EngineFuncs) MessageWriteChar(c int) {
+	C.engineFuncsWriteChar(ef.p, C.int(c))
 }
 
-func (ef *EngineFuncs) MessageWriteShort(i int) {
-	C.engineFuncsWriteShort(ef.p, C.int(i))
+func (ef *EngineFuncs) MessageWriteShort(s int) {
+	C.engineFuncsWriteShort(ef.p, C.int(s))
 }
 
-func (ef *EngineFuncs) MessageWriteLong(i int) {
-	C.engineFuncsWriteLong(ef.p, C.int(i))
+func (ef *EngineFuncs) MessageWriteLong(l int) {
+	C.engineFuncsWriteLong(ef.p, C.int(l))
 }
 
 func (ef *EngineFuncs) MessageWriteAngle(f float32) {
@@ -1359,8 +1359,8 @@ func (ef *EngineFuncs) NameForFunction(function uint32) string {
 	return C.GoString(C.engineFuncsNameForFunction(ef.p, C.uint32(function)))
 }
 
-// ClientPrintf Prints a message to a client.
-func (ef *EngineFuncs) ClientPrintf(pEdict *Edict, ptype PrintType, msg string) {
+// ClientPrint Prints a message to a client.
+func (ef *EngineFuncs) ClientPrint(pEdict *Edict, ptype PrintType, msg string) {
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -1534,11 +1534,11 @@ func (ef *EngineFuncs) SetClientKeyValue(clientIndex int, infobuffer, key, value
 }
 
 // IsMapValid Checks if a map is valid.
-func (ef *EngineFuncs) IsMapValid(filename string) int {
+func (ef *EngineFuncs) IsMapValid(filename string) bool {
 	cs := C.CString(filename)
 	defer C.free(unsafe.Pointer(cs))
 
-	return int(C.engineFuncsIsMapValid(ef.p, cs))
+	return int(C.engineFuncsIsMapValid(ef.p, cs)) == 1
 }
 
 // StaticDecal Creates a static decal.
@@ -1619,9 +1619,9 @@ func (ef *EngineFuncs) CVarGetPointer(name string) *Cvar {
 	return cvarFromC(C.engineFuncsCVarGetPointer(ef.p, cs))
 }
 
-// GetPlayerWONId Gets the WON ID of a player.
-func (ef *EngineFuncs) GetPlayerWONId(e *Edict) int {
-	return int(C.engineFuncsGetPlayerWONId(ef.p, e.p))
+// GetPlayerWONID Gets the WON ID of a player.
+func (ef *EngineFuncs) GetPlayerWONID(e *Edict) uint {
+	return uint(C.engineFuncsGetPlayerWONId(ef.p, e.p))
 }
 
 // InfoRemoveKey Removes a key from an info buffer.
@@ -1719,19 +1719,19 @@ func (ef *EngineFuncs) PlaybackEvent(
 }
 
 // SetFatPVS Adds the given origin to the current PVS.
-func (ef *EngineFuncs) SetFatPVS(origin [3]float32) {
-	C.engineFuncsSetFatPVS(
+func (ef *EngineFuncs) SetFatPVS(origin [3]float32) unsafe.Pointer {
+	return unsafe.Pointer(C.engineFuncsSetFatPVS(
 		ef.p,
 		(*C.float)(&origin[0]),
-	)
+	))
 }
 
 // SetFatPAS Adds the given origin to the current PAS.
-func (ef *EngineFuncs) SetFatPAS(origin [3]float32) {
-	C.engineFuncsSetFatPAS(
+func (ef *EngineFuncs) SetFatPAS(origin [3]float32) unsafe.Pointer {
+	return unsafe.Pointer(C.engineFuncsSetFatPAS(
 		ef.p,
 		(*C.float)(&origin[0]),
-	)
+	))
 }
 
 // CvarDirectSet Directly sets a cvar value.

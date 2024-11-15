@@ -1,6 +1,7 @@
 package main
 
 import "C"
+import "unsafe"
 
 var P = &Plugin{
 	EngineFuncs:   &EngineFuncs{},
@@ -83,17 +84,106 @@ type EngineHooks struct {
 		noMonsters, hullNumber int,
 		pentToSkip *Edict,
 	) (EngineHookResult, *TraceResult)
-	TraceModel    func(v1, v2 [3]float32, hullNumber int, pent *Edict) (EngineHookResult, *TraceResult)
-	TraceTexture  func(pent *Edict, v1, v2 [3]float32) (EngineHookResult, *Texture)
-	GetAimVector  func(ent *Edict, speed float32) (EngineHookResult, [3]float32)
-	ServerCommand func(str string) EngineHookResult
-	ServerExecute func() EngineHookResult
-	ClientCommand func(pEdict *Edict, format string) EngineHookResult
+	TraceModel       func(v1, v2 [3]float32, hullNumber int, pent *Edict) (EngineHookResult, *TraceResult)
+	TraceTexture     func(pent *Edict, v1, v2 [3]float32) (EngineHookResult, *Texture)
+	GetAimVector     func(ent *Edict, speed float32) (EngineHookResult, [3]float32)
+	ServerCommand    func(str string) EngineHookResult
+	AddServerCommand func(name string, fn unsafe.Pointer) EngineHookResult
+	ServerExecute    func() EngineHookResult
+	ClientCommand    func(pEdict *Edict, format string) EngineHookResult
+	ParticleEffect   func(
+		origin, direction [3]float32,
+		color, count float32,
+	) EngineHookResult
+	LightStyle            func(style int, value string) EngineHookResult
+	DecalIndex            func(name string) (EngineHookResult, int)
+	PointContents         func(v [3]float32) (EngineHookResult, int)
+	MessageBegin          func(msgDest int, msgType int, pOrigin *float32, pEdict *Edict) EngineHookResult
+	MessageEnd            func() EngineHookResult
+	CVarRegister          func(cvar *Cvar) EngineHookResult
+	CVarGetString         func(name string) (EngineHookResult, string)
+	CVarGetFloat          func(name string) (EngineHookResult, float32)
+	CVarSetFloat          func(name string, value float32) EngineHookResult
+	CVarSetString         func(name, value string) EngineHookResult
+	AlertMessage          func(alertType AlertType, msg string) EngineHookResult
+	MessageWriteByte      func(b int) EngineHookResult
+	MessageWriteChar      func(c int) EngineHookResult
+	MessageWriteShort     func(s int) EngineHookResult
+	MessageWriteLong      func(l int) EngineHookResult
+	MessageWriteAngle     func(f float32) EngineHookResult
+	MessageWriteCoord     func(f float32) EngineHookResult
+	MessageWriteString    func(s string) EngineHookResult
+	MessageWriteEntity    func(id int) EngineHookResult
+	PvAllocEntPrivateData func(ent *Edict, size int32) (EngineHookResult, unsafe.Pointer)
+	PvEntPrivateData      func(ent *Edict) (EngineHookResult, unsafe.Pointer)
+	FreeEntPrivateData    func(ent *Edict) EngineHookResult
+	GetVarsOfEnt          func(ent *Edict) (EngineHookResult, *EntVars)
+	IndexOfEdict          func(ent *Edict) (EngineHookResult, int)
+	PEntityOfEntIndex     func(index int) (EngineHookResult, *Edict)
+	FindEntityByVars      func(vars *EntVars) (EngineHookResult, *Edict)
+	GetModelPtr           func(pEdict *Edict) (EngineHookResult, unsafe.Pointer)
+	RegUserMsg            func(name string, size int) (EngineHookResult, int)
+	FunctionFromName      func(name string) (EngineHookResult, uint32)
+	NameForFunction       func(fn uint32) (EngineHookResult, string)
+	ClientPrint           func(pEdict *Edict, printType PrintType, msg string) EngineHookResult
+	ServerPrint           func(msg string) EngineHookResult
+	GetAttachment         func(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *[3]float32) EngineHookResult
+	RandomLong            func(low, high int32) (EngineHookResult, int32)
+	RandomFloat           func(low, high float32) (EngineHookResult, float32)
+	SetView               func(pEdict *Edict, pOther *Edict) EngineHookResult
+	Time                  func() (EngineHookResult, float32)
+	CrosshairAngle        func(pClient *Edict, pitch, yaw float32) EngineHookResult
+	LoadFileForMe         func(filename string) (EngineHookResult, []byte, error)
+	//FreeFile             func(buffer []byte) EngineHookResult
+	GetGameDir           func() (EngineHookResult, string)
+	CVarRegisterVariable func(variable *Cvar) EngineHookResult
+	FadeClientVolume     func(pEdict *Edict, fadePercent, fadeOutSeconds, holdTime, fadeInSeconds int) EngineHookResult
+	SetClientMaxspeed    func(e *Edict, maxSpeed float32) EngineHookResult
+	CreateFakeClient     func(name string) (EngineHookResult, *Edict)
+	RunPlayerMove        func(
+		client *Edict,
+		viewAngles [3]float32,
+		forwardMove, sideMove, upMove float32,
+		buttons uint16,
+		impulse uint16,
+		msec uint16,
+	) EngineHookResult
+	NumberOfEntities     func() (EngineHookResult, int)
+	GetInfoKeyBuffer     func(e *Edict) (EngineHookResult, []byte)
+	InfoKeyValue         func(infoBuffer []byte, key string) (EngineHookResult, string)
+	SetKeyValue          func(infoBuffer []byte, key, value string) EngineHookResult
+	SetClientKeyValue    func(clientIndex int, key, value string) EngineHookResult
+	IsMapValid           func(filename string) (EngineHookResult, bool)
+	StaticDecal          func(origin [3]float32, decalIndex int, entityIndex, modelIndex int) EngineHookResult
+	PrecacheGeneric      func(modelName string) (EngineHookResult, int)
+	GetPlayerUserId      func(e *Edict) (EngineHookResult, int)
+	IsDedicatedServer    func() (EngineHookResult, bool)
+	CVarGetPointer       func(name string) (EngineHookResult, *Cvar)
+	GetPlayerWONID       func(e *Edict) (EngineHookResult, uint)
+	InfoRemoveKey        func(infobuffer, key string) EngineHookResult
+	GetPhysicsKeyValue   func(client *Edict, key string) (EngineHookResult, string)
+	SetPhysicsKeyValue   func(client *Edict, key, value string) EngineHookResult
+	GetPhysicsInfoString func(client *Edict) (EngineHookResult, string)
+	PrecacheEvent        func(eventType int, eventName string) (EngineHookResult, int)
+	PlaybackEvent        func(
+		flags int,
+		invoker *Edict,
+		eventIndex uint16,
+		delay float32,
+		origin, angles [3]float32,
+		fparam1, fparam2 float32,
+		iparam1, iparam2 int,
+		bparam1, bparam2 bool,
+	) EngineHookResult
+	SetFatPVS             func(origin [3]float32) (EngineHookResult, unsafe.Pointer)
+	SetFatPAS             func(origin [3]float32) (EngineHookResult, unsafe.Pointer)
+	CvarDirectSet         func(cvar *Cvar, value string) EngineHookResult
+	GetPlayerStats        func(client *Edict) (EngineHookResult, int, int)
+	GetPlayerAuthId       func(client *Edict) (EngineHookResult, string)
+	QueryClientCvarValue  func(player *Edict, cvarName string) (EngineHookResult, string)
+	QueryClientCvarValue2 func(player *Edict, cvarName string, requestID int) EngineHookResult
 
 	// --
 
-	//AddServerCommand func(name string, fn unsafe.Pointer) EngineHookResult
-	//EntityOfEntIndex func(index int) EngineHookResult
-	//MessageBegin func(msgDest int, msgType int, pOrigin *float32, pEdict *Edict) EngineHookResult
-	//MessageEnd   func() EngineHookResult
+	// --
 }
