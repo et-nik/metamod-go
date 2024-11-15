@@ -56,6 +56,39 @@ type EngineHooks struct {
 	EntIsOnFloor       func(e *Edict) (EngineHookResult, bool)
 	DropToFloor        func(e *Edict) (EngineHookResult, int)
 	WalkMove           func(e *Edict, yaw float32, dist float32, mode WalkMoveMode) (EngineHookResult, int)
+	SetOrigin          func(e *Edict, origin [3]float32) EngineHookResult
+	EmitSound          func(e *Edict, channel int, sample string, volume float32, attenuation int, fFlags int, pitch int) EngineHookResult
+	EmitAmbientSound   func(
+		e *Edict,
+		origin [3]float32,
+		sample string,
+		volume, attenuation float32,
+		flags int,
+		pitch int,
+	) EngineHookResult
+	TraceLine func(
+		v1, v2 [3]float32,
+		noMonsters int,
+		pentToSkip *Edict,
+	) (EngineHookResult, *TraceResult)
+	TraceToss        func(pent, pentToIgnore *Edict) (EngineHookResult, *TraceResult)
+	TraceMonsterHull func(
+		pent *Edict,
+		v1, v2 [3]float32,
+		noMonsters int,
+		pentToSkip *Edict,
+	) (EngineHookResult, *TraceResult, int)
+	TraceHull func(
+		v1, v2 [3]float32,
+		noMonsters, hullNumber int,
+		pentToSkip *Edict,
+	) (EngineHookResult, *TraceResult)
+	TraceModel    func(v1, v2 [3]float32, hullNumber int, pent *Edict) (EngineHookResult, *TraceResult)
+	TraceTexture  func(pent *Edict, v1, v2 [3]float32) (EngineHookResult, *Texture)
+	GetAimVector  func(ent *Edict, speed float32) (EngineHookResult, [3]float32)
+	ServerCommand func(str string) EngineHookResult
+	ServerExecute func() EngineHookResult
+	ClientCommand func(pEdict *Edict, format string) EngineHookResult
 
 	// --
 

@@ -851,6 +851,49 @@ func (ef *EngineFuncs) WalkMove(e *Edict, yaw float32, dist float32, mode WalkMo
 	return int(C.engineFuncsWalkMove(ef.p, e.p, C.float(yaw), C.float(dist), C.int(mode)))
 }
 
+func (ef *EngineFuncs) SetOrigin(e *Edict, origin [3]float32) {
+	C.engineFuncsSetOrigin(ef.p, e.p, (*C.float)(&origin[0]))
+}
+
+func (ef *EngineFuncs) EmitSound(e *Edict, channel int, sample string, volume, attenuation float32, flags int, pitch int) {
+	cs := C.CString(sample)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsEmitSound(
+		ef.p,
+		e.p,
+		C.int(channel),
+		cs,
+		C.float(volume),
+		C.float(attenuation),
+		C.int(flags),
+		C.int(pitch),
+	)
+}
+
+func (ef *EngineFuncs) EmitAmbientSound(
+	e *Edict,
+	position [3]float32,
+	sample string,
+	volume, attenuation float32,
+	flags int,
+	pitch int,
+) {
+	cs := C.CString(sample)
+	defer C.free(unsafe.Pointer(cs))
+
+	C.engineFuncsEmitAmbientSound(
+		ef.p,
+		e.p,
+		(*C.float)(&position[0]),
+		cs,
+		C.float(volume),
+		C.float(attenuation),
+		C.int(flags),
+		C.int(pitch),
+	)
+}
+
 // --
 
 // --
@@ -1115,6 +1158,13 @@ func (ef *EngineFuncs) TraceTexture(
 	return textureFromC(texture)
 }
 
+func (ef *EngineFuncs) GetAimVector(ent *Edict, speed float32) [3]float32 {
+	var vec [3]float32
+	C.engineFuncsGetAimVector(ef.p, ent.p, C.float(speed), (*C.float)(&vec[0]))
+
+	return vec
+}
+
 func (ef *EngineFuncs) ServerCommand(str string) {
 	if str == "" {
 		return
@@ -1135,16 +1185,20 @@ func (ef *EngineFuncs) ServerExecute() {
 }
 
 // ClientCommand Sends a command to the client.
-func (ef *EngineFuncs) ClientCommand(pEdict *Edict, format string) {
+func (ef *EngineFuncs) ClientCommand(pEdict *Edict, str string) {
 	if pEdict == nil {
 		return
 	}
 
-	if format == "" {
+	if str == "" {
 		return
 	}
 
-	cs := C.CString(format)
+	if !strings.HasSuffix(str, "\n") || !strings.HasSuffix(str, ";") {
+		str += "\n"
+	}
+
+	cs := C.CString(str)
 	defer C.free(unsafe.Pointer(cs))
 
 	C.engineFuncsClientCommand(ef.p, pEdict.p, cs)

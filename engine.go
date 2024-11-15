@@ -2310,41 +2310,86 @@ func traceResultFromC(globalVars *C.globalvars_t, tr C.TraceResult) *TraceResult
 	return result
 }
 
+func (tr *TraceResult) ToC() *C.TraceResult {
+	var result C.TraceResult
+
+	if tr.AllSolid {
+		result.fAllSolid = 1
+	}
+
+	if tr.StartSolid {
+		result.fStartSolid = 1
+	}
+
+	if tr.InOpen {
+		result.fInOpen = 1
+	}
+
+	if tr.InWater {
+		result.fInWater = 1
+	}
+
+	result.flFraction = C.float(tr.Fraction)
+	result.flPlaneDist = C.float(tr.PlaneDist)
+
+	for i := 0; i < 3; i++ {
+		result.vecEndPos[i] = C.float(tr.EndPos[i])
+		result.vecPlaneNormal[i] = C.float(tr.PlaneNormal[i])
+	}
+
+	if tr.Hit != nil {
+		result.pHit = tr.Hit.p
+	}
+
+	return &result
+}
+
 type Texture struct {
-	Name           string
-	Width          uint32
-	Height         uint32
-	AnimTotal      int
-	AnimMin        int
-	AnimMax        int
-	AnimNext       *Texture
-	AlternateAnims *Texture
-	Offsets        [mipLevels]uint32
-	PalOffset      uint32
+	p *C.texture_t
 }
 
 func textureFromC(t *C.texture_t) *Texture {
-	texture := &Texture{
-		Name:      C.GoString(&t.name[0]),
-		Width:     uint32(t.width),
-		Height:    uint32(t.height),
-		AnimTotal: int(t.anim_total),
-		AnimMin:   int(t.anim_min),
-		AnimMax:   int(t.anim_max),
-		PalOffset: uint32(t.paloffset),
+	return &Texture{
+		p: t,
 	}
+}
 
-	if t.anim_next != nil {
-		texture.AnimNext = textureFromC(t.anim_next)
-	}
+func (t *Texture) Name() string {
+	return C.GoString(&t.p.name[0])
+}
 
-	if t.alternate_anims != nil {
-		texture.AlternateAnims = textureFromC(t.alternate_anims)
-	}
+func (t *Texture) Width() uint32 {
+	return uint32(t.p.width)
+}
 
-	for i := 0; i < mipLevels; i++ {
-		texture.Offsets[i] = uint32(t.offsets[i])
-	}
+func (t *Texture) Height() uint32 {
+	return uint32(t.p.height)
+}
 
-	return texture
+func (t *Texture) AnimTotal() int {
+	return int(t.p.anim_total)
+}
+
+func (t *Texture) AnimMin() int {
+	return int(t.p.anim_min)
+}
+
+func (t *Texture) AnimMax() int {
+	return int(t.p.anim_max)
+}
+
+func (t *Texture) AnimNext() *Texture {
+	return textureFromC(t.p.anim_next)
+}
+
+func (t *Texture) AlternateAnims() *Texture {
+	return textureFromC(t.p.alternate_anims)
+}
+
+func (t *Texture) PalOffset() uint32 {
+	return uint32(t.p.paloffset)
+}
+
+func (t *Texture) ToC() *C.texture_t {
+	return t.p
 }
