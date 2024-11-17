@@ -179,6 +179,26 @@ func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFun
 
 	P.MetaUtilFuncs.LogDeveloper("Meta_Query called")
 
+	fmt.Println("=====================================")
+	fmt.Println("Before Hooks")
+
+	P.EngineHooks.PrecacheSound = func(soundName string) (EngineHookResult, int) {
+		fmt.Println("PrecacheSound:", soundName)
+		return EngineHookResultIgnored, 0
+	}
+
+	P.EngineHooks.PrecacheModel = func(modelName string) (EngineHookResult, int) {
+		fmt.Println("PrecacheModel:", modelName)
+		return EngineHookResultIgnored, 0
+	}
+
+	P.EngineHooks.PrecacheGeneric = func(name string) (EngineHookResult, int) {
+		fmt.Println("PrecacheGeneric:", name)
+		return EngineHookResultIgnored, 0
+	}
+
+	fmt.Println("After Hooks")
+
 	return 1
 }
 

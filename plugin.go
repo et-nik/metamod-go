@@ -6,6 +6,8 @@ import "unsafe"
 var P = &Plugin{
 	EngineFuncs:   &EngineFuncs{},
 	MetaUtilFuncs: &MUtilFuncs{},
+
+	EngineHooks: &EngineHooks{},
 }
 
 type Plugin struct {
@@ -27,8 +29,20 @@ type MetaCallbacks struct {
 }
 
 type EngineHookResult struct {
-	MetaRes
+	MetaResult
 }
+
+// EngineHookResultIgnored Plugin didn't take any action.
+var EngineHookResultIgnored = EngineHookResult{MetaResult: MetaResultIgnored}
+
+// EngineHookResultHandled Plugin did something, but real function should still be called.
+var EngineHookResultHandled = EngineHookResult{MetaResult: MetaResultHandled}
+
+// EngineHookResultOverride Call real function, but use my return value.
+var EngineHookResultOverride = EngineHookResult{MetaResult: MetaResultOverride}
+
+// EngineHookResultSupercede Skip real function; use my return value.
+var EngineHookResultSupercede = EngineHookResult{MetaResult: MetaResultSupercede}
 
 type EngineHooks struct {
 	PrecacheModel      func(modelName string) (EngineHookResult, int)
