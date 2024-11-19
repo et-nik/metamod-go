@@ -125,30 +125,30 @@ type APICallbacks struct {
 type APICallbackResult MetaResult
 
 // APICallbackResultIgnored Callback didn't take any action.
-var APICallbackResultIgnored = MetaResultIgnored
+var APICallbackResultIgnored = APICallbackResult(MetaResultIgnored)
 
 // APICallbackResultHandled Callback did something, but real function should still be called.
-var APICallbackResultHandled = MetaResultHandled
+var APICallbackResultHandled = APICallbackResult(MetaResultHandled)
 
 // APICallbackResultOverride Call real function, but use my return value.
-var APICallbackResultOverride = MetaResultOverride
+var APICallbackResultOverride = APICallbackResult(MetaResultOverride)
 
 // APICallbackResultSupercede Skip real function; use my return value.
-var APICallbackResultSupercede = MetaResultSupercede
+var APICallbackResultSupercede = APICallbackResult(MetaResultSupercede)
 
 type EngineHookResult MetaResult
 
 // EngineHookResultIgnored Plugin didn't take any action.
-var EngineHookResultIgnored = MetaResultIgnored
+var EngineHookResultIgnored = EngineHookResult(MetaResultIgnored)
 
 // EngineHookResultHandled Plugin did something, but real function should still be called.
-var EngineHookResultHandled = MetaResultHandled
+var EngineHookResultHandled = EngineHookResult(MetaResultHandled)
 
 // EngineHookResultOverride Call real function, but use my return value.
-var EngineHookResultOverride = MetaResultOverride
+var EngineHookResultOverride = EngineHookResult(MetaResultOverride)
 
 // EngineHookResultSupercede Skip real function; use my return value.
-var EngineHookResultSupercede = MetaResultSupercede
+var EngineHookResultSupercede = EngineHookResult(MetaResultSupercede)
 
 type EngineHooks struct {
 	PrecacheModel      func(modelName string) (EngineHookResult, int)

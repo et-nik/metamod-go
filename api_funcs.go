@@ -142,7 +142,12 @@ func goClientConnect(pEntity *C.edict_t, name *C.char, address *C.char, reject *
 			C.strcpy((*C.char)(unsafe.Pointer(reject)), rejectString)
 		}
 
-		return C.qboolean(C.int(result))
+		boolResult := 0
+		if result {
+			boolResult = 1
+		}
+
+		return C.qboolean(C.int(boolResult))
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)

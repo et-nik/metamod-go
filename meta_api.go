@@ -9,11 +9,11 @@ package metamod_go
 
 #include "metamod/index.h"
 
-int GetNewDLLFunctions(NEW_DLL_FUNCTIONS *pNewFunctionTable, int *interfaceVersion);
-int GetEntityAPI2(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
-int GetEntityAPI2_Post(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
-int GetEngineFunctions(enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion);
-int GetEngineFunctions_Post(enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion);
+int getNewDLLFunctions(NEW_DLL_FUNCTIONS *pNewFunctionTable, int *interfaceVersion);
+int getEntityAPI2(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
+int getEntityAPI2_Post(DLL_FUNCTIONS* pFunctionTable, int* interfaceVersion);
+int getEngineFunctions(enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion);
+int getEngineFunctions_Post(enginefuncs_t *pengfuncsFromEngine, int *interfaceVersion);
 
 // Lib functions
 extern void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable);
@@ -35,6 +35,8 @@ func Meta_Init() {
 //export Meta_Query
 func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFuncs *C.mutil_funcs_t) C.int {
 	globalPluginState.metaUtilFuncs = newMUtilFuncsFromC(pMetaUtilFuncs)
+
+	*plinfo = &C.Plugin_info
 
 	if globalPluginState.metaCallbacks != nil && globalPluginState.metaCallbacks.MetaQuery != nil {
 		result := globalPluginState.metaCallbacks.MetaQuery()
