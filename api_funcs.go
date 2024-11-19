@@ -1,4 +1,4 @@
-package main
+package metamod_go
 
 import "C"
 

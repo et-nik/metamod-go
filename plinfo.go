@@ -1,4 +1,4 @@
-package main
+package metamod_go
 
 /*
 #include "metamod/plinfo.h"
