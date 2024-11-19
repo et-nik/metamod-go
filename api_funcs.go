@@ -4,12 +4,12 @@ import "C"
 
 //export goGameDLLInit
 func goGameDLLInit() {
-	P.MetaUtilFuncs.LogDeveloper("Called goGameDLLInit")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goGameDLLInit")
 }
 
 //export goGameDLLInitPost
 func goGameDLLInitPost() {
-	P.MetaUtilFuncs.LogDeveloper("Called goGameDLLInitPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goGameDLLInitPost")
 }
 
 //export goSpawn
@@ -50,99 +50,99 @@ func goBlocked(pEntity *C.edict_t, pOther *C.edict_t) {
 
 //export goBlockedPost
 func goBlockedPost(pEntity *C.edict_t, pOther *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goBlockedPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goBlockedPost")
 }
 
 //func goKeyValue(pEntity *C.edict_t, pkvd *C.KeyValueData) {
-//	P.MetaUtilFuncs.LogDeveloper("Called goKeyValue")
+//	globalPluginState.metaUtilFuncs.LogDeveloper("Called goKeyValue")
 //}
 //
 //func goKeyValuePost(pEntity *C.edict_t, pkvd *C.KeyValueData) {
-//	P.MetaUtilFuncs.LogDeveloper("Called goKeyValuePost")
+//	globalPluginState.metaUtilFuncs.LogDeveloper("Called goKeyValuePost")
 //}
 
 //export goClientConnect
 func goClientConnect(pEntity *C.edict_t, name *C.char, address *C.char, reject *C.void) C.qboolean {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientConnect")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientConnect")
 
 	return C.qboolean(0)
 }
 
 //export goClientConnectPost
 func goClientConnectPost(pEntity *C.edict_t, name *C.char, address *C.char, reject *C.void) C.qboolean {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientConnectPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientConnectPost")
 
 	return C.qboolean(0)
 }
 
 //export goClientDisconnect
 func goClientDisconnect(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientDisconnect")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientDisconnect")
 }
 
 //export goClientDisconnectPost
 func goClientDisconnectPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientDisconnectPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientDisconnectPost")
 }
 
 //export goClientKill
 func goClientKill(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientKill")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientKill")
 }
 
 //export goClientKillPost
 func goClientKillPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientKillPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientKillPost")
 }
 
 //export goClientPutInServer
 func goClientPutInServer(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientPutInServer")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientPutInServer")
 }
 
 //export goClientPutInServerPost
 func goClientPutInServerPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientPutInServerPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientPutInServerPost")
 }
 
 //export goClientCommand
 func goClientCommand(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientCommand")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientCommand")
 }
 
 //export goClientCommandPost
 func goClientCommandPost(pEntity *C.edict_t) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientCommandPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientCommandPost")
 }
 
 //export goClientUserInfoChanged
 func goClientUserInfoChanged(pEntity *C.edict_t, info *C.char) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientUserInfoChanged")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientUserInfoChanged")
 }
 
 //export goClientUserInfoChangedPost
 func goClientUserInfoChangedPost(pEntity *C.edict_t, info *C.char) {
-	P.MetaUtilFuncs.LogDeveloper("Called goClientUserInfoChangedPost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientUserInfoChangedPost")
 }
 
 //export goServerActivate
 func goServerActivate(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) {
-	P.MetaUtilFuncs.LogDeveloper("Called goServerActivate")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerActivate")
 }
 
 //export goServerActivatePost
 func goServerActivatePost(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) {
-	P.MetaUtilFuncs.LogDeveloper("Called goServerActivatePost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerActivatePost")
 }
 
 //export goServerDeactivate
 func goServerDeactivate() {
-	P.MetaUtilFuncs.LogDeveloper("Called goServerDeactivate")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerDeactivate")
 }
 
 //export goServerDeactivatePost
 func goServerDeactivatePost() {
-	P.MetaUtilFuncs.LogDeveloper("Called goServerDeactivatePost")
+	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerDeactivatePost")
 }
 
 //export goPlayerPreThink
@@ -219,22 +219,22 @@ func goSysErrorPost(errorString *C.char) {
 
 //export goPMMove
 //func goPMMove(pMove *C.playermove_t, server C.int) {
-//	P.MetaUtilFuncs.LogDeveloper("Called goPMMove")
+//	globalPluginState.metaUtilFuncs.LogDeveloper("Called goPMMove")
 //}
 //
 ////export goPMMovePost
 //func goPMMovePost(pMove *C.playermove_t, server C.int) {
-//	P.MetaUtilFuncs.LogDeveloper("Called goPMMovePost")
+//	globalPluginState.metaUtilFuncs.LogDeveloper("Called goPMMovePost")
 //}
 
 //export goPMInit
 //func goPMInit(pMove *C.playermove_t) {
-//	P.MetaUtilFuncs.LogDeveloper("Called goPMInit")
+//	globalPluginState.metaUtilFuncs.LogDeveloper("Called goPMInit")
 //}
 
 //export goPMInitPost
 //func goPMInitPost(pMove *C.playermove_t) {
-//	P.MetaUtilFuncs.LogDeveloper("Called goPMInitPost")
+//	globalPluginState.metaUtilFuncs.LogDeveloper("Called goPMInitPost")
 //}
 
 // New DLL functions

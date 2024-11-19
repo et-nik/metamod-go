@@ -1037,7 +1037,7 @@ func (ef *EngineFuncs) TraceLine(
 		&tr,
 	)
 
-	return traceResultFromC(P.GlobalVars.p, tr)
+	return traceResultFromC(globalPluginState.globalVars.p, tr)
 }
 
 // TraceToss Traces a toss.
@@ -1058,7 +1058,7 @@ func (ef *EngineFuncs) TraceToss(pent, pentToIgnore *Edict) *TraceResult {
 		&tr,
 	)
 
-	return traceResultFromC(P.GlobalVars.p, tr)
+	return traceResultFromC(globalPluginState.globalVars.p, tr)
 }
 
 // TraceMonsterHull Performs a trace between a starting and ending position, using the given entity's mins and maxs.
@@ -1087,7 +1087,7 @@ func (ef *EngineFuncs) TraceMonsterHull(
 		&tr,
 	)
 
-	return traceResultFromC(P.GlobalVars.p, tr), int(result)
+	return traceResultFromC(globalPluginState.globalVars.p, tr), int(result)
 }
 
 // TraceHull Performs a trace between a starting and ending position, using the given hull number.
@@ -1113,7 +1113,7 @@ func (ef *EngineFuncs) TraceHull(
 		&tr,
 	)
 
-	return traceResultFromC(P.GlobalVars.p, tr)
+	return traceResultFromC(globalPluginState.globalVars.p, tr)
 }
 
 // TraceModel Performs a trace between a starting and ending position.
@@ -1138,7 +1138,7 @@ func (ef *EngineFuncs) TraceModel(
 		&tr,
 	)
 
-	return traceResultFromC(P.GlobalVars.p, tr)
+	return traceResultFromC(globalPluginState.globalVars.p, tr)
 }
 
 // TraceTexture Used to get texture info.

@@ -57,7 +57,7 @@ type PluginInfo struct {
 	Unloadable       PluginLoadTime
 }
 
-func (p *PluginInfo) ToCPluginInfo() *C.plugin_info_t {
+func (p *PluginInfo) toCPluginInfo() *C.plugin_info_t {
 	return &C.plugin_info_t{
 		ifvers:     C.CString(p.InterfaceVersion),
 		name:       C.CString(p.Name),

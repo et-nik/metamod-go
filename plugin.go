@@ -3,28 +3,79 @@ package main
 import "C"
 import "unsafe"
 
-var P = &Plugin{
-	EngineFuncs:   &EngineFuncs{},
-	MetaUtilFuncs: &MUtilFuncs{},
+var globalPluginState = &Plugin{
+	engineFuncs:   &EngineFuncs{},
+	metaUtilFuncs: &MUtilFuncs{},
 
-	EngineHooks: &EngineHooks{},
+	engineHooks: &EngineHooks{},
 }
 
+type timelineStatus int
+
+const (
+	statusUnknown timelineStatus = iota
+	statusLibLoaded
+	statusMetaQueried
+	statusMetaAttached
+	statusGameStarted
+	statusMetaDetached
+)
+
 type Plugin struct {
-	Info *PluginInfo
+	globalVars     *GlobalVars
+	metaGlobals    *MetaGlobals
+	timelineStatus timelineStatus
 
-	GlobalVars  *GlobalVars
-	MetaGlobals *MetaGlobals
+	engineFuncs   *EngineFuncs
+	metaCallbacks *MetaCallbacks
+	metaUtilFuncs *MUtilFuncs
 
-	EngineFuncs   *EngineFuncs
-	MetaUtilFuncs *MUtilFuncs
+	engineHooks     *EngineHooks
+	engineHooksPost *EngineHooks
+}
 
-	EngineHooks     *EngineHooks
-	EngineHooksPost *EngineHooks
+func SetPluginInfo(info *PluginInfo) error {
+	setCGlobalPluginInfo(info)
+
+	return nil
+}
+
+func SetEngineHooks(hooks *EngineHooks) error {
+	if globalPluginState.timelineStatus >= statusMetaQueried {
+		return ErrMetaQueried
+	}
+
+	globalPluginState.engineHooks = hooks
+
+	return nil
+}
+
+func GetEngineFuncs() (*EngineFuncs, error) {
+	return globalPluginState.engineFuncs, nil
+}
+
+func GetMetaUtilFuncs() (*MUtilFuncs, error) {
+	return globalPluginState.metaUtilFuncs, nil
+}
+
+func GetEngineHooks() *EngineHooks {
+	return globalPluginState.engineHooks
+}
+
+func SetMetaCallbacks(callbacks *MetaCallbacks) error {
+	if globalPluginState.timelineStatus >= statusLibLoaded {
+		return ErrLibIsLoaded
+	}
+
+	globalPluginState.metaCallbacks = callbacks
+
+	return nil
 }
 
 type MetaCallbacks struct {
 	MetaInit   func()
+	MetaQuery  func() int
+	MetaAttach func(now int) int
 	MetaDetach func(now int, reason int) int
 }
 
@@ -196,8 +247,4 @@ type EngineHooks struct {
 	GetPlayerAuthId       func(client *Edict) (EngineHookResult, string)
 	QueryClientCvarValue  func(player *Edict, cvarName string) (EngineHookResult, string)
 	QueryClientCvarValue2 func(player *Edict, cvarName string, requestID int) EngineHookResult
-
-	// --
-
-	// --
 }
