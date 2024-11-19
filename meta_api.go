@@ -23,18 +23,6 @@ extern void SetHooks(enginefuncs_t *pengfuncsFromEngine);
 */
 import "C"
 
-var pluginInfo = &PluginInfo{
-	InterfaceVersion: MetaInterfaceVersion,
-	Name:             "Metamod Go",
-	Version:          "1.0",
-	Date:             "2024-11-08",
-	Author:           "KNiK",
-	Url:              "https://github.com/et-nik/metamod-go",
-	LogTag:           "GoPlugin",
-	Loadable:         PluginLoadTimeAnyTime,
-	Unloadable:       PluginLoadTimeAnyTime,
-}
-
 //export Meta_Init
 func Meta_Init() {
 	if globalPluginState.metaCallbacks != nil && globalPluginState.metaCallbacks.MetaInit != nil {
@@ -46,10 +34,6 @@ func Meta_Init() {
 
 //export Meta_Query
 func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFuncs *C.mutil_funcs_t) C.int {
-	*plinfo = pluginInfo.toCPluginInfo()
-
-	setCGlobalPluginInfo(pluginInfo)
-
 	globalPluginState.metaUtilFuncs = newMUtilFuncsFromC(pMetaUtilFuncs)
 
 	if globalPluginState.metaCallbacks != nil && globalPluginState.metaCallbacks.MetaQuery != nil {
