@@ -67,11 +67,11 @@ func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFun
 
 //export Meta_Attach
 func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_globals_t, pGamedllFuncs *C.void) C.int {
-	pFunctionTable.pfnGetEntityAPI2 = C.GETENTITYAPI2_FN(C.GetEntityAPI2)
-	pFunctionTable.pfnGetEntityAPI2_Post = C.GETENTITYAPI2_FN(C.GetEntityAPI2_Post)
-	pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.GetNewDLLFunctions)
-	pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.GetEngineFunctions)
-	pFunctionTable.pfnGetEngineFunctions_Post = C.GET_ENGINE_FUNCTIONS_FN(C.GetEngineFunctions_Post)
+	pFunctionTable.pfnGetEntityAPI2 = C.GETENTITYAPI2_FN(C.getEntityAPI2)
+	pFunctionTable.pfnGetEntityAPI2_Post = C.GETENTITYAPI2_FN(C.getEntityAPI2_Post)
+	pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.getNewDLLFunctions)
+	pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions)
+	pFunctionTable.pfnGetEngineFunctions_Post = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions_Post)
 
 	globalPluginState.metaGlobals = MetaGlobalsFromC(pMGlobals)
 
@@ -107,37 +107,37 @@ func GiveFnptrsToDll(pengfuncsFromEngine *C.enginefuncs_t, pGlobals *C.globalvar
 	globalPluginState.engineFuncs = NewEngineFuncs(pengfuncsFromEngine, globalVars)
 }
 
-//export GetNewDLLFunctions
-func GetNewDLLFunctions(pNewFunctionTable *C.NEW_DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
+//export getNewDLLFunctions
+func getNewDLLFunctions(pNewFunctionTable *C.NEW_DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
 	return 1
 }
 
-//export GetNewDLLFunctions_Post
-func GetNewDLLFunctions_Post(pNewFunctionTable *C.NEW_DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
+//export getNewDLLFunctions_Post
+func getNewDLLFunctions_Post(pNewFunctionTable *C.NEW_DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
 	return 1
 }
 
-//export GetEngineFunctions
-func GetEngineFunctions(pengfuncsFromEngine *C.enginefuncs_t, interfaceVersion *C.int) C.int {
+//export getEngineFunctions
+func getEngineFunctions(pengfuncsFromEngine *C.enginefuncs_t, interfaceVersion *C.int) C.int {
 	C.SetHooks(pengfuncsFromEngine)
 
 	return 1
 }
 
-//export GetEngineFunctions_Post
-func GetEngineFunctions_Post(pengfuncsFromEngine *C.enginefuncs_t, interfaceVersion *C.int) C.int {
+//export getEngineFunctions_Post
+func getEngineFunctions_Post(pengfuncsFromEngine *C.enginefuncs_t, interfaceVersion *C.int) C.int {
 	return 1
 }
 
-//export GetEntityAPI2
-func GetEntityAPI2(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
+//export getEntityAPI2
+func getEntityAPI2(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
 	C.SetDLLFunctions(pFunctionTable)
 
 	return 1
 }
 
-//export GetEntityAPI2_Post
-func GetEntityAPI2_Post(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
+//export getEntityAPI2_Post
+func getEntityAPI2_Post(pFunctionTable *C.DLL_FUNCTIONS, interfaceVersion *C.int) C.int {
 	C.SetDLLFunctionsPost(pFunctionTable)
 
 	return 1

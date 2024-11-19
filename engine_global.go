@@ -13,9 +13,17 @@ import "C"
 // This functions uses global var globalPluginState and globalPluginState.engineFuncs to call the engine functions
 
 func allocString(s string) int {
+	if globalPluginState.engineFuncs == nil {
+		return 0
+	}
+
 	return globalPluginState.engineFuncs.AllocString(s)
 }
 
 func readString(idx int) string {
+	if globalPluginState.engineFuncs == nil {
+		return ""
+	}
+
 	return C.GoString(C.ReadString(globalPluginState.engineFuncs.globalVars.p, C.int(idx)))
 }

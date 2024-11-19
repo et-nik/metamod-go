@@ -51,6 +51,10 @@ func SetEngineHooks(hooks *EngineHooks) error {
 }
 
 func GetEngineFuncs() (*EngineFuncs, error) {
+	if globalPluginState.timelineStatus < statusLibLoaded {
+		return nil, ErrLibNotLoaded
+	}
+
 	return globalPluginState.engineFuncs, nil
 }
 

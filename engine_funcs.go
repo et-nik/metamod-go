@@ -894,15 +894,15 @@ func (ef *EngineFuncs) EmitAmbientSound(
 	)
 }
 
-// --
-
-// --
-
 func (ef *EngineFuncs) AddServerCommand(name string, callback func(int, ...string)) {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
 	f := unsafe.Pointer(&callback)
+
+	if ef.p == nil {
+		panic("enginefuncs is nil, looks like the plugin is not running")
+	}
 
 	C.engineFuncsAddServerCommand(ef.p, cs, f)
 }
