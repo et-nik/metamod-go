@@ -16,7 +16,7 @@ import (
 func goHookPrecacheModel(s *C.char) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PrecacheModel != nil {
 		metaResult, result := globalPluginState.engineHooks.PrecacheModel(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -30,7 +30,7 @@ func goHookPrecacheModel(s *C.char) C.int {
 func goHookPrecacheSound(s *C.char) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PrecacheSound != nil {
 		metaResult, result := globalPluginState.engineHooks.PrecacheSound(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -44,7 +44,7 @@ func goHookPrecacheSound(s *C.char) C.int {
 func goHookSetModel(pEdict *C.edict_t, s *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetModel != nil {
 		r := globalPluginState.engineHooks.SetModel(edictFromC(globalPluginState.globalVars.p, pEdict), C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -56,7 +56,7 @@ func goHookSetModel(pEdict *C.edict_t, s *C.char) {
 func goHookModelIndex(s *C.char) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ModelIndex != nil {
 		metaResult, result := globalPluginState.engineHooks.ModelIndex(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -70,7 +70,7 @@ func goHookModelIndex(s *C.char) C.int {
 func goHookModelFrames(index C.int) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ModelFrames != nil {
 		metaResult, result := globalPluginState.engineHooks.ModelFrames(int(index))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -92,7 +92,7 @@ func goHookSetSize(pEdict *C.edict_t, mins, maxs *C.float) {
 			[3]float32{float32(maxsVec[0]), float32(maxsVec[1]), float32(maxsVec[2])},
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -104,7 +104,7 @@ func goHookSetSize(pEdict *C.edict_t, mins, maxs *C.float) {
 func goHookChangeLevel(levelname *C.char, landmark *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ChangeLevel != nil {
 		r := globalPluginState.engineHooks.ChangeLevel(C.GoString(levelname), C.GoString(landmark))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -119,7 +119,7 @@ func goHookVecToYaw(vec *C.float) C.float {
 		metaResult, result := globalPluginState.engineHooks.VecToYaw(
 			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.float(result)
 	}
@@ -137,7 +137,7 @@ func goHookVecToAngles(vec *C.float) *C.float {
 		metaResult, result := globalPluginState.engineHooks.VecToAngles(
 			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		r := [3]C.float{C.float(result[0]), C.float(result[1]), C.float(result[2])}
 		return &r[0]
@@ -159,7 +159,7 @@ func goHookMoveToOrigin(pEdict *C.edict_t, goal *C.float, dist C.float, moveType
 			float32(dist),
 			MoveType(int(moveType)),
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -171,7 +171,7 @@ func goHookMoveToOrigin(pEdict *C.edict_t, goal *C.float, dist C.float, moveType
 func goHookChangeYaw(pEdict *C.edict_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ChangeYaw != nil {
 		metaResult := globalPluginState.engineHooks.ChangeYaw(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -183,7 +183,7 @@ func goHookChangeYaw(pEdict *C.edict_t) {
 func goHookChangePitch(pEdict *C.edict_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ChangePitch != nil {
 		metaResult := globalPluginState.engineHooks.ChangePitch(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -200,7 +200,7 @@ func goHookFindEntityByString(pEdict *C.edict_t, field *C.char, s *C.char) *C.ed
 			C.GoString(s),
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result.p != nil {
 			return result.p
@@ -218,7 +218,7 @@ func goHookFindEntityByString(pEdict *C.edict_t, field *C.char, s *C.char) *C.ed
 func goHookGetEntityIllum(pEdict *C.edict_t) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetEntityIllum != nil {
 		metaResult, result := globalPluginState.engineHooks.GetEntityIllum(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -238,7 +238,7 @@ func goHookFindEntityInSphere(pEdict *C.edict_t, origin *C.float, radius C.float
 			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
 			float32(radius),
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result.p != nil {
 			return result.p
@@ -256,7 +256,7 @@ func goHookFindEntityInSphere(pEdict *C.edict_t, origin *C.float, radius C.float
 func goHookFindClientInPVS(pEdict *C.edict_t) *C.edict_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.FindClientInPVS != nil {
 		metaResult, result := globalPluginState.engineHooks.FindClientInPVS(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result.p != nil {
 			return result.p
@@ -274,7 +274,7 @@ func goHookFindClientInPVS(pEdict *C.edict_t) *C.edict_t {
 func goHookEntitiesInPVS(pEdict *C.edict_t) *C.edict_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.EntitiesInPVS != nil {
 		metaResult, result := globalPluginState.engineHooks.EntitiesInPVS(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result.p != nil {
 			return result.p
@@ -294,7 +294,7 @@ func goHookMakeVectors(angles *C.float) {
 		v := C.castPtrToVec3(angles)
 
 		metaResult := globalPluginState.engineHooks.MakeVectors([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -318,7 +318,7 @@ func goHookAngleVectors(vector *C.float, forward, right, up *C.float) {
 			[3]float32{float32(upVec[0]), float32(upVec[1]), float32(upVec[2])},
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -330,7 +330,7 @@ func goHookAngleVectors(vector *C.float, forward, right, up *C.float) {
 func goHookCreateEntity() *C.edict_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CreateEntity != nil {
 		metaResult, result := globalPluginState.engineHooks.CreateEntity()
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result.p != nil {
 			return result.p
@@ -365,7 +365,7 @@ func goHookCreateNamedEntity(s *C.char) *C.edict_t {
 func goHookRemoveEntity(pEdict *C.edict_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.RemoveEntity != nil {
 		r := globalPluginState.engineHooks.RemoveEntity(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -377,7 +377,7 @@ func goHookRemoveEntity(pEdict *C.edict_t) {
 func goHookMakeStatic(pEdict *C.edict_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MakeStatic != nil {
 		r := globalPluginState.engineHooks.MakeStatic(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -389,7 +389,7 @@ func goHookMakeStatic(pEdict *C.edict_t) {
 func goHookEntIsOnFloor(pEdict *C.edict_t) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.EntIsOnFloor != nil {
 		metaResult, result := globalPluginState.engineHooks.EntIsOnFloor(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result {
 			return 1
@@ -407,7 +407,7 @@ func goHookEntIsOnFloor(pEdict *C.edict_t) C.int {
 func goHookDropToFloor(pEdict *C.edict_t) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.DropToFloor != nil {
 		metaResult, result := globalPluginState.engineHooks.DropToFloor(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -421,7 +421,7 @@ func goHookDropToFloor(pEdict *C.edict_t) C.int {
 func goHookWalkMove(pEdict *C.edict_t, yaw C.float, dist C.float, mode C.int) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.WalkMove != nil {
 		metaResult, result := globalPluginState.engineHooks.WalkMove(edictFromC(globalPluginState.globalVars.p, pEdict), float32(yaw), float32(dist), WalkMoveMode(mode))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -440,7 +440,7 @@ func goHookSetOrigin(pEdict *C.edict_t, origin *C.float) {
 			edictFromC(globalPluginState.globalVars.p, pEdict),
 			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -460,7 +460,7 @@ func goHookEmitSound(pEdict *C.edict_t, channel C.int, sample *C.char, volume C.
 			int(fFlags),
 			int(pitch),
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -490,7 +490,7 @@ func goHookEmitAmbientSound(
 			int(fFlags),
 			int(pitch),
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -513,7 +513,7 @@ func goHookTraceLine(v1, v2 *C.float, fNoMonsters C.int, pentToSkip *C.edict_t, 
 			edictFromC(globalPluginState.globalVars.p, pentToSkip),
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			*ptr = *result.ToC()
@@ -530,7 +530,7 @@ func goHookTraceToss(pent, pentToIgnore *C.edict_t, ptr *C.TraceResult) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.TraceToss != nil {
 		metaResult, result := globalPluginState.engineHooks.TraceToss(edictFromC(globalPluginState.globalVars.p, pent), edictFromC(globalPluginState.globalVars.p, pentToIgnore))
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			*ptr = *result.ToC()
@@ -556,7 +556,7 @@ func goHookTraceMonsterHull(pent *C.edict_t, v1, v2 *C.float, fNoMonsters C.int,
 			edictFromC(globalPluginState.globalVars.p, pentToSkip),
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			*ptr = *result.ToC()
@@ -584,7 +584,7 @@ func goHookTraceHull(v1, v2 *C.float, fNoMonsters, hullNumber C.int, pentToSkip 
 			edictFromC(globalPluginState.globalVars.p, pentToSkip),
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			*ptr = *result.ToC()
@@ -609,7 +609,7 @@ func goHookTraceModel(v1, v2 *C.float, hullNumber C.int, pent *C.edict_t, ptr *C
 			edictFromC(globalPluginState.globalVars.p, pent),
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			*ptr = *result.ToC()
@@ -633,7 +633,7 @@ func goHookTraceTexture(pTextureEntity *C.edict_t, v1, v2 *C.float) *C.char {
 			[3]float32{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return (*C.char)(unsafe.Pointer(result.ToC()))
@@ -649,7 +649,7 @@ func goHookTraceTexture(pTextureEntity *C.edict_t, v1, v2 *C.float) *C.char {
 func goHookGetAimVector(pent *C.edict_t, speed C.float, ptr *C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetAimVector != nil {
 		metaResult, result := globalPluginState.engineHooks.GetAimVector(edictFromC(globalPluginState.globalVars.p, pent), float32(speed))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		C.setVec3FloatPtr(C.float(result[0]), C.float(result[1]), C.float(result[2]), ptr)
 
@@ -663,7 +663,7 @@ func goHookGetAimVector(pent *C.edict_t, speed C.float, ptr *C.float) {
 func goHookServerCommand(s *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ServerCommand != nil {
 		r := globalPluginState.engineHooks.ServerCommand(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -675,7 +675,7 @@ func goHookServerCommand(s *C.char) {
 func goHookServerExecute() {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ServerExecute != nil {
 		r := globalPluginState.engineHooks.ServerExecute()
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -687,7 +687,7 @@ func goHookServerExecute() {
 func goHookClientCommand(pEdict *C.edict_t, format *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ClientCommand != nil {
 		r := globalPluginState.engineHooks.ClientCommand(edictFromC(globalPluginState.globalVars.p, pEdict), C.GoString(format))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -699,7 +699,7 @@ func goHookClientCommand(pEdict *C.edict_t, format *C.char) {
 func goHookAddServerCommand(s *C.char, f unsafe.Pointer) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.AddServerCommand != nil {
 		r := globalPluginState.engineHooks.AddServerCommand(C.GoString(s), f)
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -719,7 +719,7 @@ func goHookParticleEffect(origin, direction *C.float, color, count C.float) {
 			float32(color),
 			float32(count),
 		)
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -731,7 +731,7 @@ func goHookParticleEffect(origin, direction *C.float, color, count C.float) {
 func goHookLightStyle(style C.int, value *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.LightStyle != nil {
 		r := globalPluginState.engineHooks.LightStyle(int(style), C.GoString(value))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -743,7 +743,7 @@ func goHookLightStyle(style C.int, value *C.char) {
 func goHookDecalIndex(s *C.char) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.DecalIndex != nil {
 		metaResult, result := globalPluginState.engineHooks.DecalIndex(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -759,7 +759,7 @@ func goHookPointContents(v *C.float) C.int {
 		vVec := C.castPtrToVec3(v)
 
 		metaResult, result := globalPluginState.engineHooks.PointContents([3]float32{float32(vVec[0]), float32(vVec[1]), float32(vVec[2])})
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -778,7 +778,7 @@ func goHookMessageBegin(msgDest C.int, msgType C.int, pOrigin *C.float, pEdict *
 		}
 
 		r := globalPluginState.engineHooks.MessageBegin(int(msgDest), int(msgType), origin, edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -788,7 +788,7 @@ func goHookMessageBegin(msgDest C.int, msgType C.int, pOrigin *C.float, pEdict *
 func goHookMessageEnd() {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageEnd != nil {
 		r := globalPluginState.engineHooks.MessageEnd()
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -798,7 +798,7 @@ func goHookMessageEnd() {
 func goHookMessageWriteByte(b C.int) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteByte != nil {
 		r := globalPluginState.engineHooks.MessageWriteByte(int(b))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -810,7 +810,7 @@ func goHookMessageWriteByte(b C.int) {
 func goHookMessageWriteChar(c C.int) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteChar != nil {
 		r := globalPluginState.engineHooks.MessageWriteChar(int(c))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -822,7 +822,7 @@ func goHookMessageWriteChar(c C.int) {
 func goHookMessageWriteShort(s C.int) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteShort != nil {
 		r := globalPluginState.engineHooks.MessageWriteShort(int(s))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -834,7 +834,7 @@ func goHookMessageWriteShort(s C.int) {
 func goHookMessageWriteLong(l C.int) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteLong != nil {
 		r := globalPluginState.engineHooks.MessageWriteLong(int(l))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -846,7 +846,7 @@ func goHookMessageWriteLong(l C.int) {
 func goHookMessageWriteAngle(f C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteAngle != nil {
 		r := globalPluginState.engineHooks.MessageWriteAngle(float32(f))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -858,7 +858,7 @@ func goHookMessageWriteAngle(f C.float) {
 func goHookMessageWriteCoord(f C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteCoord != nil {
 		r := globalPluginState.engineHooks.MessageWriteCoord(float32(f))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -870,7 +870,7 @@ func goHookMessageWriteCoord(f C.float) {
 func goHookMessageWriteString(s *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteString != nil {
 		r := globalPluginState.engineHooks.MessageWriteString(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -882,7 +882,7 @@ func goHookMessageWriteString(s *C.char) {
 func goHookMessageWriteEntity(id C.int) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MessageWriteEntity != nil {
 		r := globalPluginState.engineHooks.MessageWriteEntity(int(id))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -894,7 +894,7 @@ func goHookMessageWriteEntity(id C.int) {
 func goHookCVarRegister(cvar *C.cvar_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CVarRegister != nil {
 		metaResult := globalPluginState.engineHooks.CVarRegister(cvarFromC(cvar))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -906,7 +906,7 @@ func goHookCVarRegister(cvar *C.cvar_t) {
 func goHookCVarGetString(s *C.char) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CVarGetString != nil {
 		metaResult, result := globalPluginState.engineHooks.CVarGetString(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -924,7 +924,7 @@ func goHookCVarGetString(s *C.char) *C.char {
 func goHookCVarGetFloat(s *C.char) C.float {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CVarGetFloat != nil {
 		metaResult, result := globalPluginState.engineHooks.CVarGetFloat(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.float(result)
 	}
@@ -938,7 +938,7 @@ func goHookCVarGetFloat(s *C.char) C.float {
 func goHookCVarSetFloat(s *C.char, value C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CVarSetFloat != nil {
 		r := globalPluginState.engineHooks.CVarSetFloat(C.GoString(s), float32(value))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -950,7 +950,7 @@ func goHookCVarSetFloat(s *C.char, value C.float) {
 func goHookCVarSetString(s, value *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CVarSetString != nil {
 		r := globalPluginState.engineHooks.CVarSetString(C.GoString(s), C.GoString(value))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -962,7 +962,7 @@ func goHookCVarSetString(s, value *C.char) {
 func goHookAlertMessage(level C.ALERT_TYPE, format *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.AlertMessage != nil {
 		r := globalPluginState.engineHooks.AlertMessage(AlertType(level), C.GoString(format))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -974,7 +974,7 @@ func goHookAlertMessage(level C.ALERT_TYPE, format *C.char) {
 func goHookPvAllocEntPrivateData(pEdict *C.edict_t, cb C.int32) unsafe.Pointer {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PvAllocEntPrivateData != nil {
 		metaResult, result := globalPluginState.engineHooks.PvAllocEntPrivateData(edictFromC(globalPluginState.globalVars.p, pEdict), int32(cb))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return result
 	}
@@ -988,7 +988,7 @@ func goHookPvAllocEntPrivateData(pEdict *C.edict_t, cb C.int32) unsafe.Pointer {
 func goHookPvEntPrivateData(pEdict *C.edict_t) unsafe.Pointer {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PvEntPrivateData != nil {
 		metaResult, result := globalPluginState.engineHooks.PvEntPrivateData(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return result
 	}
@@ -1002,7 +1002,7 @@ func goHookPvEntPrivateData(pEdict *C.edict_t) unsafe.Pointer {
 func goHookFreeEntPrivateData(pEdict *C.edict_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.FreeEntPrivateData != nil {
 		r := globalPluginState.engineHooks.FreeEntPrivateData(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1014,7 +1014,7 @@ func goHookFreeEntPrivateData(pEdict *C.edict_t) {
 func goHookGetVarsOfEnt(pEdict *C.edict_t) *C.entvars_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetVarsOfEnt != nil {
 		metaResult, result := globalPluginState.engineHooks.GetVarsOfEnt(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return result.p
@@ -1032,7 +1032,7 @@ func goHookGetVarsOfEnt(pEdict *C.edict_t) *C.entvars_t {
 func goHookIndexOfEdict(pEdict *C.edict_t) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.IndexOfEdict != nil {
 		metaResult, result := globalPluginState.engineHooks.IndexOfEdict(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -1046,7 +1046,7 @@ func goHookIndexOfEdict(pEdict *C.edict_t) C.int {
 func goHookPEntityOfEntIndex(index C.int) *C.edict_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PEntityOfEntIndex != nil {
 		metaResult, result := globalPluginState.engineHooks.PEntityOfEntIndex(int(index))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return result.p
@@ -1064,7 +1064,7 @@ func goHookPEntityOfEntIndex(index C.int) *C.edict_t {
 func goHookFindEntityByVars(vars *C.entvars_t) *C.edict_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.FindEntityByVars != nil {
 		metaResult, result := globalPluginState.engineHooks.FindEntityByVars(entVarsFromC(globalPluginState.globalVars.p, vars))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return result.p
@@ -1082,7 +1082,7 @@ func goHookFindEntityByVars(vars *C.entvars_t) *C.edict_t {
 func goHookGetModelPtr(pEdict *C.edict_t) *C.void {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetModelPtr != nil {
 		metaResult, result := globalPluginState.engineHooks.GetModelPtr(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return (*C.void)(result)
 	}
@@ -1096,7 +1096,7 @@ func goHookGetModelPtr(pEdict *C.edict_t) *C.void {
 func goHookRegUserMsg(name *C.char, size C.int) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.RegUserMsg != nil {
 		metaResult, result := globalPluginState.engineHooks.RegUserMsg(C.GoString(name), int(size))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -1110,7 +1110,7 @@ func goHookRegUserMsg(name *C.char, size C.int) C.int {
 func goHookFunctionFromName(name *C.char) C.uint32 {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.FunctionFromName != nil {
 		metaResult, result := globalPluginState.engineHooks.FunctionFromName(C.GoString(name))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.uint32(result)
 	}
@@ -1124,7 +1124,7 @@ func goHookFunctionFromName(name *C.char) C.uint32 {
 func goHookNameForFunction(function C.uint32) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.NameForFunction != nil {
 		metaResult, result := globalPluginState.engineHooks.NameForFunction(uint32(function))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -1142,7 +1142,7 @@ func goHookNameForFunction(function C.uint32) *C.char {
 func goHookClientPrint(pEdict *C.edict_t, level C.PRINT_TYPE, msg *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ClientPrint != nil {
 		metaResult := globalPluginState.engineHooks.ClientPrint(edictFromC(globalPluginState.globalVars.p, pEdict), PrintType(level), C.GoString(msg))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -1154,7 +1154,7 @@ func goHookClientPrint(pEdict *C.edict_t, level C.PRINT_TYPE, msg *C.char) {
 func goHookServerPrint(msg *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ServerPrint != nil {
 		metaResult := globalPluginState.engineHooks.ServerPrint(C.GoString(msg))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -1176,7 +1176,7 @@ func goHookGetAttachment(pEdict *C.edict_t, attachment C.int, origin, angles *C.
 			&gangles,
 		)
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		C.setVec3FloatPtr(C.float(gorigin[0]), C.float(gorigin[1]), C.float(gorigin[2]), origin)
 		C.setVec3FloatPtr(C.float(gangles[0]), C.float(gangles[1]), C.float(gangles[2]), angles)
@@ -1193,7 +1193,7 @@ func goHookGetAttachment(pEdict *C.edict_t, attachment C.int, origin, angles *C.
 func goHookRandomLong(low, high C.int) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.RandomLong != nil {
 		metaResult, result := globalPluginState.engineHooks.RandomLong(int32(low), int32(high))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -1207,7 +1207,7 @@ func goHookRandomLong(low, high C.int) C.int {
 func goHookRandomFloat(low, high C.float) C.float {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.RandomFloat != nil {
 		metaResult, result := globalPluginState.engineHooks.RandomFloat(float32(low), float32(high))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.float(result)
 	}
@@ -1221,7 +1221,7 @@ func goHookRandomFloat(low, high C.float) C.float {
 func goHookSetView(pClient, pEdict *C.edict_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetView != nil {
 		r := globalPluginState.engineHooks.SetView(edictFromC(globalPluginState.globalVars.p, pClient), edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1233,7 +1233,7 @@ func goHookSetView(pClient, pEdict *C.edict_t) {
 func goHookTime() C.float {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.Time != nil {
 		metaResult, result := globalPluginState.engineHooks.Time()
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.float(result)
 	}
@@ -1247,7 +1247,7 @@ func goHookTime() C.float {
 func goHookCrosshairAngle(pClient *C.edict_t, pitch, yaw C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CrosshairAngle != nil {
 		r := globalPluginState.engineHooks.CrosshairAngle(edictFromC(globalPluginState.globalVars.p, pClient), float32(pitch), float32(yaw))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1263,7 +1263,7 @@ func goHookLoadFileForMe(name *C.char, _ *C.int) *C.byte {
 			return nil
 		}
 
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return (*C.byte)(unsafe.Pointer(&result[0]))
@@ -1281,7 +1281,7 @@ func goHookLoadFileForMe(name *C.char, _ *C.int) *C.byte {
 //func goHookFreeFile(buffer *C.byte) {
 //	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.FreeFile != nil {
 //		r := globalPluginState.engineHooks.FreeFile(buffer)
-//		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+//		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 //
 //		return
 //	}
@@ -1293,7 +1293,7 @@ func goHookLoadFileForMe(name *C.char, _ *C.int) *C.byte {
 func goHookGetGameDir() *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetGameDir != nil {
 		metaResult, result := globalPluginState.engineHooks.GetGameDir()
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -1311,7 +1311,7 @@ func goHookGetGameDir() *C.char {
 func goHookCvar_RegisterVariable(cvar *C.cvar_t) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CVarRegisterVariable != nil {
 		metaResult := globalPluginState.engineHooks.CVarRegisterVariable(cvarFromC(cvar))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -1329,7 +1329,7 @@ func goHookFadeClientVolume(pEdict *C.edict_t, fadePercent, fadeOutSeconds, hold
 			int(holdTime),
 			int(fadeInSeconds),
 		)
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1341,7 +1341,7 @@ func goHookFadeClientVolume(pEdict *C.edict_t, fadePercent, fadeOutSeconds, hold
 func goHookSetClientMaxspeed(pEdict *C.edict_t, speed C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetClientMaxspeed != nil {
 		r := globalPluginState.engineHooks.SetClientMaxspeed(edictFromC(globalPluginState.globalVars.p, pEdict), float32(speed))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1353,7 +1353,7 @@ func goHookSetClientMaxspeed(pEdict *C.edict_t, speed C.float) {
 func goHookCreateFakeClient(name *C.char) *C.edict_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CreateFakeClient != nil {
 		metaResult, result := globalPluginState.engineHooks.CreateFakeClient(C.GoString(name))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result.p != nil {
 			return result.p
@@ -1382,7 +1382,7 @@ func goHookRunPlayerMove(pEdict *C.edict_t, viewangles, forwardmove, sidemove, u
 			uint16(impulse),
 			uint16(msec),
 		)
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1394,7 +1394,7 @@ func goHookRunPlayerMove(pEdict *C.edict_t, viewangles, forwardmove, sidemove, u
 func goHookNumberOfEntities() C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.NumberOfEntities != nil {
 		metaResult, result := globalPluginState.engineHooks.NumberOfEntities()
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -1408,7 +1408,7 @@ func goHookNumberOfEntities() C.int {
 func goHookGetInfoKeyBuffer(pEdict *C.edict_t) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetInfoKeyBuffer != nil {
 		metaResult, result := globalPluginState.engineHooks.GetInfoKeyBuffer(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return (*C.char)(unsafe.Pointer(&result[0]))
@@ -1426,7 +1426,7 @@ func goHookGetInfoKeyBuffer(pEdict *C.edict_t) *C.char {
 func goHookInfoKeyValue(info, key *C.char) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.InfoKeyValue != nil {
 		metaResult, result := globalPluginState.engineHooks.InfoKeyValue([]byte(C.GoString(info)), C.GoString(key))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -1444,7 +1444,7 @@ func goHookInfoKeyValue(info, key *C.char) *C.char {
 func goHookSetKeyValue(info, key, value *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetKeyValue != nil {
 		r := globalPluginState.engineHooks.SetKeyValue([]byte(C.GoString(info)), C.GoString(key), C.GoString(value))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1456,7 +1456,7 @@ func goHookSetKeyValue(info, key, value *C.char) {
 func goHookSetClientKeyValue(clientIndex C.int, key, value *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetClientKeyValue != nil {
 		r := globalPluginState.engineHooks.SetClientKeyValue(int(clientIndex), C.GoString(key), C.GoString(value))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1468,7 +1468,7 @@ func goHookSetClientKeyValue(clientIndex C.int, key, value *C.char) {
 func goHookIsMapValid(mapName *C.char) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.IsMapValid != nil {
 		metaResult, result := globalPluginState.engineHooks.IsMapValid(C.GoString(mapName))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result {
 			return 1
@@ -1493,7 +1493,7 @@ func goHookStaticDecal(origin *C.float, decalIndex, entityIndex, modelIndex C.in
 			int(entityIndex),
 			int(modelIndex),
 		)
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1505,7 +1505,7 @@ func goHookStaticDecal(origin *C.float, decalIndex, entityIndex, modelIndex C.in
 func goHookPrecacheGeneric(s *C.char) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PrecacheGeneric != nil {
 		metaResult, result := globalPluginState.engineHooks.PrecacheGeneric(C.GoString(s))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -1519,7 +1519,7 @@ func goHookPrecacheGeneric(s *C.char) C.int {
 func goHookGetPlayerUserId(pEdict *C.edict_t) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetPlayerUserId != nil {
 		metaResult, result := globalPluginState.engineHooks.GetPlayerUserId(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -1533,7 +1533,7 @@ func goHookGetPlayerUserId(pEdict *C.edict_t) C.int {
 func goHookIsDedicatedServer() C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.IsDedicatedServer != nil {
 		metaResult, result := globalPluginState.engineHooks.IsDedicatedServer()
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result {
 			return 1
@@ -1551,7 +1551,7 @@ func goHookIsDedicatedServer() C.int {
 func goHookCVarGetPointer(name *C.char) *C.cvar_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CVarGetPointer != nil {
 		metaResult, result := globalPluginState.engineHooks.CVarGetPointer(C.GoString(name))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return result.p
@@ -1569,7 +1569,7 @@ func goHookCVarGetPointer(name *C.char) *C.cvar_t {
 func goHookGetPlayerWONId(pEdict *C.edict_t) C.uint {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetPlayerWONID != nil {
 		metaResult, result := globalPluginState.engineHooks.GetPlayerWONID(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.uint(result)
 	}
@@ -1583,7 +1583,7 @@ func goHookGetPlayerWONId(pEdict *C.edict_t) C.uint {
 func goHookInfo_RemoveKey(info, key *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.InfoRemoveKey != nil {
 		r := globalPluginState.engineHooks.InfoRemoveKey(C.GoString(info), C.GoString(key))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1595,7 +1595,7 @@ func goHookInfo_RemoveKey(info, key *C.char) {
 func goHookGetPhysicsKeyValue(pEdict *C.edict_t, key *C.char) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetPhysicsKeyValue != nil {
 		metaResult, result := globalPluginState.engineHooks.GetPhysicsKeyValue(edictFromC(globalPluginState.globalVars.p, pEdict), C.GoString(key))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -1613,7 +1613,7 @@ func goHookGetPhysicsKeyValue(pEdict *C.edict_t, key *C.char) *C.char {
 func goHookSetPhysicsKeyValue(pEdict *C.edict_t, key, value *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetPhysicsKeyValue != nil {
 		r := globalPluginState.engineHooks.SetPhysicsKeyValue(edictFromC(globalPluginState.globalVars.p, pEdict), C.GoString(key), C.GoString(value))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1625,7 +1625,7 @@ func goHookSetPhysicsKeyValue(pEdict *C.edict_t, key, value *C.char) {
 func goHookGetPhysicsInfoString(pEdict *C.edict_t) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetPhysicsInfoString != nil {
 		metaResult, result := globalPluginState.engineHooks.GetPhysicsInfoString(edictFromC(globalPluginState.globalVars.p, pEdict))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -1643,7 +1643,7 @@ func goHookGetPhysicsInfoString(pEdict *C.edict_t) *C.char {
 func goHookPrecacheEvent(eventType C.int, eventName *C.char) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PrecacheEvent != nil {
 		metaResult, result := globalPluginState.engineHooks.PrecacheEvent(int(eventType), C.GoString(eventName))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
 	}
@@ -1685,7 +1685,7 @@ func goHookPlaybackEvent(
 			boolParam1,
 			boolParam2,
 		)
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}
@@ -1699,7 +1699,7 @@ func goHookSetFatPVS(origin *C.float) *C.byte {
 		v := C.castPtrToVec3(origin)
 
 		metaResult, result := globalPluginState.engineHooks.SetFatPVS([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return (*C.byte)(result)
@@ -1719,7 +1719,7 @@ func goHookSetFatPAS(origin *C.float) *C.byte {
 		v := C.castPtrToVec3(origin)
 
 		metaResult, result := globalPluginState.engineHooks.SetFatPAS([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
 			return (*C.byte)(result)
@@ -1737,7 +1737,7 @@ func goHookSetFatPAS(origin *C.float) *C.byte {
 func goHookCvar_DirectSet(cvar *C.cvar_t, value *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CvarDirectSet != nil {
 		r := globalPluginState.engineHooks.CvarDirectSet(cvarFromC(cvar), C.GoString(value))
-		globalPluginState.metaGlobals.SetMres(r.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
 	}
@@ -1749,7 +1749,7 @@ func goHookCvar_DirectSet(cvar *C.cvar_t, value *C.char) {
 func goHookGetPlayerStats(pClient *C.edict_t, ping, packetLoss *C.int) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetPlayerStats != nil {
 		metaResult, pingResult, lossResult := globalPluginState.engineHooks.GetPlayerStats(edictFromC(globalPluginState.globalVars.p, pClient))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		*ping = C.int(pingResult)
 		*packetLoss = C.int(lossResult)
@@ -1764,7 +1764,7 @@ func goHookGetPlayerStats(pClient *C.edict_t, ping, packetLoss *C.int) {
 func goHookGetPlayerAuthId(pClient *C.edict_t) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetPlayerAuthId != nil {
 		metaResult, result := globalPluginState.engineHooks.GetPlayerAuthId(edictFromC(globalPluginState.globalVars.p, pClient))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -1782,7 +1782,7 @@ func goHookGetPlayerAuthId(pClient *C.edict_t) *C.char {
 func goHookQueryClientCvarValue(pClient *C.edict_t, cvarName *C.char) *C.char {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.QueryClientCvarValue != nil {
 		metaResult, result := globalPluginState.engineHooks.QueryClientCvarValue(edictFromC(globalPluginState.globalVars.p, pClient), C.GoString(cvarName))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != "" {
 			return C.CString(result)
@@ -1800,7 +1800,7 @@ func goHookQueryClientCvarValue(pClient *C.edict_t, cvarName *C.char) *C.char {
 func goHookQueryClientCvarValue2(pClient *C.edict_t, cvarName *C.char, requestID C.int) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.QueryClientCvarValue2 != nil {
 		metaResult := globalPluginState.engineHooks.QueryClientCvarValue2(edictFromC(globalPluginState.globalVars.p, pClient), C.GoString(cvarName), int(requestID))
-		globalPluginState.metaGlobals.SetMres(metaResult.MetaResult)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
 	}

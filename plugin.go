@@ -30,12 +30,24 @@ type Plugin struct {
 	metaCallbacks *MetaCallbacks
 	metaUtilFuncs *MUtilFuncs
 
+	apiCallbacks *APICallbacks
+
 	engineHooks     *EngineHooks
 	engineHooksPost *EngineHooks
 }
 
 func SetPluginInfo(info *PluginInfo) error {
 	setCGlobalPluginInfo(info)
+
+	return nil
+}
+
+func SetApiCallbacks(callbacks *APICallbacks) error {
+	if globalPluginState.timelineStatus >= statusMetaQueried {
+		return ErrMetaQueried
+	}
+
+	globalPluginState.apiCallbacks = callbacks
 
 	return nil
 }
@@ -83,21 +95,60 @@ type MetaCallbacks struct {
 	MetaDetach func(now int, reason int) int
 }
 
-type EngineHookResult struct {
-	MetaResult
+type APICallbacks struct {
+	GameDLLInit func() APICallbackResult
+
+	Spawn   func(e *Edict) (APICallbackResult, int)
+	Think   func(e *Edict) APICallbackResult
+	Use     func(e *Edict, other *Edict) APICallbackResult
+	Touch   func(e *Edict, other *Edict) APICallbackResult
+	Blocked func(e *Edict, other *Edict) APICallbackResult
+
+	ClientConnect     func(e *Edict, name string, address string) (APICallbackResult, bool, string)
+	ClientDisconnect  func(e *Edict) APICallbackResult
+	ClientKill        func(e *Edict) APICallbackResult
+	ClientPutInServer func(e *Edict) APICallbackResult
+
+	ServerActivate   func(list *Edict, edictCount int, clientMax int) APICallbackResult
+	ServerDeactivate func() APICallbackResult
+
+	PlayerPreThink  func(e *Edict) APICallbackResult
+	PlayerPostThink func(e *Edict) APICallbackResult
+
+	StartFrame func() APICallbackResult
+
+	GetGameDescription func() (APICallbackResult, string)
+
+	SysError func(errorString string) APICallbackResult
 }
 
+type APICallbackResult MetaResult
+
+// APICallbackResultIgnored Callback didn't take any action.
+var APICallbackResultIgnored = MetaResultIgnored
+
+// APICallbackResultHandled Callback did something, but real function should still be called.
+var APICallbackResultHandled = MetaResultHandled
+
+// APICallbackResultOverride Call real function, but use my return value.
+var APICallbackResultOverride = MetaResultOverride
+
+// APICallbackResultSupercede Skip real function; use my return value.
+var APICallbackResultSupercede = MetaResultSupercede
+
+type EngineHookResult MetaResult
+
 // EngineHookResultIgnored Plugin didn't take any action.
-var EngineHookResultIgnored = EngineHookResult{MetaResult: MetaResultIgnored}
+var EngineHookResultIgnored = MetaResultIgnored
 
 // EngineHookResultHandled Plugin did something, but real function should still be called.
-var EngineHookResultHandled = EngineHookResult{MetaResult: MetaResultHandled}
+var EngineHookResultHandled = MetaResultHandled
 
 // EngineHookResultOverride Call real function, but use my return value.
-var EngineHookResultOverride = EngineHookResult{MetaResult: MetaResultOverride}
+var EngineHookResultOverride = MetaResultOverride
 
 // EngineHookResultSupercede Skip real function; use my return value.
-var EngineHookResultSupercede = EngineHookResult{MetaResult: MetaResultSupercede}
+var EngineHookResultSupercede = MetaResultSupercede
 
 type EngineHooks struct {
 	PrecacheModel      func(modelName string) (EngineHookResult, int)

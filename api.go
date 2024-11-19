@@ -6,14 +6,14 @@ package metamod_go
 void goGameDLLInit(void);
 void goGameDLLInitPost(void);
 
-void goSpawn(edict_t *pEntity);
-void goSpawnPost(edict_t *pEntity);
+int goSpawn(edict_t *pEntity);
+int goSpawnPost(edict_t *pEntity);
 
 void goThink(edict_t *pEntity);
 void goThinkPost(edict_t *pEntity);
 
-void goUse(edict_t *pEntity, edict_t *pOther, edict_t *pActivator, float useType, float value);
-void goUsePost(edict_t *pEntity, edict_t *pOther, edict_t *pActivator, float useType, float value);
+void goUse(edict_t *pEntity, edict_t *pOther);
+void goUsePost(edict_t *pEntity, edict_t *pOther);
 
 void goTouch(edict_t *pEntity, edict_t *pOther);
 void goTouchPost(edict_t *pEntity, edict_t *pOther);
@@ -53,6 +53,9 @@ void goPlayerPostThinkPost(edict_t *pEntity);
 
 void goStartFrame(void);
 void goStartFramePost(void);
+
+const char * goGetGameDescription(void);
+const char * goGetGameDescriptionPost(void);
 
 void goParmsNewLevel(void);
 void goParmsNewLevelPost(void);

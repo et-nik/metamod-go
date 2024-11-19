@@ -1,10 +1,18 @@
 package metamod_go
 
 import "C"
+import "unsafe"
 
 //export goGameDLLInit
 func goGameDLLInit() {
-	globalPluginState.metaUtilFuncs.LogDeveloper("Called goGameDLLInit")
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.GameDLLInit != nil {
+		metaResult := globalPluginState.apiCallbacks.GameDLLInit()
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goGameDLLInitPost
@@ -13,15 +21,38 @@ func goGameDLLInitPost() {
 }
 
 //export goSpawn
-func goSpawn(pEntity *C.edict_t) {
+func goSpawn(pEntity *C.edict_t) C.int {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.Spawn != nil {
+		metaResult, result := globalPluginState.apiCallbacks.Spawn(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return C.int(result)
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+
+	return C.int(0)
 }
 
 //export goSpawnPost
-func goSpawnPost(pEntity *C.edict_t) {
+func goSpawnPost(pEntity *C.edict_t) C.int {
+	return C.int(0)
 }
 
 //export goThink
 func goThink(pEntity *C.edict_t) {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.Think != nil {
+		metaResult := globalPluginState.apiCallbacks.Think(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goThinkPost
@@ -29,15 +60,37 @@ func goThinkPost(pEntity *C.edict_t) {
 }
 
 //export goUse
-func goUse(pEntity *C.edict_t, pOther *C.edict_t, pActivator *C.edict_t, useType C.float, value C.float) {
+func goUse(pEntity *C.edict_t, pOther *C.edict_t) {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.Use != nil {
+		metaResult := globalPluginState.apiCallbacks.Use(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+			edictFromC(globalPluginState.globalVars.p, pOther),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goUsePost
-func goUsePost(pEntity *C.edict_t, pOther *C.edict_t, pActivator *C.edict_t, useType C.float, value C.float) {
+func goUsePost(pEntity *C.edict_t, pOther *C.edict_t) {
 }
 
 //export goTouch
 func goTouch(pEntity *C.edict_t, pOther *C.edict_t) {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.Touch != nil {
+		metaResult := globalPluginState.apiCallbacks.Touch(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+			edictFromC(globalPluginState.globalVars.p, pOther),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goTouchPost
@@ -46,6 +99,18 @@ func goTouchPost(pEntity *C.edict_t, pOther *C.edict_t) {
 
 //export goBlocked
 func goBlocked(pEntity *C.edict_t, pOther *C.edict_t) {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.Blocked != nil {
+		metaResult := globalPluginState.apiCallbacks.Blocked(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+			edictFromC(globalPluginState.globalVars.p, pOther),
+		)
+
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goBlockedPost
@@ -63,7 +128,24 @@ func goBlockedPost(pEntity *C.edict_t, pOther *C.edict_t) {
 
 //export goClientConnect
 func goClientConnect(pEntity *C.edict_t, name *C.char, address *C.char, reject *C.void) C.qboolean {
-	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientConnect")
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.ClientConnect != nil {
+		metaResult, result, reason := globalPluginState.apiCallbacks.ClientConnect(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+			C.GoString(name),
+			C.GoString(address),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		if reason != "" {
+			rejectString := C.CString(reason)
+			defer C.free(unsafe.Pointer(rejectString))
+			C.strcpy((*C.char)(unsafe.Pointer(reject)), rejectString)
+		}
+
+		return C.qboolean(C.int(result))
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 
 	return C.qboolean(0)
 }
@@ -77,7 +159,16 @@ func goClientConnectPost(pEntity *C.edict_t, name *C.char, address *C.char, reje
 
 //export goClientDisconnect
 func goClientDisconnect(pEntity *C.edict_t) {
-	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientDisconnect")
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.ClientDisconnect != nil {
+		metaResult := globalPluginState.apiCallbacks.ClientDisconnect(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientDisconnectPost
@@ -87,7 +178,16 @@ func goClientDisconnectPost(pEntity *C.edict_t) {
 
 //export goClientKill
 func goClientKill(pEntity *C.edict_t) {
-	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientKill")
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.ClientKill != nil {
+		metaResult := globalPluginState.apiCallbacks.ClientKill(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientKillPost
@@ -97,7 +197,16 @@ func goClientKillPost(pEntity *C.edict_t) {
 
 //export goClientPutInServer
 func goClientPutInServer(pEntity *C.edict_t) {
-	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientPutInServer")
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.ClientPutInServer != nil {
+		metaResult := globalPluginState.apiCallbacks.ClientPutInServer(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientPutInServerPost
@@ -127,7 +236,18 @@ func goClientUserInfoChangedPost(pEntity *C.edict_t, info *C.char) {
 
 //export goServerActivate
 func goServerActivate(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) {
-	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerActivate")
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.ServerActivate != nil {
+		metaResult := globalPluginState.apiCallbacks.ServerActivate(
+			edictFromC(globalPluginState.globalVars.p, pEdictList),
+			int(edictCount),
+			int(clientMax),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goServerActivatePost
@@ -137,7 +257,14 @@ func goServerActivatePost(pEdictList *C.edict_t, edictCount C.int, clientMax C.i
 
 //export goServerDeactivate
 func goServerDeactivate() {
-	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerDeactivate")
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.ServerDeactivate != nil {
+		metaResult := globalPluginState.apiCallbacks.ServerDeactivate()
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goServerDeactivatePost
@@ -147,6 +274,16 @@ func goServerDeactivatePost() {
 
 //export goPlayerPreThink
 func goPlayerPreThink(pEntity *C.edict_t) {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.PlayerPreThink != nil {
+		metaResult := globalPluginState.apiCallbacks.PlayerPreThink(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goPlayerPreThinkPost
@@ -155,6 +292,16 @@ func goPlayerPreThinkPost(pEntity *C.edict_t) {
 
 //export goPlayerPostThink
 func goPlayerPostThink(pEntity *C.edict_t) {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.PlayerPostThink != nil {
+		metaResult := globalPluginState.apiCallbacks.PlayerPostThink(
+			edictFromC(globalPluginState.globalVars.p, pEntity),
+		)
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goPlayerPostThinkPost
@@ -163,6 +310,14 @@ func goPlayerPostThinkPost(pEntity *C.edict_t) {
 
 //export goStartFrame
 func goStartFrame() {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.StartFrame != nil {
+		metaResult := globalPluginState.apiCallbacks.StartFrame()
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goStartFramePost
@@ -183,6 +338,26 @@ func goParmsChangeLevel() {
 
 //export goParmsChangeLevelPost
 func goParmsChangeLevelPost() {
+}
+
+//export goGetGameDescription
+func goGetGameDescription() *C.char {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.GetGameDescription != nil {
+		metaResult, result := globalPluginState.apiCallbacks.GetGameDescription()
+
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return C.CString(result)
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+
+	return nil
+}
+
+//export goGetGameDescriptionPost
+func goGetGameDescriptionPost() *C.char {
+	return nil
 }
 
 //export goSpectatorConnect
@@ -211,6 +386,14 @@ func goSpectatorThinkPost(pEntity *C.edict_t) {
 
 //export goSysError
 func goSysError(errorString *C.char) {
+	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.SysError != nil {
+		metaResult := globalPluginState.apiCallbacks.SysError(C.GoString(errorString))
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goSysErrorPost
