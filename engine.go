@@ -1182,20 +1182,20 @@ func (e *EntVars) SetTakeDamage(takeDamage float32) {
 	e.p.takedamage = C.float(takeDamage)
 }
 
-func (e *EntVars) DeadFlag() int {
+func (e *EntVars) DeadFlag() DeadFlag {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return int(e.p.deadflag)
+	return DeadFlag(int(e.p.deadflag))
 }
 
-func (e *EntVars) SetDeadFlag(deadFlag int) {
+func (e *EntVars) SetDeadFlag(deadFlag DeadFlag) {
 	if !e.IsValid() {
 		return
 	}
 
-	e.p.deadflag = C.int(deadFlag)
+	e.p.deadflag = C.int(int(deadFlag))
 }
 
 func (e *EntVars) ViewOfs() [3]float32 {
@@ -1220,20 +1220,60 @@ func (e *EntVars) SetViewOfs(viewOfs [3]float32) {
 	e.p.view_ofs[2] = C.float(viewOfs[2])
 }
 
-func (e *EntVars) Button() int {
+func (e *EntVars) Button() InButtonFlag {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return int(e.p.button)
+	return InButtonFlag(int(e.p.button))
 }
 
-func (e *EntVars) SetButton(button int) {
+func (e *EntVars) ButtonClear() {
+	if !e.IsValid() {
+		return
+	}
+
+	e.p.button = 0
+}
+
+func (e *EntVars) SetButton(button InButtonFlag) {
 	if !e.IsValid() {
 		return
 	}
 
 	e.p.button = C.int(button)
+}
+
+func (e *EntVars) SetButtonBit(button InButtonFlag) {
+	if !e.IsValid() {
+		return
+	}
+
+	e.p.button |= C.int(int(button))
+}
+
+func (e *EntVars) ButtonToggle(button InButtonFlag) {
+	if !e.IsValid() {
+		return
+	}
+
+	e.p.button ^= C.int(int(button))
+}
+
+func (e *EntVars) ButtonHas(button InButtonFlag) bool {
+	if !e.IsValid() {
+		return false
+	}
+
+	return e.p.button&C.int(int(button)) != 0
+}
+
+func (e *EntVars) ButtonClearBit(button InButtonFlag) {
+	if !e.IsValid() {
+		return
+	}
+
+	e.p.button &= ^C.int(int(button))
 }
 
 func (e *EntVars) Impulse() int {
@@ -1378,6 +1418,38 @@ func (e *EntVars) SetFlags(flags int) {
 	}
 
 	e.p.flags = C.int(flags)
+}
+
+func (e *EntVars) FlagsHas(bit int) bool {
+	if !e.IsValid() {
+		return false
+	}
+
+	return e.p.flags&C.int(bit) != 0
+}
+
+func (e *EntVars) FlagsToggle(bit int) {
+	if !e.IsValid() {
+		return
+	}
+
+	e.p.flags ^= C.int(bit)
+}
+
+func (e *EntVars) SetFlagsBit(bit int) {
+	if !e.IsValid() {
+		return
+	}
+
+	e.p.flags |= C.int(bit)
+}
+
+func (e *EntVars) FlagsClearBit(bit int) {
+	if !e.IsValid() {
+		return
+	}
+
+	e.p.flags &= ^C.int(bit)
 }
 
 func (e *EntVars) Colormap() int {
@@ -2390,6 +2462,20 @@ func (t *Texture) PalOffset() uint32 {
 	return uint32(t.p.paloffset)
 }
 
-func (t *Texture) ToC() *C.texture_t {
+func (t *Texture) toC() *C.texture_t {
 	return t.p
+}
+
+type InfoBuffer struct {
+	p *C.char
+}
+
+func infoBufferFromC(p *C.char) *InfoBuffer {
+	return &InfoBuffer{
+		p: p,
+	}
+}
+
+func (ib *InfoBuffer) String() string {
+	return C.GoString(ib.p)
 }

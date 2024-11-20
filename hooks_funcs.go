@@ -636,7 +636,7 @@ func goHookTraceTexture(pTextureEntity *C.edict_t, v1, v2 *C.float) *C.char {
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
-			return (*C.char)(unsafe.Pointer(result.ToC()))
+			return (*C.char)(unsafe.Pointer(result.toC()))
 		}
 	}
 

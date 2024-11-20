@@ -38,28 +38,32 @@ func Meta_Query(interfaceVersion *C.char, plinfo **C.plugin_info_t, pMetaUtilFun
 
 	*plinfo = &C.Plugin_info
 
+	globalPluginState.metaUtilFuncs.LogDeveloper("Meta_Query called")
+
+	globalPluginState.timelineStatus = statusMetaQueried
+
 	if globalPluginState.metaCallbacks != nil && globalPluginState.metaCallbacks.MetaQuery != nil {
 		result := globalPluginState.metaCallbacks.MetaQuery()
 
 		return C.int(result)
 	}
 
-	globalPluginState.metaUtilFuncs.LogDeveloper("Meta_Query called")
-
-	globalPluginState.timelineStatus = statusMetaQueried
-
 	return 1
 }
 
 //export Meta_Attach
-func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_globals_t, pGamedllFuncs *C.void) C.int {
+func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_globals_t, pGamedllFuncs *C.gamedll_funcs_t) C.int {
 	pFunctionTable.pfnGetEntityAPI2 = C.GETENTITYAPI2_FN(C.getEntityAPI2)
 	pFunctionTable.pfnGetEntityAPI2_Post = C.GETENTITYAPI2_FN(C.getEntityAPI2_Post)
-	pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.getNewDLLFunctions)
-	pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions)
-	pFunctionTable.pfnGetEngineFunctions_Post = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions_Post)
+	//pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.getNewDLLFunctions)
+	//pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions)
+	//pFunctionTable.pfnGetEngineFunctions_Post = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions_Post)
 
 	globalPluginState.metaGlobals = MetaGlobalsFromC(pMGlobals)
+
+	globalPluginState.gameDLLFuncs = newGameDLLFuncs(pGamedllFuncs.dllapi_table)
+
+	globalPluginState.timelineStatus = statusMetaAttached
 
 	if globalPluginState.metaCallbacks != nil && globalPluginState.metaCallbacks.MetaAttach != nil {
 		result := globalPluginState.metaCallbacks.MetaAttach(int(now))
@@ -67,20 +71,18 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_
 		return C.int(result)
 	}
 
-	globalPluginState.timelineStatus = statusMetaAttached
-
 	return 1
 }
 
 //export Meta_Detach
 func Meta_Detach(now C.int, reason C.int) C.int {
+	globalPluginState.timelineStatus = statusMetaDetached
+
 	if globalPluginState.metaCallbacks != nil && globalPluginState.metaCallbacks.MetaDetach != nil {
 		result := globalPluginState.metaCallbacks.MetaDetach(int(now), int(reason))
 
 		return C.int(result)
 	}
-
-	globalPluginState.timelineStatus = statusMetaDetached
 
 	return 1
 }
@@ -90,7 +92,7 @@ func GiveFnptrsToDll(pengfuncsFromEngine *C.enginefuncs_t, pGlobals *C.globalvar
 	globalVars := GlobalVarsFromC(pGlobals)
 	globalPluginState.globalVars = globalVars
 
-	globalPluginState.engineFuncs = NewEngineFuncs(pengfuncsFromEngine, globalVars)
+	globalPluginState.engineFuncs = newEngineFuncs(pengfuncsFromEngine, globalVars)
 }
 
 //export getNewDLLFunctions

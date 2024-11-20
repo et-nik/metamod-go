@@ -30,6 +30,8 @@ type Plugin struct {
 	metaCallbacks *MetaCallbacks
 	metaUtilFuncs *MUtilFuncs
 
+	gameDLLFuncs *GameDLLFuncs
+
 	apiCallbacks *APICallbacks
 
 	engineHooks     *EngineHooks
@@ -62,6 +64,10 @@ func SetEngineHooks(hooks *EngineHooks) error {
 	return nil
 }
 
+func GetGlobalVars() *GlobalVars {
+	return globalPluginState.globalVars
+}
+
 func GetEngineFuncs() (*EngineFuncs, error) {
 	if globalPluginState.timelineStatus < statusLibLoaded {
 		return nil, ErrLibNotLoaded
@@ -72,6 +78,14 @@ func GetEngineFuncs() (*EngineFuncs, error) {
 
 func GetMetaUtilFuncs() (*MUtilFuncs, error) {
 	return globalPluginState.metaUtilFuncs, nil
+}
+
+func GetGameDLLFuncs() (*GameDLLFuncs, error) {
+	if globalPluginState.timelineStatus < statusMetaAttached {
+		return nil, ErrMetaIsNotAttached
+	}
+
+	return globalPluginState.gameDLLFuncs, nil
 }
 
 func GetEngineHooks() *EngineHooks {

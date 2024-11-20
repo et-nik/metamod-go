@@ -39,3 +39,9 @@ typedef struct META_FUNCTIONS
 	GET_ENGINE_FUNCTIONS_FN pfnGetEngineFunctions;
 	GET_ENGINE_FUNCTIONS_FN pfnGetEngineFunctions_Post;
 } META_FUNCTIONS;
+
+// Pair of function tables provided by game DLL.
+typedef struct {
+	DLL_FUNCTIONS *dllapi_table;
+	NEW_DLL_FUNCTIONS *newapi_table;
+} gamedll_funcs_t;

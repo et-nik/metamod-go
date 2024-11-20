@@ -42,3 +42,6 @@ func (m *MetaGlobals) PrevMres() MetaResult {
 func (m *MetaGlobals) Status() MetaResult {
 	return MetaResult(int(m.p.status))
 }
+
+const Success = 1
+const Failure = 0

@@ -69,3 +69,34 @@ const (
 	FindEntityFieldNoise3      FindEntityField = "noise3"
 	FindEntityFieldGlobalname  FindEntityField = "globalname"
 )
+
+type InButtonFlag int
+
+const (
+	InButtonAttack InButtonFlag = 1 << iota
+	InButtonJump
+	InButtonDuck
+	InButtonForward
+	InButtonBack
+	InButtonUse
+	InButtonCancel
+	InButtonLeft
+	InButtonRight
+	InButtonMoveLeft
+	InButtonMoveRight
+	InButtonAttack2
+	InButtonRun
+	InButtonReload
+	InButtonAlt1
+	InButtonScore
+)
+
+type DeadFlag int
+
+const (
+	DeadFlagNo DeadFlag = iota
+	DeadFlagDying
+	DeadFlagDead
+	DeadFlagRespawnable
+	DeadFlagDiscardBody
+)

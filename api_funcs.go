@@ -152,14 +152,16 @@ func goClientConnect(pEntity *C.edict_t, name *C.char, address *C.char, reject *
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 
-	return C.qboolean(0)
+	return C.qboolean(1)
 }
 
 //export goClientConnectPost
 func goClientConnectPost(pEntity *C.edict_t, name *C.char, address *C.char, reject *C.void) C.qboolean {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientConnectPost")
 
-	return C.qboolean(0)
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+
+	return C.qboolean(1)
 }
 
 //export goClientDisconnect
@@ -179,6 +181,8 @@ func goClientDisconnect(pEntity *C.edict_t) {
 //export goClientDisconnectPost
 func goClientDisconnectPost(pEntity *C.edict_t) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientDisconnectPost")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientKill
@@ -198,6 +202,8 @@ func goClientKill(pEntity *C.edict_t) {
 //export goClientKillPost
 func goClientKillPost(pEntity *C.edict_t) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientKillPost")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientPutInServer
@@ -217,26 +223,36 @@ func goClientPutInServer(pEntity *C.edict_t) {
 //export goClientPutInServerPost
 func goClientPutInServerPost(pEntity *C.edict_t) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientPutInServerPost")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientCommand
 func goClientCommand(pEntity *C.edict_t) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientCommand")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientCommandPost
 func goClientCommandPost(pEntity *C.edict_t) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientCommandPost")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientUserInfoChanged
 func goClientUserInfoChanged(pEntity *C.edict_t, info *C.char) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientUserInfoChanged")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goClientUserInfoChangedPost
 func goClientUserInfoChangedPost(pEntity *C.edict_t, info *C.char) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goClientUserInfoChangedPost")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goServerActivate
@@ -258,6 +274,8 @@ func goServerActivate(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) 
 //export goServerActivatePost
 func goServerActivatePost(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerActivatePost")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goServerDeactivate
@@ -275,6 +293,8 @@ func goServerDeactivate() {
 //export goServerDeactivatePost
 func goServerDeactivatePost() {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerDeactivatePost")
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goPlayerPreThink
@@ -293,6 +313,7 @@ func goPlayerPreThink(pEntity *C.edict_t) {
 
 //export goPlayerPreThinkPost
 func goPlayerPreThinkPost(pEntity *C.edict_t) {
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goPlayerPostThink
@@ -311,6 +332,7 @@ func goPlayerPostThink(pEntity *C.edict_t) {
 
 //export goPlayerPostThinkPost
 func goPlayerPostThinkPost(pEntity *C.edict_t) {
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
 }
 
 //export goStartFrame

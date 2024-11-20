@@ -1553,7 +1553,7 @@ typedef struct
 #define ARRAYSIZE(p) (sizeof(p) / sizeof(p[0]))
 #endif
 
-typedef struct
+typedef struct dll_functions_s
 {
 	/**
 	*	Called when the game loads this DLL.

@@ -76,20 +76,25 @@ void goSysError(const char *error_string);
 void goSysErrorPost(const char *error_string);
 
 void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable) {
+	memset(pFunctionTable, 0, sizeof(DLL_FUNCTIONS));
+
 	pFunctionTable->pfnGameInit = goGameDLLInit;
 	pFunctionTable->pfnSpawn = goSpawn;
 	pFunctionTable->pfnThink = goThink;
 	pFunctionTable->pfnUse = goUse;
 	pFunctionTable->pfnTouch = goTouch;
 	pFunctionTable->pfnBlocked = goBlocked;
-	pFunctionTable->pfnClientConnect = goClientConnect;
-	pFunctionTable->pfnClientDisconnect = goClientDisconnect;
-	pFunctionTable->pfnClientKill = goClientKill;
-	pFunctionTable->pfnClientPutInServer = goClientPutInServer;
-	pFunctionTable->pfnServerActivate = goServerActivate;
-	pFunctionTable->pfnServerDeactivate = goServerDeactivate;
-	pFunctionTable->pfnPlayerPreThink = goPlayerPreThink;
-	pFunctionTable->pfnPlayerPostThink = goPlayerPostThink;
+	//pFunctionTable->pfnClientConnect = goClientConnect;
+	//pFunctionTable->pfnClientDisconnect = goClientDisconnect;
+	//pFunctionTable->pfnClientKill = goClientKill;
+	//pFunctionTable->pfnClientPutInServer = goClientPutInServer;
+	//pFunctionTable->pfnServerActivate = goServerActivate;
+	//pFunctionTable->pfnServerDeactivate = goServerDeactivate;
+
+	// TODO: Commented due to "Server issued disconnect. Reason: Banned for move commands flooding (burst)" error
+	//pFunctionTable->pfnPlayerPreThink = goPlayerPreThink;
+	//pFunctionTable->pfnPlayerPostThink = goPlayerPostThink;
+
 	pFunctionTable->pfnStartFrame = goStartFrame;
 	pFunctionTable->pfnParmsNewLevel = goParmsNewLevel;
 	pFunctionTable->pfnParmsChangeLevel = goParmsChangeLevel;
@@ -100,20 +105,25 @@ void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable) {
 }
 
 void SetDLLFunctionsPost(DLL_FUNCTIONS *pFunctionTable) {
+	memset(pFunctionTable, 0, sizeof(DLL_FUNCTIONS));
+
 	pFunctionTable->pfnGameInit = goGameDLLInitPost;
 	pFunctionTable->pfnSpawn = goSpawnPost;
 	pFunctionTable->pfnThink = goThinkPost;
 	pFunctionTable->pfnUse = goUsePost;
 	pFunctionTable->pfnTouch = goTouchPost;
 	pFunctionTable->pfnBlocked = goBlockedPost;
-	pFunctionTable->pfnClientConnect = goClientConnectPost;
-	pFunctionTable->pfnClientDisconnect = goClientDisconnectPost;
-	pFunctionTable->pfnClientKill = goClientKillPost;
-	pFunctionTable->pfnClientPutInServer = goClientPutInServerPost;
-	pFunctionTable->pfnServerActivate = goServerActivatePost;
-	pFunctionTable->pfnServerDeactivate = goServerDeactivatePost;
-	pFunctionTable->pfnPlayerPreThink = goPlayerPreThinkPost;
-	pFunctionTable->pfnPlayerPostThink = goPlayerPostThinkPost;
+	//pFunctionTable->pfnClientConnect = goClientConnectPost;
+	//pFunctionTable->pfnClientDisconnect = goClientDisconnectPost;
+	//pFunctionTable->pfnClientKill = goClientKillPost;
+	//pFunctionTable->pfnClientPutInServer = goClientPutInServerPost;
+	//pFunctionTable->pfnServerActivate = goServerActivatePost;
+	//pFunctionTable->pfnServerDeactivate = goServerDeactivatePost;
+	//pFunctionTable->pfnPlayerPreThink = goPlayerPreThinkPost;
+
+	// TODO: Commented due to "Server issued disconnect. Reason: Banned for move commands flooding (burst)" error
+	//pFunctionTable->pfnPlayerPostThink = goPlayerPostThinkPost;
+
 	pFunctionTable->pfnStartFrame = goStartFramePost;
 	pFunctionTable->pfnParmsNewLevel = goParmsNewLevelPost;
 	pFunctionTable->pfnParmsChangeLevel = goParmsChangeLevelPost;

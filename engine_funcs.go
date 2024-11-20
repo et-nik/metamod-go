@@ -689,7 +689,7 @@ type EngineFuncs struct {
 	stringCache *inmemoryCache[string, int]
 }
 
-func NewEngineFuncs(p *C.enginefuncs_t, globalVars *GlobalVars) *EngineFuncs {
+func newEngineFuncs(p *C.enginefuncs_t, globalVars *GlobalVars) *EngineFuncs {
 	return &EngineFuncs{
 		p:          p,
 		globalVars: globalVars,
@@ -1490,47 +1490,40 @@ func (ef *EngineFuncs) NumberOfEntities() int {
 }
 
 // GetInfoKeyBuffer Gets the info key buffer of an entity.
-func (ef *EngineFuncs) GetInfoKeyBuffer(e *Edict) string {
-	return C.GoString(C.engineFuncsGetInfoKeyBuffer(ef.p, e.p))
+func (ef *EngineFuncs) GetInfoKeyBuffer(e *Edict) *InfoBuffer {
+	c := C.engineFuncsGetInfoKeyBuffer(ef.p, e.p)
+
+	return infoBufferFromC(c)
 }
 
 // InfoKeyValue Gets the value of a key in an info buffer.
-func (ef *EngineFuncs) InfoKeyValue(infobuffer, key string) string {
-	csInfoBuffer := C.CString(infobuffer)
-	defer C.free(unsafe.Pointer(csInfoBuffer))
-
+func (ef *EngineFuncs) InfoKeyValue(infobuffer InfoBuffer, key string) string {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 
-	return C.GoString(C.engineFuncsInfoKeyValue(ef.p, csInfoBuffer, csKey))
+	return C.GoString(C.engineFuncsInfoKeyValue(ef.p, infobuffer.p, csKey))
 }
 
 // SetKeyValue Sets the value of a key in an info buffer.
-func (ef *EngineFuncs) SetKeyValue(infobuffer, key, value string) {
-	csInfoBuffer := C.CString(infobuffer)
-	defer C.free(unsafe.Pointer(csInfoBuffer))
-
+func (ef *EngineFuncs) SetKeyValue(infobuffer InfoBuffer, key, value string) {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 
 	csValue := C.CString(value)
 	defer C.free(unsafe.Pointer(csValue))
 
-	C.engineFuncsSetKeyValue(ef.p, csInfoBuffer, csKey, csValue)
+	C.engineFuncsSetKeyValue(ef.p, infobuffer.p, csKey, csValue)
 }
 
 // SetClientKeyValue Sets the value of a key in an info buffer for a client.
-func (ef *EngineFuncs) SetClientKeyValue(clientIndex int, infobuffer, key, value string) {
-	csInfoBuffer := C.CString(infobuffer)
-	defer C.free(unsafe.Pointer(csInfoBuffer))
-
+func (ef *EngineFuncs) SetClientKeyValue(clientIndex int, infobuffer InfoBuffer, key, value string) {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 
 	csValue := C.CString(value)
 	defer C.free(unsafe.Pointer(csValue))
 
-	C.engineFuncsSetClientKeyValue(ef.p, C.int(clientIndex), csInfoBuffer, csKey, csValue)
+	C.engineFuncsSetClientKeyValue(ef.p, C.int(clientIndex), infobuffer.p, csKey, csValue)
 }
 
 // IsMapValid Checks if a map is valid.
@@ -1625,22 +1618,19 @@ func (ef *EngineFuncs) GetPlayerWONID(e *Edict) uint {
 }
 
 // InfoRemoveKey Removes a key from an info buffer.
-func (ef *EngineFuncs) InfoRemoveKey(infobuffer, key string) {
-	csInfoBuffer := C.CString(infobuffer)
-	defer C.free(unsafe.Pointer(csInfoBuffer))
-
+func (ef *EngineFuncs) InfoRemoveKey(infobuffer InfoBuffer, key string) {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 
-	C.engineFuncsInfo_RemoveKey(ef.p, csInfoBuffer, csKey)
+	C.engineFuncsInfo_RemoveKey(ef.p, infobuffer.p, csKey)
 }
 
 // GetPhysicsKeyValue Gets the value of a key in a physics keyvalue buffer.
-func (ef *EngineFuncs) GetPhysicsKeyValue(client *Edict, key string) string {
+func (ef *EngineFuncs) GetPhysicsKeyValue(client *Edict, key string) *InfoBuffer {
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 
-	return C.GoString(C.engineFuncsGetPhysicsKeyValue(ef.p, client.p, csKey))
+	return infoBufferFromC(C.engineFuncsGetPhysicsKeyValue(ef.p, client.p, csKey))
 }
 
 // SetPhysicsKeyValue Sets the value of a key in a physics keyvalue buffer.
