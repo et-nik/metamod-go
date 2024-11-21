@@ -84,12 +84,12 @@ void SetDLLFunctions(DLL_FUNCTIONS *pFunctionTable) {
 	pFunctionTable->pfnUse = goUse;
 	pFunctionTable->pfnTouch = goTouch;
 	pFunctionTable->pfnBlocked = goBlocked;
-	//pFunctionTable->pfnClientConnect = goClientConnect;
-	//pFunctionTable->pfnClientDisconnect = goClientDisconnect;
-	//pFunctionTable->pfnClientKill = goClientKill;
-	//pFunctionTable->pfnClientPutInServer = goClientPutInServer;
-	//pFunctionTable->pfnServerActivate = goServerActivate;
-	//pFunctionTable->pfnServerDeactivate = goServerDeactivate;
+	pFunctionTable->pfnClientConnect = goClientConnect;
+	pFunctionTable->pfnClientDisconnect = goClientDisconnect;
+	pFunctionTable->pfnClientKill = goClientKill;
+	pFunctionTable->pfnClientPutInServer = goClientPutInServer;
+	pFunctionTable->pfnServerActivate = goServerActivate;
+	pFunctionTable->pfnServerDeactivate = goServerDeactivate;
 
 	// TODO: Commented due to "Server issued disconnect. Reason: Banned for move commands flooding (burst)" error
 	//pFunctionTable->pfnPlayerPreThink = goPlayerPreThink;
@@ -113,12 +113,12 @@ void SetDLLFunctionsPost(DLL_FUNCTIONS *pFunctionTable) {
 	pFunctionTable->pfnUse = goUsePost;
 	pFunctionTable->pfnTouch = goTouchPost;
 	pFunctionTable->pfnBlocked = goBlockedPost;
-	//pFunctionTable->pfnClientConnect = goClientConnectPost;
-	//pFunctionTable->pfnClientDisconnect = goClientDisconnectPost;
-	//pFunctionTable->pfnClientKill = goClientKillPost;
-	//pFunctionTable->pfnClientPutInServer = goClientPutInServerPost;
-	//pFunctionTable->pfnServerActivate = goServerActivatePost;
-	//pFunctionTable->pfnServerDeactivate = goServerDeactivatePost;
+	pFunctionTable->pfnClientConnect = goClientConnectPost;
+	pFunctionTable->pfnClientDisconnect = goClientDisconnectPost;
+	pFunctionTable->pfnClientKill = goClientKillPost;
+	pFunctionTable->pfnClientPutInServer = goClientPutInServerPost;
+	pFunctionTable->pfnServerActivate = goServerActivatePost;
+	pFunctionTable->pfnServerDeactivate = goServerDeactivatePost;
 	//pFunctionTable->pfnPlayerPreThink = goPlayerPreThinkPost;
 
 	// TODO: Commented due to "Server issued disconnect. Reason: Banned for move commands flooding (burst)" error

@@ -21,6 +21,9 @@ int MakeString(globalvars_t *gpGlobals, char *str) {
 
 */
 import "C"
+import (
+	"github.com/et-nik/metamod-go/vector"
+)
 
 type Link struct {
 	Next *Link
@@ -177,23 +180,23 @@ func (e *EntVars) GlobalName() string {
 	return C.GoString(C.ReadString(e.globalVars, e.p.globalname))
 }
 
-func (e *EntVars) Origin() [3]float32 {
+func (e *EntVars) Origin() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
 	if len(e.p.origin) == 0 {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.origin[0]),
 		float32(e.p.origin[1]),
 		float32(e.p.origin[2]),
 	}
 }
 
-func (e *EntVars) SetOrigin(origin [3]float32) {
+func (e *EntVars) SetOrigin(origin vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -203,19 +206,19 @@ func (e *EntVars) SetOrigin(origin [3]float32) {
 	e.p.origin[2] = C.float(origin[2])
 }
 
-func (e *EntVars) OldOrigin() [3]float32 {
+func (e *EntVars) OldOrigin() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.oldorigin[0]),
 		float32(e.p.oldorigin[1]),
 		float32(e.p.oldorigin[2]),
 	}
 }
 
-func (e *EntVars) SetOldOrigin(origin [3]float32) {
+func (e *EntVars) SetOldOrigin(origin vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -225,19 +228,19 @@ func (e *EntVars) SetOldOrigin(origin [3]float32) {
 	e.p.oldorigin[2] = C.float(origin[2])
 }
 
-func (e *EntVars) Velocity() [3]float32 {
+func (e *EntVars) Velocity() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.velocity[0]),
 		float32(e.p.velocity[1]),
 		float32(e.p.velocity[2]),
 	}
 }
 
-func (e *EntVars) SetVelocity(velocity [3]float32) {
+func (e *EntVars) SetVelocity(velocity vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -247,19 +250,19 @@ func (e *EntVars) SetVelocity(velocity [3]float32) {
 	e.p.velocity[2] = C.float(velocity[2])
 }
 
-func (e *EntVars) BaseVelocity() [3]float32 {
+func (e *EntVars) BaseVelocity() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.basevelocity[0]),
 		float32(e.p.basevelocity[1]),
 		float32(e.p.basevelocity[2]),
 	}
 }
 
-func (e *EntVars) SetBaseVelocity(velocity [3]float32) {
+func (e *EntVars) SetBaseVelocity(velocity vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -272,31 +275,31 @@ func (e *EntVars) SetBaseVelocity(velocity [3]float32) {
 // ClBaseVelocity Base velocity that was passed in to server physics so
 // client can predict conveyors correctly.
 // Server zeroes it, so we need to store here, too.
-func (e *EntVars) ClBaseVelocity() [3]float32 {
+func (e *EntVars) ClBaseVelocity() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.clbasevelocity[0]),
 		float32(e.p.clbasevelocity[1]),
 		float32(e.p.clbasevelocity[2]),
 	}
 }
 
-func (e *EntVars) MoveDir() [3]float32 {
+func (e *EntVars) MoveDir() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.movedir[0]),
 		float32(e.p.movedir[1]),
 		float32(e.p.movedir[2]),
 	}
 }
 
-func (e *EntVars) SetMoveDir(dir [3]float32) {
+func (e *EntVars) SetMoveDir(dir vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -307,19 +310,19 @@ func (e *EntVars) SetMoveDir(dir [3]float32) {
 }
 
 // Angles Model angles
-func (e *EntVars) Angles() [3]float32 {
+func (e *EntVars) Angles() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.angles[0]),
 		float32(e.p.angles[1]),
 		float32(e.p.angles[2]),
 	}
 }
 
-func (e *EntVars) SetAngles(angles [3]float32) {
+func (e *EntVars) SetAngles(angles vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -329,19 +332,19 @@ func (e *EntVars) SetAngles(angles [3]float32) {
 	e.p.angles[2] = C.float(angles[2])
 }
 
-func (e *EntVars) Avelocity() [3]float32 {
+func (e *EntVars) Avelocity() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.avelocity[0]),
 		float32(e.p.avelocity[1]),
 		float32(e.p.avelocity[2]),
 	}
 }
 
-func (e *EntVars) SetAvelocity(avelocity [3]float32) {
+func (e *EntVars) SetAvelocity(avelocity vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -351,19 +354,19 @@ func (e *EntVars) SetAvelocity(avelocity [3]float32) {
 	e.p.avelocity[2] = C.float(avelocity[2])
 }
 
-func (e *EntVars) PunchAngle() [3]float32 {
+func (e *EntVars) PunchAngle() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.punchangle[0]),
 		float32(e.p.punchangle[1]),
 		float32(e.p.punchangle[2]),
 	}
 }
 
-func (e *EntVars) SetPunchAngle(punchangle [3]float32) {
+func (e *EntVars) SetPunchAngle(punchangle vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -373,19 +376,19 @@ func (e *EntVars) SetPunchAngle(punchangle [3]float32) {
 	e.p.punchangle[2] = C.float(punchangle[2])
 }
 
-func (e *EntVars) VAngle() [3]float32 {
+func (e *EntVars) VAngle() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.v_angle[0]),
 		float32(e.p.v_angle[1]),
 		float32(e.p.v_angle[2]),
 	}
 }
 
-func (e *EntVars) SetVAngle(vAngle [3]float32) {
+func (e *EntVars) SetVAngle(vAngle vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -395,19 +398,19 @@ func (e *EntVars) SetVAngle(vAngle [3]float32) {
 	e.p.v_angle[2] = C.float(vAngle[2])
 }
 
-func (e *EntVars) EndPos() [3]float32 {
+func (e *EntVars) EndPos() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.endpos[0]),
 		float32(e.p.endpos[1]),
 		float32(e.p.endpos[2]),
 	}
 }
 
-func (e *EntVars) SetEndPos(endPos [3]float32) {
+func (e *EntVars) SetEndPos(endPos vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -417,19 +420,19 @@ func (e *EntVars) SetEndPos(endPos [3]float32) {
 	e.p.endpos[2] = C.float(endPos[2])
 }
 
-func (e *EntVars) StartPos() [3]float32 {
+func (e *EntVars) StartPos() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.startpos[0]),
 		float32(e.p.startpos[1]),
 		float32(e.p.startpos[2]),
 	}
 }
 
-func (e *EntVars) SetStartPost(startPos [3]float32) {
+func (e *EntVars) SetStartPost(startPos vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -615,19 +618,19 @@ func (e *EntVars) SetWeaponModel(weaponModel string) {
 	e.p.weaponmodel = C.int(allocString(weaponModel))
 }
 
-func (e *EntVars) AbsMin() [3]float32 {
+func (e *EntVars) AbsMin() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.absmin[0]),
 		float32(e.p.absmin[1]),
 		float32(e.p.absmin[2]),
 	}
 }
 
-func (e *EntVars) SetAbsMin(absMin [3]float32) {
+func (e *EntVars) SetAbsMin(absMin vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -637,19 +640,19 @@ func (e *EntVars) SetAbsMin(absMin [3]float32) {
 	e.p.absmin[2] = C.float(absMin[2])
 }
 
-func (e *EntVars) AbsMax() [3]float32 {
+func (e *EntVars) AbsMax() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.absmax[0]),
 		float32(e.p.absmax[1]),
 		float32(e.p.absmax[2]),
 	}
 }
 
-func (e *EntVars) SetAbsMax(absMax [3]float32) {
+func (e *EntVars) SetAbsMax(absMax vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -659,19 +662,19 @@ func (e *EntVars) SetAbsMax(absMax [3]float32) {
 	e.p.absmax[2] = C.float(absMax[2])
 }
 
-func (e *EntVars) Mins() [3]float32 {
+func (e *EntVars) Mins() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.mins[0]),
 		float32(e.p.mins[1]),
 		float32(e.p.mins[2]),
 	}
 }
 
-func (e *EntVars) SetMins(mins [3]float32) {
+func (e *EntVars) SetMins(mins vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -681,19 +684,19 @@ func (e *EntVars) SetMins(mins [3]float32) {
 	e.p.mins[2] = C.float(mins[2])
 }
 
-func (e *EntVars) Maxs() [3]float32 {
+func (e *EntVars) Maxs() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.maxs[0]),
 		float32(e.p.maxs[1]),
 		float32(e.p.maxs[2]),
 	}
 }
 
-func (e *EntVars) SetMaxs(maxs [3]float32) {
+func (e *EntVars) SetMaxs(maxs vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -703,19 +706,19 @@ func (e *EntVars) SetMaxs(maxs [3]float32) {
 	e.p.maxs[2] = C.float(maxs[2])
 }
 
-func (e *EntVars) Size() [3]float32 {
+func (e *EntVars) Size() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.size[0]),
 		float32(e.p.size[1]),
 		float32(e.p.size[2]),
 	}
 }
 
-func (e *EntVars) SetSize(size [3]float32) {
+func (e *EntVars) SetSize(size vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -757,15 +760,15 @@ func (e *EntVars) SetNextThink(nextThink float32) {
 	e.p.nextthink = C.float(nextThink)
 }
 
-func (e *EntVars) MoveType() int {
+func (e *EntVars) MoveType() MoveType {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return int(e.p.movetype)
+	return MoveType(int(e.p.movetype))
 }
 
-func (e *EntVars) SetMoveType(moveType int) {
+func (e *EntVars) SetMoveType(moveType MoveType) {
 	if !e.IsValid() {
 		return
 	}
@@ -1064,19 +1067,19 @@ func (e *EntVars) SetRenderAmt(renderAmt float32) {
 	e.p.renderamt = C.float(renderAmt)
 }
 
-func (e *EntVars) RenderColor() [3]float32 {
+func (e *EntVars) RenderColor() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.rendercolor[0]),
 		float32(e.p.rendercolor[1]),
 		float32(e.p.rendercolor[2]),
 	}
 }
 
-func (e *EntVars) SetRenderColor(renderColor [3]float32) {
+func (e *EntVars) SetRenderColor(renderColor vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -1198,19 +1201,19 @@ func (e *EntVars) SetDeadFlag(deadFlag DeadFlag) {
 	e.p.deadflag = C.int(int(deadFlag))
 }
 
-func (e *EntVars) ViewOfs() [3]float32 {
+func (e *EntVars) ViewOfs() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.view_ofs[0]),
 		float32(e.p.view_ofs[1]),
 		float32(e.p.view_ofs[2]),
 	}
 }
 
-func (e *EntVars) SetViewOfs(viewOfs [3]float32) {
+func (e *EntVars) SetViewOfs(viewOfs vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -2184,19 +2187,19 @@ func (e *EntVars) SetFUser4(fUser4 float32) {
 	e.p.fuser4 = C.float(fUser4)
 }
 
-func (e *EntVars) VUser1() [3]float32 {
+func (e *EntVars) VUser1() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.vuser1[0]),
 		float32(e.p.vuser1[1]),
 		float32(e.p.vuser1[2]),
 	}
 }
 
-func (e *EntVars) SetVUser1(vUser1 [3]float32) {
+func (e *EntVars) SetVUser1(vUser1 vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -2206,19 +2209,19 @@ func (e *EntVars) SetVUser1(vUser1 [3]float32) {
 	e.p.vuser1[2] = C.float(vUser1[2])
 }
 
-func (e *EntVars) VUser2() [3]float32 {
+func (e *EntVars) VUser2() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.vuser2[0]),
 		float32(e.p.vuser2[1]),
 		float32(e.p.vuser2[2]),
 	}
 }
 
-func (e *EntVars) SetVUser2(vUser2 [3]float32) {
+func (e *EntVars) SetVUser2(vUser2 vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -2228,19 +2231,19 @@ func (e *EntVars) SetVUser2(vUser2 [3]float32) {
 	e.p.vuser2[2] = C.float(vUser2[2])
 }
 
-func (e *EntVars) VUser3() [3]float32 {
+func (e *EntVars) VUser3() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.vuser3[0]),
 		float32(e.p.vuser3[1]),
 		float32(e.p.vuser3[2]),
 	}
 }
 
-func (e *EntVars) SetVUser3(vUser3 [3]float32) {
+func (e *EntVars) SetVUser3(vUser3 vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -2250,19 +2253,19 @@ func (e *EntVars) SetVUser3(vUser3 [3]float32) {
 	e.p.vuser3[2] = C.float(vUser3[2])
 }
 
-func (e *EntVars) VUser4() [3]float32 {
+func (e *EntVars) VUser4() vector.Vector {
 	if !e.IsValid() {
-		return [3]float32{}
+		return vector.Vector{}
 	}
 
-	return [3]float32{
+	return vector.Vector{
 		float32(e.p.vuser4[0]),
 		float32(e.p.vuser4[1]),
 		float32(e.p.vuser4[2]),
 	}
 }
 
-func (e *EntVars) SetVUser4(vUser4 [3]float32) {
+func (e *EntVars) SetVUser4(vUser4 vector.Vector) {
 	if !e.IsValid() {
 		return
 	}
@@ -2337,16 +2340,16 @@ func (e *EntVars) SetEUser4(eUser4 *Edict) {
 }
 
 type TraceResult struct {
-	AllSolid    bool       // if true, plane is not valid
-	StartSolid  bool       // if true, the initial point was in a solid area
-	InOpen      bool       // if true, the initial point was in empty space
-	InWater     bool       // if true, the initial point was underwater
-	Fraction    float32    // time completed, 1.0 = didn't hit anything
-	EndPos      [3]float32 // final position
-	PlaneDist   float32    // distance from the plane
-	PlaneNormal [3]float32 // surface normal at impact
-	Hit         *Edict     // entity the surface is on
-	HitGroup    int        // 0 == generic, non-zero is specific body part
+	AllSolid    bool          // if true, plane is not valid
+	StartSolid  bool          // if true, the initial point was in a solid area
+	InOpen      bool          // if true, the initial point was in empty space
+	InWater     bool          // if true, the initial point was underwater
+	Fraction    float32       // time completed, 1.0 = didn't hit anything
+	EndPos      vector.Vector // final position
+	PlaneDist   float32       // distance from the plane
+	PlaneNormal vector.Vector // surface normal at impact
+	Hit         *Edict        // entity the surface is on
+	HitGroup    int           // 0 == generic, non-zero is specific body part
 }
 
 func traceResultFromC(globalVars *C.globalvars_t, tr C.TraceResult) *TraceResult {
@@ -2360,7 +2363,7 @@ func traceResultFromC(globalVars *C.globalvars_t, tr C.TraceResult) *TraceResult
 	}
 
 	if len(tr.vecEndPos) == 3 {
-		result.EndPos = [3]float32{
+		result.EndPos = vector.Vector{
 			float32(tr.vecEndPos[0]),
 			float32(tr.vecEndPos[1]),
 			float32(tr.vecEndPos[2]),
@@ -2368,7 +2371,7 @@ func traceResultFromC(globalVars *C.globalvars_t, tr C.TraceResult) *TraceResult
 	}
 
 	if len(tr.vecPlaneNormal) == 3 {
-		result.PlaneNormal = [3]float32{
+		result.PlaneNormal = vector.Vector{
 			float32(tr.vecPlaneNormal[0]),
 			float32(tr.vecPlaneNormal[1]),
 			float32(tr.vecPlaneNormal[2]),

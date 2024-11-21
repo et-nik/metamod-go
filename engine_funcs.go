@@ -453,7 +453,7 @@ edict_t* engineFuncsCreateFakeClient(struct enginefuncs_s *t, const char *netnam
 	return (*t->pfnCreateFakeClient)(netname);
 }
 
-void engineFuncsRunPlayerMove(struct enginefuncs_s *t, edict_t *fakeClient, const float *viewangles, float forwardmove, float sidemove, float upmove, unsigned short buttons, byte impulse, byte msec) {
+void engineFuncsRunPlayerMove(struct enginefuncs_s *t, edict_t *fakeClient, float *viewangles, float forwardmove, float sidemove, float upmove, unsigned short buttons, byte impulse, byte msec) {
 	(*t->pfnRunPlayerMove)(fakeClient, viewangles, forwardmove, sidemove, upmove, buttons, impulse, msec);
 }
 
@@ -673,6 +673,7 @@ edict_t* engineFuncsPEntityOfEntIndexAllEntities(struct enginefuncs_s *t, int iE
 import "C"
 
 import (
+	"github.com/et-nik/metamod-go/vector"
 	"strings"
 	"unsafe"
 )
@@ -730,7 +731,7 @@ func (ef *EngineFuncs) ModelFrames(index int) int {
 	return int(C.engineFuncsModelFrames(ef.p, C.int(index)))
 }
 
-func (ef *EngineFuncs) SetSize(e *Edict, mins, maxs [3]float32) {
+func (ef *EngineFuncs) SetSize(e *Edict, mins, maxs vector.Vector) {
 	C.engineFuncsSetSize(
 		ef.p,
 		e.p,
@@ -752,18 +753,18 @@ func (ef *EngineFuncs) ChangeLevel(levelName string, landmark string) {
 	C.engineFuncsChangeLevel(ef.p, csLevelName, csLandmark)
 }
 
-func (ef *EngineFuncs) VecToYaw(vec [3]float32) float32 {
+func (ef *EngineFuncs) VecToYaw(vec vector.Vector) float32 {
 	return float32(C.engineFuncsVecToYaw(ef.p, (*C.float)(&vec[0])))
 }
 
-func (ef *EngineFuncs) VecToAngles(vec [3]float32) [3]float32 {
-	var angles [3]float32
+func (ef *EngineFuncs) VecToAngles(vec vector.Vector) vector.Vector {
+	var angles vector.Vector
 	C.engineFuncsVecToAngles(ef.p, (*C.float)(&vec[0]), (*C.float)(&angles[0]))
 
 	return angles
 }
 
-func (ef *EngineFuncs) MoveToOrigin(e *Edict, goal [3]float32, dist float32, moveType MoveType) {
+func (ef *EngineFuncs) MoveToOrigin(e *Edict, goal vector.Vector, dist float32, moveType MoveType) {
 	C.engineFuncsMoveToOrigin(
 		ef.p,
 		e.p,
@@ -797,7 +798,7 @@ func (ef *EngineFuncs) GetEntityIllum(e *Edict) int {
 	return int(C.engineFuncsGetEntityIllum(ef.p, e.p))
 }
 
-func (ef *EngineFuncs) FindEntityInSphere(start *Edict, origin [3]float32, radius float32) *Edict {
+func (ef *EngineFuncs) FindEntityInSphere(start *Edict, origin vector.Vector, radius float32) *Edict {
 	e := C.engineFuncsFindEntityInSphere(
 		ef.p,
 		start.p,
@@ -821,11 +822,11 @@ func (ef *EngineFuncs) EntitiesInPVS(e *Edict) *Edict {
 	return edictFromC(ef.globalVars.p, edict)
 }
 
-func (ef *EngineFuncs) MakeVectors(angles [3]float32) {
+func (ef *EngineFuncs) MakeVectors(angles vector.Vector) {
 	C.engineFuncsMakeVectors(ef.p, (*C.float)(&angles[0]))
 }
 
-func (ef *EngineFuncs) AngleVectors(vector [3]float32, forward, right, up [3]float32) {
+func (ef *EngineFuncs) AngleVectors(vector vector.Vector, forward, right, up vector.Vector) {
 	C.engineFuncsAngleVectors(
 		ef.p,
 		(*C.float)(&vector[0]),
@@ -851,7 +852,7 @@ func (ef *EngineFuncs) WalkMove(e *Edict, yaw float32, dist float32, mode WalkMo
 	return int(C.engineFuncsWalkMove(ef.p, e.p, C.float(yaw), C.float(dist), C.int(mode)))
 }
 
-func (ef *EngineFuncs) SetOrigin(e *Edict, origin [3]float32) {
+func (ef *EngineFuncs) SetOrigin(e *Edict, origin vector.Vector) {
 	C.engineFuncsSetOrigin(ef.p, e.p, (*C.float)(&origin[0]))
 }
 
@@ -873,7 +874,7 @@ func (ef *EngineFuncs) EmitSound(e *Edict, channel int, sample string, volume, a
 
 func (ef *EngineFuncs) EmitAmbientSound(
 	e *Edict,
-	position [3]float32,
+	position vector.Vector,
 	sample string,
 	volume, attenuation float32,
 	flags int,
@@ -1017,7 +1018,7 @@ func (ef *EngineFuncs) StringFromIndex(index int) string {
 }
 
 func (ef *EngineFuncs) TraceLine(
-	v1, v2 [3]float32,
+	v1, v2 vector.Vector,
 	noMonsters int,
 	pentToSkip *Edict,
 ) *TraceResult {
@@ -1066,7 +1067,7 @@ func (ef *EngineFuncs) TraceToss(pent, pentToIgnore *Edict) *TraceResult {
 // Returns true if the trace was entirely in a solid object, or if it hit something.
 func (ef *EngineFuncs) TraceMonsterHull(
 	pent *Edict,
-	v1, v2 [3]float32,
+	v1, v2 vector.Vector,
 	noMonsters int,
 	pentToSkip *Edict,
 ) (*TraceResult, int) {
@@ -1092,7 +1093,7 @@ func (ef *EngineFuncs) TraceMonsterHull(
 
 // TraceHull Performs a trace between a starting and ending position, using the given hull number.
 func (ef *EngineFuncs) TraceHull(
-	v1, v2 [3]float32,
+	v1, v2 vector.Vector,
 	noMonsters, hullNumber int,
 	pentToSkip *Edict,
 ) *TraceResult {
@@ -1123,7 +1124,7 @@ func (ef *EngineFuncs) TraceHull(
 // If it's a brush model, the brush model's hull for the given hull number is used (this may differ if custom brush hull sizes are in use).
 // Otherwise, the entity bounds are converted into a hull.
 func (ef *EngineFuncs) TraceModel(
-	v1, v2 [3]float32,
+	v1, v2 vector.Vector,
 	hullNumber int,
 	pent *Edict,
 ) *TraceResult {
@@ -1146,7 +1147,7 @@ func (ef *EngineFuncs) TraceModel(
 // If the traceline intersects the model, the texture of the surface it intersected is returned.
 func (ef *EngineFuncs) TraceTexture(
 	pent *Edict,
-	v1, v2 [3]float32,
+	v1, v2 vector.Vector,
 ) *Texture {
 	texture := C.engineFuncsTraceTexture(
 		ef.p,
@@ -1158,8 +1159,8 @@ func (ef *EngineFuncs) TraceTexture(
 	return textureFromC(texture)
 }
 
-func (ef *EngineFuncs) GetAimVector(ent *Edict, speed float32) [3]float32 {
-	var vec [3]float32
+func (ef *EngineFuncs) GetAimVector(ent *Edict, speed float32) vector.Vector {
+	var vec vector.Vector
 	C.engineFuncsGetAimVector(ef.p, ent.p, C.float(speed), (*C.float)(&vec[0]))
 
 	return vec
@@ -1206,7 +1207,7 @@ func (ef *EngineFuncs) ClientCommand(pEdict *Edict, str string) {
 
 // ParticleEffect Creates a particle effect.
 func (ef *EngineFuncs) ParticleEffect(
-	origin, direction [3]float32,
+	origin, direction vector.Vector,
 	color, count float32,
 ) {
 	C.engineFuncsParticleEffect(
@@ -1235,7 +1236,7 @@ func (ef *EngineFuncs) DecalIndex(name string) int {
 }
 
 // PointContents Gets the contents of the given location in the world.
-func (ef *EngineFuncs) PointContents(v [3]float32) int {
+func (ef *EngineFuncs) PointContents(v vector.Vector) int {
 	return int(C.engineFuncsPointContents(
 		ef.p,
 		(*C.float)(&v[0]),
@@ -1375,7 +1376,7 @@ func (ef *EngineFuncs) ServerPrint(msg string) {
 	C.engineFuncsServerPrint(ef.p, cs)
 }
 
-func (ef *EngineFuncs) GetAttachment(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *[3]float32) {
+func (ef *EngineFuncs) GetAttachment(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *vector.Vector) {
 	C.engineFuncsGetAttachment(ef.p, pEdict.p, C.int(attachmentIndex), (*C.float)(&rgflOrigin[0]), (*C.float)(&rgflAngles[0]))
 }
 
@@ -1465,7 +1466,7 @@ func (ef *EngineFuncs) CreateFakeClient(netname string) *Edict {
 // RunPlayerMove Runs player movement for a fake client.
 func (ef *EngineFuncs) RunPlayerMove(
 	fakeClient *Edict,
-	viewAngles [3]float32,
+	viewAngles vector.Vector,
 	forwardMove, sideMove, upMove float32,
 	buttons uint16,
 	impulse uint16,
@@ -1535,7 +1536,7 @@ func (ef *EngineFuncs) IsMapValid(filename string) bool {
 }
 
 // StaticDecal Creates a static decal.
-func (ef *EngineFuncs) StaticDecal(origin [3]float32, decalIndex, entityIndex, modelIndex int) {
+func (ef *EngineFuncs) StaticDecal(origin vector.Vector, decalIndex, entityIndex, modelIndex int) {
 	C.engineFuncsStaticDecal(
 		ef.p,
 		(*C.float)(&origin[0]),
@@ -1577,7 +1578,7 @@ func (ef *EngineFuncs) BuildSoundMsg(
 	sample string,
 	volume, attenuation float32,
 	flags, pitch, msgType, msgID int,
-	origin [3]float32,
+	origin vector.Vector,
 	ed *Edict,
 ) {
 	csSample := C.CString(sample)
@@ -1676,7 +1677,7 @@ func (ef *EngineFuncs) PlaybackEvent(
 	invoker *Edict,
 	eventIndex uint16,
 	delay float32,
-	origin, angles [3]float32,
+	origin, angles vector.Vector,
 	fparam1, fparam2 float32,
 	iparam1, iparam2 int,
 	bparam1, bparam2 bool,
@@ -1709,7 +1710,7 @@ func (ef *EngineFuncs) PlaybackEvent(
 }
 
 // SetFatPVS Adds the given origin to the current PVS.
-func (ef *EngineFuncs) SetFatPVS(origin [3]float32) unsafe.Pointer {
+func (ef *EngineFuncs) SetFatPVS(origin vector.Vector) unsafe.Pointer {
 	return unsafe.Pointer(C.engineFuncsSetFatPVS(
 		ef.p,
 		(*C.float)(&origin[0]),
@@ -1717,7 +1718,7 @@ func (ef *EngineFuncs) SetFatPVS(origin [3]float32) unsafe.Pointer {
 }
 
 // SetFatPAS Adds the given origin to the current PAS.
-func (ef *EngineFuncs) SetFatPAS(origin [3]float32) unsafe.Pointer {
+func (ef *EngineFuncs) SetFatPAS(origin vector.Vector) unsafe.Pointer {
 	return unsafe.Pointer(C.engineFuncsSetFatPAS(
 		ef.p,
 		(*C.float)(&origin[0]),

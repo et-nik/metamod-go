@@ -1,7 +1,10 @@
 package metamod_go
 
 import "C"
-import "unsafe"
+import (
+	"github.com/et-nik/metamod-go/vector"
+	"unsafe"
+)
 
 var globalPluginState = &Plugin{
 	engineFuncs:   &EngineFuncs{},
@@ -36,6 +39,8 @@ type Plugin struct {
 
 	engineHooks     *EngineHooks
 	engineHooksPost *EngineHooks
+
+	startEntity *Edict
 }
 
 func SetPluginInfo(info *PluginInfo) error {
@@ -170,20 +175,20 @@ type EngineHooks struct {
 	SetModel           func(e *Edict, model string) EngineHookResult
 	ModelIndex         func(name string) (EngineHookResult, int)
 	ModelFrames        func(index int) (EngineHookResult, int)
-	SetSize            func(e *Edict, mins, maxs [3]float32) EngineHookResult
+	SetSize            func(e *Edict, mins, maxs vector.Vector) EngineHookResult
 	ChangeLevel        func(mapName string, landmark string) EngineHookResult
-	VecToYaw           func(vec [3]float32) (EngineHookResult, float32)
-	VecToAngles        func(vec [3]float32) (EngineHookResult, [3]float32)
-	MoveToOrigin       func(e *Edict, goal [3]float32, dist float32, moveType MoveType) EngineHookResult
+	VecToYaw           func(vec vector.Vector) (EngineHookResult, float32)
+	VecToAngles        func(vec vector.Vector) (EngineHookResult, vector.Vector)
+	MoveToOrigin       func(e *Edict, goal vector.Vector, dist float32, moveType MoveType) EngineHookResult
 	ChangeYaw          func(e *Edict) EngineHookResult
 	ChangePitch        func(e *Edict) EngineHookResult
 	FindEntityByString func(start *Edict, field FindEntityField, value string) (EngineHookResult, *Edict)
 	GetEntityIllum     func(e *Edict) (EngineHookResult, int)
-	FindEntityInSphere func(start *Edict, origin [3]float32, radius float32) (EngineHookResult, *Edict)
+	FindEntityInSphere func(start *Edict, origin vector.Vector, radius float32) (EngineHookResult, *Edict)
 	FindClientInPVS    func(e *Edict) (EngineHookResult, *Edict)
 	EntitiesInPVS      func(e *Edict) (EngineHookResult, *Edict)
-	MakeVectors        func(angles [3]float32) EngineHookResult
-	AngleVectors       func(vector [3]float32, forward, right, up [3]float32) EngineHookResult
+	MakeVectors        func(angles vector.Vector) EngineHookResult
+	AngleVectors       func(vector vector.Vector, forward, right, up vector.Vector) EngineHookResult
 	CreateEntity       func() (EngineHookResult, *Edict)
 	CreateNamedEntity  func(className string) *Edict
 	RemoveEntity       func(e *Edict) EngineHookResult
@@ -191,47 +196,47 @@ type EngineHooks struct {
 	EntIsOnFloor       func(e *Edict) (EngineHookResult, bool)
 	DropToFloor        func(e *Edict) (EngineHookResult, int)
 	WalkMove           func(e *Edict, yaw float32, dist float32, mode WalkMoveMode) (EngineHookResult, int)
-	SetOrigin          func(e *Edict, origin [3]float32) EngineHookResult
+	SetOrigin          func(e *Edict, origin vector.Vector) EngineHookResult
 	EmitSound          func(e *Edict, channel int, sample string, volume float32, attenuation int, fFlags int, pitch int) EngineHookResult
 	EmitAmbientSound   func(
 		e *Edict,
-		origin [3]float32,
+		origin vector.Vector,
 		sample string,
 		volume, attenuation float32,
 		flags int,
 		pitch int,
 	) EngineHookResult
 	TraceLine func(
-		v1, v2 [3]float32,
+		v1, v2 vector.Vector,
 		noMonsters int,
 		pentToSkip *Edict,
 	) (EngineHookResult, *TraceResult)
 	TraceToss        func(pent, pentToIgnore *Edict) (EngineHookResult, *TraceResult)
 	TraceMonsterHull func(
 		pent *Edict,
-		v1, v2 [3]float32,
+		v1, v2 vector.Vector,
 		noMonsters int,
 		pentToSkip *Edict,
 	) (EngineHookResult, *TraceResult, int)
 	TraceHull func(
-		v1, v2 [3]float32,
+		v1, v2 vector.Vector,
 		noMonsters, hullNumber int,
 		pentToSkip *Edict,
 	) (EngineHookResult, *TraceResult)
-	TraceModel       func(v1, v2 [3]float32, hullNumber int, pent *Edict) (EngineHookResult, *TraceResult)
-	TraceTexture     func(pent *Edict, v1, v2 [3]float32) (EngineHookResult, *Texture)
-	GetAimVector     func(ent *Edict, speed float32) (EngineHookResult, [3]float32)
+	TraceModel       func(v1, v2 vector.Vector, hullNumber int, pent *Edict) (EngineHookResult, *TraceResult)
+	TraceTexture     func(pent *Edict, v1, v2 vector.Vector) (EngineHookResult, *Texture)
+	GetAimVector     func(ent *Edict, speed float32) (EngineHookResult, vector.Vector)
 	ServerCommand    func(str string) EngineHookResult
 	AddServerCommand func(name string, fn unsafe.Pointer) EngineHookResult
 	ServerExecute    func() EngineHookResult
 	ClientCommand    func(pEdict *Edict, format string) EngineHookResult
 	ParticleEffect   func(
-		origin, direction [3]float32,
+		origin, direction vector.Vector,
 		color, count float32,
 	) EngineHookResult
 	LightStyle            func(style int, value string) EngineHookResult
 	DecalIndex            func(name string) (EngineHookResult, int)
-	PointContents         func(v [3]float32) (EngineHookResult, int)
+	PointContents         func(v vector.Vector) (EngineHookResult, int)
 	MessageBegin          func(msgDest int, msgType int, pOrigin *float32, pEdict *Edict) EngineHookResult
 	MessageEnd            func() EngineHookResult
 	CVarRegister          func(cvar *Cvar) EngineHookResult
@@ -261,7 +266,7 @@ type EngineHooks struct {
 	NameForFunction       func(fn uint32) (EngineHookResult, string)
 	ClientPrint           func(pEdict *Edict, printType PrintType, msg string) EngineHookResult
 	ServerPrint           func(msg string) EngineHookResult
-	GetAttachment         func(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *[3]float32) EngineHookResult
+	GetAttachment         func(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *vector.Vector) EngineHookResult
 	RandomLong            func(low, high int32) (EngineHookResult, int32)
 	RandomFloat           func(low, high float32) (EngineHookResult, float32)
 	SetView               func(pEdict *Edict, pOther *Edict) EngineHookResult
@@ -276,7 +281,7 @@ type EngineHooks struct {
 	CreateFakeClient     func(name string) (EngineHookResult, *Edict)
 	RunPlayerMove        func(
 		client *Edict,
-		viewAngles [3]float32,
+		viewAngles vector.Vector,
 		forwardMove, sideMove, upMove float32,
 		buttons uint16,
 		impulse uint16,
@@ -288,7 +293,7 @@ type EngineHooks struct {
 	SetKeyValue          func(infoBuffer []byte, key, value string) EngineHookResult
 	SetClientKeyValue    func(clientIndex int, key, value string) EngineHookResult
 	IsMapValid           func(filename string) (EngineHookResult, bool)
-	StaticDecal          func(origin [3]float32, decalIndex int, entityIndex, modelIndex int) EngineHookResult
+	StaticDecal          func(origin vector.Vector, decalIndex int, entityIndex, modelIndex int) EngineHookResult
 	PrecacheGeneric      func(modelName string) (EngineHookResult, int)
 	GetPlayerUserId      func(e *Edict) (EngineHookResult, int)
 	IsDedicatedServer    func() (EngineHookResult, bool)
@@ -304,13 +309,13 @@ type EngineHooks struct {
 		invoker *Edict,
 		eventIndex uint16,
 		delay float32,
-		origin, angles [3]float32,
+		origin, angles vector.Vector,
 		fparam1, fparam2 float32,
 		iparam1, iparam2 int,
 		bparam1, bparam2 bool,
 	) EngineHookResult
-	SetFatPVS             func(origin [3]float32) (EngineHookResult, unsafe.Pointer)
-	SetFatPAS             func(origin [3]float32) (EngineHookResult, unsafe.Pointer)
+	SetFatPVS             func(origin vector.Vector) (EngineHookResult, unsafe.Pointer)
+	SetFatPAS             func(origin vector.Vector) (EngineHookResult, unsafe.Pointer)
 	CvarDirectSet         func(cvar *Cvar, value string) EngineHookResult
 	GetPlayerStats        func(client *Edict) (EngineHookResult, int, int)
 	GetPlayerAuthId       func(client *Edict) (EngineHookResult, string)

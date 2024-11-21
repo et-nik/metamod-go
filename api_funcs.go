@@ -257,9 +257,11 @@ func goClientUserInfoChangedPost(pEntity *C.edict_t, info *C.char) {
 
 //export goServerActivate
 func goServerActivate(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) {
+	startEdict := edictFromC(globalPluginState.globalVars.p, pEdictList)
+
 	if globalPluginState.apiCallbacks != nil && globalPluginState.apiCallbacks.ServerActivate != nil {
 		metaResult := globalPluginState.apiCallbacks.ServerActivate(
-			edictFromC(globalPluginState.globalVars.p, pEdictList),
+			startEdict,
 			int(edictCount),
 			int(clientMax),
 		)
@@ -275,7 +277,18 @@ func goServerActivate(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) 
 func goServerActivatePost(pEdictList *C.edict_t, edictCount C.int, clientMax C.int) {
 	globalPluginState.metaUtilFuncs.LogDeveloper("Called goServerActivatePost")
 
-	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+	startEdict := edictFromC(globalPluginState.globalVars.p, pEdictList)
+
+	if startEdict.EntVars().ClassName() == "worldspawn" {
+		globalPluginState.startEntity = startEdict
+	} else {
+		globalPluginState.metaUtilFuncs.LogErrorf(
+			"goServerActivate: worldspawn not found, found: %s",
+			startEdict.EntVars().ClassName(),
+		)
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultHandled)
 }
 
 //export goServerDeactivate

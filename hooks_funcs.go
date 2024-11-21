@@ -9,6 +9,7 @@ extern void setVec3FloatPtr(float x, float y, float z, float* ptr);
 */
 import "C"
 import (
+	"github.com/et-nik/metamod-go/vector"
 	"unsafe"
 )
 
@@ -88,8 +89,8 @@ func goHookSetSize(pEdict *C.edict_t, mins, maxs *C.float) {
 
 		metaResult := globalPluginState.engineHooks.SetSize(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
-			[3]float32{float32(minsVec[0]), float32(minsVec[1]), float32(minsVec[2])},
-			[3]float32{float32(maxsVec[0]), float32(maxsVec[1]), float32(maxsVec[2])},
+			vector.Vector{float32(minsVec[0]), float32(minsVec[1]), float32(minsVec[2])},
+			vector.Vector{float32(maxsVec[0]), float32(maxsVec[1]), float32(maxsVec[2])},
 		)
 
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
@@ -117,7 +118,7 @@ func goHookVecToYaw(vec *C.float) C.float {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.VecToYaw != nil {
 		v := C.castPtrToVec3(vec)
 		metaResult, result := globalPluginState.engineHooks.VecToYaw(
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 		)
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
@@ -135,7 +136,7 @@ func goHookVecToAngles(vec *C.float) *C.float {
 		v := C.castPtrToVec3(vec)
 
 		metaResult, result := globalPluginState.engineHooks.VecToAngles(
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 		)
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
@@ -155,7 +156,7 @@ func goHookMoveToOrigin(pEdict *C.edict_t, goal *C.float, dist C.float, moveType
 
 		metaResult := globalPluginState.engineHooks.MoveToOrigin(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 			float32(dist),
 			MoveType(int(moveType)),
 		)
@@ -235,7 +236,7 @@ func goHookFindEntityInSphere(pEdict *C.edict_t, origin *C.float, radius C.float
 
 		metaResult, result := globalPluginState.engineHooks.FindEntityInSphere(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 			float32(radius),
 		)
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
@@ -293,7 +294,7 @@ func goHookMakeVectors(angles *C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.MakeVectors != nil {
 		v := C.castPtrToVec3(angles)
 
-		metaResult := globalPluginState.engineHooks.MakeVectors([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
+		metaResult := globalPluginState.engineHooks.MakeVectors(vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])})
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
@@ -303,19 +304,19 @@ func goHookMakeVectors(angles *C.float) {
 }
 
 //export goHookAngleVectors
-func goHookAngleVectors(vector *C.float, forward, right, up *C.float) {
+func goHookAngleVectors(vptr *C.float, forward, right, up *C.float) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.AngleVectors != nil {
-		v := C.castPtrToVec3(vector)
+		v := C.castPtrToVec3(vptr)
 
 		forwardVec := C.castPtrToVec3(forward)
 		rightVec := C.castPtrToVec3(right)
 		upVec := C.castPtrToVec3(up)
 
 		metaResult := globalPluginState.engineHooks.AngleVectors(
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
-			[3]float32{float32(forwardVec[0]), float32(forwardVec[1]), float32(forwardVec[2])},
-			[3]float32{float32(rightVec[0]), float32(rightVec[1]), float32(rightVec[2])},
-			[3]float32{float32(upVec[0]), float32(upVec[1]), float32(upVec[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(forwardVec[0]), float32(forwardVec[1]), float32(forwardVec[2])},
+			vector.Vector{float32(rightVec[0]), float32(rightVec[1]), float32(rightVec[2])},
+			vector.Vector{float32(upVec[0]), float32(upVec[1]), float32(upVec[2])},
 		)
 
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
@@ -438,7 +439,7 @@ func goHookSetOrigin(pEdict *C.edict_t, origin *C.float) {
 
 		metaResult := globalPluginState.engineHooks.SetOrigin(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 		)
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
@@ -483,7 +484,7 @@ func goHookEmitAmbientSound(
 
 		metaResult := globalPluginState.engineHooks.EmitAmbientSound(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 			C.GoString(sample),
 			float32(volume),
 			float32(attenuation),
@@ -507,8 +508,8 @@ func goHookTraceLine(v1, v2 *C.float, fNoMonsters C.int, pentToSkip *C.edict_t, 
 		v2Vec := C.castPtrToVec3(v2)
 
 		metaResult, result := globalPluginState.engineHooks.TraceLine(
-			[3]float32{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
-			[3]float32{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
+			vector.Vector{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
+			vector.Vector{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
 			int(fNoMonsters),
 			edictFromC(globalPluginState.globalVars.p, pentToSkip),
 		)
@@ -550,8 +551,8 @@ func goHookTraceMonsterHull(pent *C.edict_t, v1, v2 *C.float, fNoMonsters C.int,
 
 		metaResult, result, hit := globalPluginState.engineHooks.TraceMonsterHull(
 			edictFromC(globalPluginState.globalVars.p, pent),
-			[3]float32{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
-			[3]float32{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
+			vector.Vector{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
+			vector.Vector{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
 			int(fNoMonsters),
 			edictFromC(globalPluginState.globalVars.p, pentToSkip),
 		)
@@ -577,8 +578,8 @@ func goHookTraceHull(v1, v2 *C.float, fNoMonsters, hullNumber C.int, pentToSkip 
 		v2Vec := C.castPtrToVec3(v2)
 
 		metaResult, result := globalPluginState.engineHooks.TraceHull(
-			[3]float32{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
-			[3]float32{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
+			vector.Vector{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
+			vector.Vector{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
 			int(fNoMonsters),
 			int(hullNumber),
 			edictFromC(globalPluginState.globalVars.p, pentToSkip),
@@ -603,8 +604,8 @@ func goHookTraceModel(v1, v2 *C.float, hullNumber C.int, pent *C.edict_t, ptr *C
 		v2Vec := C.castPtrToVec3(v2)
 
 		metaResult, result := globalPluginState.engineHooks.TraceModel(
-			[3]float32{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
-			[3]float32{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
+			vector.Vector{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
+			vector.Vector{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
 			int(hullNumber),
 			edictFromC(globalPluginState.globalVars.p, pent),
 		)
@@ -629,8 +630,8 @@ func goHookTraceTexture(pTextureEntity *C.edict_t, v1, v2 *C.float) *C.char {
 
 		metaResult, result := globalPluginState.engineHooks.TraceTexture(
 			edictFromC(globalPluginState.globalVars.p, pTextureEntity),
-			[3]float32{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
-			[3]float32{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
+			vector.Vector{float32(v1Vec[0]), float32(v1Vec[1]), float32(v1Vec[2])},
+			vector.Vector{float32(v2Vec[0]), float32(v2Vec[1]), float32(v2Vec[2])},
 		)
 
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
@@ -714,8 +715,8 @@ func goHookParticleEffect(origin, direction *C.float, color, count C.float) {
 		directionVec := C.castPtrToVec3(direction)
 
 		r := globalPluginState.engineHooks.ParticleEffect(
-			[3]float32{float32(originVec[0]), float32(originVec[1]), float32(originVec[2])},
-			[3]float32{float32(directionVec[0]), float32(directionVec[1]), float32(directionVec[2])},
+			vector.Vector{float32(originVec[0]), float32(originVec[1]), float32(originVec[2])},
+			vector.Vector{float32(directionVec[0]), float32(directionVec[1]), float32(directionVec[2])},
 			float32(color),
 			float32(count),
 		)
@@ -758,7 +759,7 @@ func goHookPointContents(v *C.float) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.PointContents != nil {
 		vVec := C.castPtrToVec3(v)
 
-		metaResult, result := globalPluginState.engineHooks.PointContents([3]float32{float32(vVec[0]), float32(vVec[1]), float32(vVec[2])})
+		metaResult, result := globalPluginState.engineHooks.PointContents(vector.Vector{float32(vVec[0]), float32(vVec[1]), float32(vVec[2])})
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
@@ -1166,8 +1167,8 @@ func goHookServerPrint(msg *C.char) {
 func goHookGetAttachment(pEdict *C.edict_t, attachment C.int, origin, angles *C.float) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.GetAttachment != nil {
 
-		gorigin := [3]float32{}
-		gangles := [3]float32{}
+		gorigin := vector.Vector{}
+		gangles := vector.Vector{}
 
 		metaResult := globalPluginState.engineHooks.GetAttachment(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
@@ -1374,7 +1375,7 @@ func goHookRunPlayerMove(pEdict *C.edict_t, viewangles, forwardmove, sidemove, u
 
 		r := globalPluginState.engineHooks.RunPlayerMove(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 			float32(*forwardmove),
 			float32(*sidemove),
 			float32(*upmove),
@@ -1488,7 +1489,7 @@ func goHookStaticDecal(origin *C.float, decalIndex, entityIndex, modelIndex C.in
 		v := C.castPtrToVec3(origin)
 
 		r := globalPluginState.engineHooks.StaticDecal(
-			[3]float32{float32(v[0]), float32(v[1]), float32(v[2])},
+			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 			int(decalIndex),
 			int(entityIndex),
 			int(modelIndex),
@@ -1676,8 +1677,8 @@ func goHookPlaybackEvent(
 			edictFromC(globalPluginState.globalVars.p, pInvoker),
 			uint16(eventIndex),
 			float32(delay),
-			[3]float32{float32(originVec[0]), float32(originVec[1]), float32(originVec[2])},
-			[3]float32{float32(anglesVec[0]), float32(anglesVec[1]), float32(anglesVec[2])},
+			vector.Vector{float32(originVec[0]), float32(originVec[1]), float32(originVec[2])},
+			vector.Vector{float32(anglesVec[0]), float32(anglesVec[1]), float32(anglesVec[2])},
 			float32(fparam1),
 			float32(fparam2),
 			int(iparam1),
@@ -1698,7 +1699,7 @@ func goHookSetFatPVS(origin *C.float) *C.byte {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetFatPVS != nil {
 		v := C.castPtrToVec3(origin)
 
-		metaResult, result := globalPluginState.engineHooks.SetFatPVS([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
+		metaResult, result := globalPluginState.engineHooks.SetFatPVS(vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])})
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
@@ -1718,7 +1719,7 @@ func goHookSetFatPAS(origin *C.float) *C.byte {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.SetFatPAS != nil {
 		v := C.castPtrToVec3(origin)
 
-		metaResult, result := globalPluginState.engineHooks.SetFatPAS([3]float32{float32(v[0]), float32(v[1]), float32(v[2])})
+		metaResult, result := globalPluginState.engineHooks.SetFatPAS(vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])})
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		if result != nil {
