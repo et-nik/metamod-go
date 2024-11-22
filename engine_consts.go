@@ -44,6 +44,17 @@ const (
 	MoveTypePushStep
 )
 
+// SolidType Some movetypes will cause collisions independent of SOLID_NOT/SOLID_TRIGGER when the entity moves
+// SOLID only effects OTHER entities colliding with this one when they move - UGH!
+type SolidType int
+
+const (
+	SolidTypeNot         SolidType = iota // no interaction with other objects
+	SolidTypeTrigger                      // touch on edge, but not blocking
+	SolidTypeBoundingBox                  // touch on edge, block
+	SolidTypeBsp                          // bsp clip, touch on edge, block
+)
+
 type WalkMoveMode int
 
 const (
@@ -99,4 +110,18 @@ const (
 	DeadFlagDead
 	DeadFlagRespawnable
 	DeadFlagDiscardBody
+)
+
+// TraceHullType used by TraceHull
+const (
+	TraceHullPoint = 0
+	TraceHullHuman = 1
+	TraceHullLarge = 2
+	TraceHullHead  = 3
+)
+
+const (
+	TraceDontIgnoreMonsters = 0
+	TraceIgnoreMonsters     = 1
+	TraceMissile            = 2
 )

@@ -776,12 +776,12 @@ func (e *EntVars) SetMoveType(moveType MoveType) {
 	e.p.movetype = C.int(moveType)
 }
 
-func (e *EntVars) Solid() int {
+func (e *EntVars) Solid() SolidType {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return int(e.p.solid)
+	return SolidType(int(e.p.solid))
 }
 
 func (e *EntVars) SetSolid(solid int) {
