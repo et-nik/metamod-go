@@ -1,6 +1,7 @@
 # [Metamod-Go](https://github.com/et-nik/metamod-go)
 
-**Metamod-Go** is golang library for creating [Metamod](https://github.com/rehlds/metamod-r) plugins for Half-Life 1 mods.
+**Metamod-Go** is golang library for creating [Metamod](https://github.com/rehlds/metamod-r) plugins for GoldSource servers
+(Counter-Strike 1.6, Half-Life, Team Fortress Classic, etc.).
 
 ## Plugins and Examples
 
