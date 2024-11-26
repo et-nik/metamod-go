@@ -20,6 +20,10 @@ int gameFuncsClientConnect(
 	return result;
 }
 
+int gameFuncsSpawn(struct dll_functions_s *t, edict_t *pEntity) {
+	return (*t->pfnSpawn)(pEntity);
+}
+
 void gameFuncsClientDisconnect(struct dll_functions_s *t, edict_t *pEntity) {
 	(*t->pfnClientDisconnect)(pEntity);
 }
@@ -58,6 +62,10 @@ type GameDLLFuncs struct {
 
 func newGameDLLFuncs(p *C.DLL_FUNCTIONS) *GameDLLFuncs {
 	return &GameDLLFuncs{p}
+}
+
+func (g *GameDLLFuncs) Spawn(entity *Edict) int {
+	return int(C.gameFuncsSpawn(g.p, entity.p))
 }
 
 func (g *GameDLLFuncs) ClientConnect(

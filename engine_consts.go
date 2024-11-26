@@ -125,3 +125,25 @@ const (
 	TraceIgnoreMonsters     = 1
 	TraceMissile            = 2
 )
+
+const (
+	MessageTypeBroadcast     = iota // unreliable to all
+	MessageTypeOne                  // reliable to one (msg_entity)
+	MessageTypeAll                  // reliable to all
+	MessageTypeInit                 // write to the init string
+	MessageTypePVS                  // Ents in PVS of org
+	MessageTypePAS                  // Ents in PAS of org
+	MessageTypePVSR                 // Reliable to PVS
+	MessageTypePASR                 // Reliable to PAS
+	MessageTypeOneUnreliable        // Send to one client, but don't put in reliable stream, put in unreliable datagram ( could be dropped )
+	MessageTypeSpec                 // Sends to all spectator proxies
+)
+
+const (
+	SvcTempEntity   = 23
+	SvcIntermission = 30
+	SvcCdTrack      = 32
+	SvcWeaponAnim   = 35
+	SvcRoomType     = 37
+	SvcHLTV         = 50
+)

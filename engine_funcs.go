@@ -922,15 +922,25 @@ func (ef *EngineFuncs) EntityOfEntIndex(index int) *Edict {
 func (ef *EngineFuncs) MessageBegin(
 	msgDest int,
 	msgType int,
-	pOrigin float32,
+	pOrigin *vector.Vector,
 	edict *Edict,
 ) {
+	var orgPtr *C.float
+	if pOrigin != nil {
+		orgPtr = (*C.float)(&pOrigin[0])
+	}
+
+	var edictPtr *C.edict_t
+	if edict != nil {
+		edictPtr = edict.p
+	}
+
 	C.engineFuncsMessageBegin(
 		ef.p,
 		C.int(msgDest),
 		C.int(msgType),
-		(*C.float)(&pOrigin),
-		edict.p,
+		orgPtr,
+		edictPtr,
 	)
 }
 
