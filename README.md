@@ -8,8 +8,6 @@ Second purpose is to avoid of legacy practices of Metamod plugins development.
 Plugins written in Go can have all benefits of Go language, such as static typing, garbage collection, concurrency, etc.
 Be aware of using concurrency in plugins, because GoldSource engine is single-threaded.
 
-Plugins written in Go can be slower than plugins written in C++, because of Go runtime overhead.
-
 ## Active development notice
 
 This project is currently in active development and is not ready for production use.
