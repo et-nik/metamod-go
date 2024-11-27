@@ -70,37 +70,69 @@ func (c *CVar) SetString(value string) {
 	cs := C.CString(value)
 	defer C.free(unsafe.Pointer(cs))
 
-	globalPluginState.engineFuncs.CvarDirectSet(c.p, cs)
+	globalPluginState.engineFuncs.CvarDirectSet(c, value)
 }
 
 func (c *CVar) Float() float32 {
+	if c.p == nil {
+		return 0
+	}
+
 	return float32(c.p.value)
 }
 
 func (c *CVar) SetFloat(value float32) {
-	globalPluginState.engineFuncs.CVarSetFloat(c.p, C.float(value))
+	if c.p == nil {
+		return
+	}
+
+	globalPluginState.engineFuncs.CVarSetFloat(c.Name(), value)
 }
 
 func (c *CVar) Int() int {
+	if c.p == nil {
+		return 0
+	}
+
 	return int(c.p.value)
 }
 
 func (c *CVar) SetInt(value int) {
-	globalPluginState.engineFuncs.CVarSetFloat(c.p, C.float(float32(value)))
+	if c.p == nil {
+		return
+	}
+
+	globalPluginState.engineFuncs.CVarSetFloat(c.Name(), float32(value))
 }
 
 func (c *CVar) Value() float32 {
+	if c.p == nil {
+		return 0
+	}
+
 	return float32(c.p.value)
 }
 
 func (c *CVar) SetValue(value float32) {
-	globalPluginState.engineFuncs.CVarSetFloat(c.p, C.float(value))
+	if c.p == nil {
+		return
+	}
+
+	globalPluginState.engineFuncs.CVarSetFloat(c.Name(), value)
 }
 
 func (c *CVar) Flags() int {
+	if c.p == nil {
+		return 0
+	}
+
 	return int(c.p.flags)
 }
 
 func (c *CVar) Next() *CVar {
+	if c.p == nil {
+		return nil
+	}
+
 	return c.Next()
 }

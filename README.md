@@ -15,37 +15,6 @@ Many features are missing and the API is subject to change.
 
 Some features did not test completely and may not work as expected.
 
-### Known issues
-
-#### `AddServerCommand` does not work with variable which is not in global scope. Example
-
-**Does not work:**
-```go
-func MetaAttach(_ int) int {
-	engineFuncs := metamod.GetEngineFuncs()
-	
-    engineFuncs.AddServerCommand("entinfo", func(argc int, argv ...string) {
-        engineFuncs.ServerPrint("entinfo\n")
-    }
-}
-```
-
-**Works:**
-```go
-
-var engineFuncs *metamod.EngineFuncs
-
-func MetaAttach(_ int) int {
-    engineFuncs = metamod.GetEngineFuncs()
-	
-    engineFuncs.AddServerCommand("entinfo", func(argc int, argv ...string) {
-        engineFuncs.ServerPrint("entinfo\n")
-    }
-}
-```
-
-Move vars which are used in `AddServerCommand` function to global scope.
-
 ## Plugins and Examples
 
 List of plugins and examples:

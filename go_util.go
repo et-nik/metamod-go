@@ -20,7 +20,9 @@ func callGoFunction(f unsafe.Pointer, argc C.int, argv **C.char) {
 	(*(*func(int, ...string))(f))(gargc, gargv...)
 }
 
-var callbacks = make(map[string]map[string]unsafe.Pointer)
+type callbackFn func(int, ...string)
+
+var callbacks = make(map[string]map[string]callbackFn)
 
 //export getGoCallback
 func getGoCallback(category *C.char, v *C.char, f *unsafe.Pointer) {
@@ -35,17 +37,13 @@ func getGoCallback(category *C.char, v *C.char, f *unsafe.Pointer) {
 		return
 	}
 
-	*f = val
+	*f = unsafe.Pointer(&val)
 }
 
-//export setGoCallback
-func setGoCallback(category *C.char, v *C.char, f unsafe.Pointer) {
-	cat := C.GoString(category)
-	key := C.GoString(v)
-
-	if callbacks[cat] == nil {
-		callbacks[cat] = make(map[string]unsafe.Pointer, 64)
+func setGoCallback(category string, key string, f callbackFn) {
+	if callbacks[category] == nil {
+		callbacks[category] = make(map[string]callbackFn, 64)
 	}
 
-	callbacks[cat][key] = f
+	callbacks[category][key] = f
 }

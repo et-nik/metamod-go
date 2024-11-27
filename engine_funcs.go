@@ -14,7 +14,6 @@ extern int MakeString(globalvars_t *gpGlobals, char *str);
 
 extern void callGoFunction(void *f, int argc, char **argv);
 extern void getGoCallback(char *category, char *v, void **f);
-extern void setGoCallback(char *category, char *v, void *f);
 
 struct enginefuncs_s *engineFuncs;
 
@@ -349,10 +348,8 @@ int engineFuncsCmd_Argc(struct enginefuncs_s *t) {
 	return (*t->pfnCmd_Argc)();
 }
 
-void engineFuncsAddServerCommand(struct enginefuncs_s *t, char *cmd_name, void *f) {
+void engineFuncsAddServerCommand(struct enginefuncs_s *t, char *cmd_name) {
 	engineFuncs = t;
-
-	setGoCallback(SERVER_COMMAND_CALLBACKS_CATEGORY, cmd_name, f);
 
 	void ff(void) {
 		void *f;
@@ -669,6 +666,7 @@ edict_t* engineFuncsPEntityOfEntIndexAllEntities(struct enginefuncs_s *t, int iE
 import "C"
 
 import (
+	"fmt"
 	"github.com/et-nik/metamod-go/vector"
 	"strings"
 	"unsafe"
@@ -895,13 +893,13 @@ func (ef *EngineFuncs) AddServerCommand(name string, callback func(int, ...strin
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
-	f := unsafe.Pointer(&callback)
-
 	if ef.p == nil {
 		panic("enginefuncs is nil, looks like the plugin is not running")
 	}
 
-	C.engineFuncsAddServerCommand(ef.p, cs, f)
+	setGoCallback(C.SERVER_COMMAND_CALLBACKS_CATEGORY, name, callback)
+
+	C.engineFuncsAddServerCommand(ef.p, cs)
 }
 
 // EntityOfEntIndex Gets the edict at the given entity index.
@@ -1383,6 +1381,15 @@ func (ef *EngineFuncs) ServerPrint(msg string) {
 	defer C.free(unsafe.Pointer(cs))
 
 	C.engineFuncsServerPrint(ef.p, cs)
+}
+
+func (ef *EngineFuncs) ServerPrintf(format string, args ...interface{}) {
+	msg := format
+	if len(args) > 0 {
+		msg = fmt.Sprintf(format, args...)
+	}
+
+	ef.ServerPrint(msg)
 }
 
 func (ef *EngineFuncs) GetAttachment(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *vector.Vector) {
