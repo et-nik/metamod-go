@@ -239,7 +239,7 @@ type EngineHooks struct {
 	PointContents         func(v vector.Vector) (EngineHookResult, int)
 	MessageBegin          func(msgDest int, msgType int, pOrigin *float32, pEdict *Edict) EngineHookResult
 	MessageEnd            func() EngineHookResult
-	CVarRegister          func(cvar *Cvar) EngineHookResult
+	CVarRegister          func(cvar *CVar) EngineHookResult
 	CVarGetString         func(name string) (EngineHookResult, string)
 	CVarGetFloat          func(name string) (EngineHookResult, float32)
 	CVarSetFloat          func(name string, value float32) EngineHookResult
@@ -275,7 +275,7 @@ type EngineHooks struct {
 	LoadFileForMe         func(filename string) (EngineHookResult, []byte, error)
 	//FreeFile             func(buffer []byte) EngineHookResult
 	GetGameDir           func() (EngineHookResult, string)
-	CVarRegisterVariable func(variable *Cvar) EngineHookResult
+	CVarRegisterVariable func(variable *CVar) EngineHookResult
 	FadeClientVolume     func(pEdict *Edict, fadePercent, fadeOutSeconds, holdTime, fadeInSeconds int) EngineHookResult
 	SetClientMaxspeed    func(e *Edict, maxSpeed float32) EngineHookResult
 	CreateFakeClient     func(name string) (EngineHookResult, *Edict)
@@ -297,7 +297,7 @@ type EngineHooks struct {
 	PrecacheGeneric      func(modelName string) (EngineHookResult, int)
 	GetPlayerUserId      func(e *Edict) (EngineHookResult, int)
 	IsDedicatedServer    func() (EngineHookResult, bool)
-	CVarGetPointer       func(name string) (EngineHookResult, *Cvar)
+	CVarGetPointer       func(name string) (EngineHookResult, *CVar)
 	GetPlayerWONID       func(e *Edict) (EngineHookResult, uint)
 	InfoRemoveKey        func(infobuffer, key string) EngineHookResult
 	GetPhysicsKeyValue   func(client *Edict, key string) (EngineHookResult, string)
@@ -316,7 +316,7 @@ type EngineHooks struct {
 	) EngineHookResult
 	SetFatPVS             func(origin vector.Vector) (EngineHookResult, unsafe.Pointer)
 	SetFatPAS             func(origin vector.Vector) (EngineHookResult, unsafe.Pointer)
-	CvarDirectSet         func(cvar *Cvar, value string) EngineHookResult
+	CvarDirectSet         func(cvar *CVar, value string) EngineHookResult
 	GetPlayerStats        func(client *Edict) (EngineHookResult, int, int)
 	GetPlayerAuthId       func(client *Edict) (EngineHookResult, string)
 	QueryClientCvarValue  func(player *Edict, cvarName string) (EngineHookResult, string)

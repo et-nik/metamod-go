@@ -7,7 +7,6 @@ package metamod_go
 #include <stdio.h>
 #include <com_model.h>
 
-#define MAX_SERVER_COMMAND_CALLBACKS 128
 #define SERVER_COMMAND_CALLBACKS_CATEGORY "server_commands"
 
 extern const char* ReadString(globalvars_t *gpGlobals, int offset);
@@ -16,9 +15,6 @@ extern int MakeString(globalvars_t *gpGlobals, char *str);
 extern void callGoFunction(void *f, int argc, char **argv);
 extern void getGoCallback(char *category, char *v, void **f);
 extern void setGoCallback(char *category, char *v, void *f);
-
-void* engineFuncsGoCallbacks[MAX_SERVER_COMMAND_CALLBACKS];
-int engineFuncsGoCallbacksCount = 0;
 
 struct enginefuncs_s *engineFuncs;
 
@@ -1255,8 +1251,11 @@ func (ef *EngineFuncs) PointContents(v vector.Vector) int {
 
 // CVarRegister Registers a cvar.
 // Sets the flag FCVAR_EXTDLL on the cvar.
-func (ef *EngineFuncs) CVarRegister(cvar *Cvar) {
+// It returns the relevant cvar pointer you can use to get the value.
+func (ef *EngineFuncs) CVarRegister(cvar *CVar) *CVar {
 	C.engineFuncsCVarRegister(ef.p, cvar.p)
+
+	return ef.CVarGetPointer(cvar.Name())
 }
 
 // CVarGetString Gets the value of a cvar as a string.
@@ -1450,8 +1449,8 @@ func (ef *EngineFuncs) GetGameDir() string {
 }
 
 // CVarRegisterVariable Registers a cvar.
-// Identical to CVarRegister, except it doesn't set the CvarExtdll flag.
-func (ef *EngineFuncs) CVarRegisterVariable(variable *Cvar) {
+// Identical to CVarRegister, except it doesn't set the CVarExtdll flag.
+func (ef *EngineFuncs) CVarRegisterVariable(variable *CVar) {
 	C.engineFuncsCvar_RegisterVariable(ef.p, variable.p)
 }
 
@@ -1616,7 +1615,7 @@ func (ef *EngineFuncs) IsDedicatedServer() bool {
 }
 
 // CVarGetPointer Gets the pointer to a cvar.
-func (ef *EngineFuncs) CVarGetPointer(name string) *Cvar {
+func (ef *EngineFuncs) CVarGetPointer(name string) *CVar {
 	cs := C.CString(name)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -1736,7 +1735,7 @@ func (ef *EngineFuncs) SetFatPAS(origin vector.Vector) unsafe.Pointer {
 }
 
 // CvarDirectSet Directly sets a cvar value.
-func (ef *EngineFuncs) CvarDirectSet(cvar *Cvar, value string) {
+func (ef *EngineFuncs) CvarDirectSet(cvar *CVar, value string) {
 	csValue := C.CString(value)
 	defer C.free(unsafe.Pointer(csValue))
 
