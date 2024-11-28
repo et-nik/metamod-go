@@ -20,3 +20,4 @@ Some features did not test completely and may not work as expected.
 List of plugins and examples:
 
 * https://github.com/et-nik/metamod-go-example
+* https://github.com/et-nik/dumbots
