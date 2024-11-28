@@ -8,6 +8,7 @@ int indexOfEntity (edict_t *ent, edict_t *startEntity) {
 };
 */
 import "C"
+import "github.com/et-nik/metamod-go/engine"
 
 func IsNullEntity(e *Edict) bool {
 	if e == nil {
@@ -60,7 +61,7 @@ func IsAlive(e *Edict) bool {
 
 	entVars := e.EntVars()
 
-	return entVars.DeadFlag() == DeadFlagNo &&
+	return entVars.DeadFlag() == engine.DeadFlagNo &&
 		entVars.Health() > 0 &&
-		entVars.MoveType() != MoveTypeNoclip
+		entVars.MoveType() != engine.MoveTypeNoclip
 }

@@ -56,7 +56,7 @@ func Meta_Attach(now C.int, pFunctionTable *C.META_FUNCTIONS, pMGlobals *C.meta_
 	pFunctionTable.pfnGetEntityAPI2 = C.GETENTITYAPI2_FN(C.getEntityAPI2)
 	pFunctionTable.pfnGetEntityAPI2_Post = C.GETENTITYAPI2_FN(C.getEntityAPI2_Post)
 	//pFunctionTable.pfnGetNewDLLFunctions = C.GETNEWDLLFUNCTIONS_FN(C.getNewDLLFunctions)
-	//pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions)
+	pFunctionTable.pfnGetEngineFunctions = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions)
 	//pFunctionTable.pfnGetEngineFunctions_Post = C.GET_ENGINE_FUNCTIONS_FN(C.getEngineFunctions_Post)
 
 	globalPluginState.metaGlobals = MetaGlobalsFromC(pMGlobals)

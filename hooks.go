@@ -242,9 +242,9 @@ void SetHooks(enginefuncs_t *pengfuncsFromEngine) {
 	pengfuncsFromEngine->pfnNameForFunction = goHookNameForFunction;
 	pengfuncsFromEngine->pfnClientPrintf = goHookClientPrint;
 	pengfuncsFromEngine->pfnServerPrint = goHookServerPrint;
-	//pengfuncsFromEngine->pfnCmd_Args = goHookCmd_Args;
-	//pengfuncsFromEngine->pfnCmd_Argv = goHookCmd_Argv;
-	//pengfuncsFromEngine->pfnCmd_Argc = goHookCmd_Argc;
+	pengfuncsFromEngine->pfnCmd_Args = goHookCmd_Args;
+	pengfuncsFromEngine->pfnCmd_Argv = goHookCmd_Argv;
+	pengfuncsFromEngine->pfnCmd_Argc = goHookCmd_Argc;
 	pengfuncsFromEngine->pfnAddServerCommand = goHookAddServerCommand;
 	pengfuncsFromEngine->pfnGetAttachment = goHookGetAttachment;
 	//pengfuncsFromEngine->pfnCRC32_Init = goHookCRC32_Init;

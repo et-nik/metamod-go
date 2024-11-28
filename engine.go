@@ -22,6 +22,7 @@ int MakeString(globalvars_t *gpGlobals, char *str) {
 */
 import "C"
 import (
+	"github.com/et-nik/metamod-go/engine"
 	"github.com/et-nik/metamod-go/vector"
 )
 
@@ -64,6 +65,14 @@ func edictFromC(globalVars *C.globalvars_t, e *C.edict_t) *Edict {
 
 func (e *Edict) Free() int {
 	return int(e.p.free)
+}
+
+func (e *Edict) ptr() *C.edict_t {
+	if e == nil {
+		return nil
+	}
+
+	return e.p
 }
 
 func (e *Edict) SerialNumber() int {
@@ -157,7 +166,7 @@ func (e *EntVars) IsValid() bool {
 		return false
 	}
 
-	if e.p.flags&EdictFlagKillMe != 0 {
+	if e.p.flags&engine.EdictFlagKillMe != 0 {
 		return false
 	}
 
@@ -760,15 +769,15 @@ func (e *EntVars) SetNextThink(nextThink float32) {
 	e.p.nextthink = C.float(nextThink)
 }
 
-func (e *EntVars) MoveType() MoveType {
+func (e *EntVars) MoveType() engine.MoveType {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return MoveType(int(e.p.movetype))
+	return engine.MoveType(int(e.p.movetype))
 }
 
-func (e *EntVars) SetMoveType(moveType MoveType) {
+func (e *EntVars) SetMoveType(moveType engine.MoveType) {
 	if !e.IsValid() {
 		return
 	}
@@ -776,12 +785,12 @@ func (e *EntVars) SetMoveType(moveType MoveType) {
 	e.p.movetype = C.int(moveType)
 }
 
-func (e *EntVars) Solid() SolidType {
+func (e *EntVars) Solid() engine.SolidType {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return SolidType(int(e.p.solid))
+	return engine.SolidType(int(e.p.solid))
 }
 
 func (e *EntVars) SetSolid(solid int) {
@@ -1185,15 +1194,15 @@ func (e *EntVars) SetTakeDamage(takeDamage float32) {
 	e.p.takedamage = C.float(takeDamage)
 }
 
-func (e *EntVars) DeadFlag() DeadFlag {
+func (e *EntVars) DeadFlag() engine.DeadFlag {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return DeadFlag(int(e.p.deadflag))
+	return engine.DeadFlag(int(e.p.deadflag))
 }
 
-func (e *EntVars) SetDeadFlag(deadFlag DeadFlag) {
+func (e *EntVars) SetDeadFlag(deadFlag engine.DeadFlag) {
 	if !e.IsValid() {
 		return
 	}
@@ -1223,12 +1232,12 @@ func (e *EntVars) SetViewOfs(viewOfs vector.Vector) {
 	e.p.view_ofs[2] = C.float(viewOfs[2])
 }
 
-func (e *EntVars) Button() InButtonFlag {
+func (e *EntVars) Button() engine.InButtonFlag {
 	if !e.IsValid() {
 		return 0
 	}
 
-	return InButtonFlag(int(e.p.button))
+	return engine.InButtonFlag(int(e.p.button))
 }
 
 func (e *EntVars) ButtonClear() {
@@ -1239,7 +1248,7 @@ func (e *EntVars) ButtonClear() {
 	e.p.button = 0
 }
 
-func (e *EntVars) SetButton(button InButtonFlag) {
+func (e *EntVars) SetButton(button engine.InButtonFlag) {
 	if !e.IsValid() {
 		return
 	}
@@ -1247,7 +1256,7 @@ func (e *EntVars) SetButton(button InButtonFlag) {
 	e.p.button = C.int(button)
 }
 
-func (e *EntVars) SetButtonBit(button InButtonFlag) {
+func (e *EntVars) SetButtonBit(button engine.InButtonFlag) {
 	if !e.IsValid() {
 		return
 	}
@@ -1255,7 +1264,7 @@ func (e *EntVars) SetButtonBit(button InButtonFlag) {
 	e.p.button |= C.int(int(button))
 }
 
-func (e *EntVars) ButtonToggle(button InButtonFlag) {
+func (e *EntVars) ButtonToggle(button engine.InButtonFlag) {
 	if !e.IsValid() {
 		return
 	}
@@ -1263,7 +1272,7 @@ func (e *EntVars) ButtonToggle(button InButtonFlag) {
 	e.p.button ^= C.int(int(button))
 }
 
-func (e *EntVars) ButtonHas(button InButtonFlag) bool {
+func (e *EntVars) ButtonHas(button engine.InButtonFlag) bool {
 	if !e.IsValid() {
 		return false
 	}
@@ -1271,7 +1280,7 @@ func (e *EntVars) ButtonHas(button InButtonFlag) bool {
 	return e.p.button&C.int(int(button)) != 0
 }
 
-func (e *EntVars) ButtonClearBit(button InButtonFlag) {
+func (e *EntVars) ButtonClearBit(button engine.InButtonFlag) {
 	if !e.IsValid() {
 		return
 	}

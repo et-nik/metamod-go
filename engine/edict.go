@@ -1,4 +1,4 @@
-package metamod_go
+package engine
 
 const (
 	EdictFlagFly  = 1 << iota // Changes the SV_Movestep() behavior to not need to be on ground

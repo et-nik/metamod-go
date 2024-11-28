@@ -1,4 +1,4 @@
-package metamod_go
+package engine
 
 const (
 	MaxEntLeafs = 48
@@ -68,17 +68,17 @@ type FindEntityField string
 const (
 	FindEntityFieldClassname   FindEntityField = "classname"
 	FindEntityFieldModel       FindEntityField = "model"
-	FindEntityFieldViewmodel   FindEntityField = "viewmodel"
-	FindEntityFieldWeaponmodel FindEntityField = "weaponmodel"
-	FindEntityFieldNetname     FindEntityField = "netname"
+	FindEntityFieldViewModel   FindEntityField = "viewmodel"
+	FindEntityFieldWeaponModel FindEntityField = "weaponmodel"
+	FindEntityFieldNetName     FindEntityField = "netname"
 	FindEntityFieldTarget      FindEntityField = "target"
-	FindEntityFieldTargetname  FindEntityField = "targetname"
+	FindEntityFieldTargetName  FindEntityField = "targetname"
 	FindEntityFieldMessage     FindEntityField = "message"
 	FindEntityFieldNoise       FindEntityField = "noise"
 	FindEntityFieldNoise1      FindEntityField = "noise1"
 	FindEntityFieldNoise2      FindEntityField = "noise2"
 	FindEntityFieldNoise3      FindEntityField = "noise3"
-	FindEntityFieldGlobalname  FindEntityField = "globalname"
+	FindEntityFieldGlobalName  FindEntityField = "globalname"
 )
 
 type InButtonFlag int
@@ -127,16 +127,16 @@ const (
 )
 
 const (
-	MessageTypeBroadcast     = iota // unreliable to all
-	MessageTypeOne                  // reliable to one (msg_entity)
-	MessageTypeAll                  // reliable to all
-	MessageTypeInit                 // write to the init string
-	MessageTypePVS                  // Ents in PVS of org
-	MessageTypePAS                  // Ents in PAS of org
-	MessageTypePVSR                 // Reliable to PVS
-	MessageTypePASR                 // Reliable to PAS
-	MessageTypeOneUnreliable        // Send to one client, but don't put in reliable stream, put in unreliable datagram ( could be dropped )
-	MessageTypeSpec                 // Sends to all spectator proxies
+	MessageDestBroadcast     = iota // unreliable to all
+	MessageDestOne                  // reliable to one (msg_entity)
+	MessageDestAll                  // reliable to all
+	MessageDestInit                 // write to the init string
+	MessageDestPVS                  // Ents in PVS of org
+	MessageDestPAS                  // Ents in PAS of org
+	MessageDestPVSR                 // Reliable to PVS
+	MessageDestPASR                 // Reliable to PAS
+	MessageDestOneUnreliable        // Send to one client, but don't put in reliable stream, put in unreliable datagram ( could be dropped )
+	MessageDestSpec                 // Sends to all spectator proxies
 )
 
 const (

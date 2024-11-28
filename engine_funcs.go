@@ -667,6 +667,7 @@ import "C"
 
 import (
 	"fmt"
+	"github.com/et-nik/metamod-go/engine"
 	"github.com/et-nik/metamod-go/vector"
 	"strings"
 	"unsafe"
@@ -758,7 +759,7 @@ func (ef *EngineFuncs) VecToAngles(vec vector.Vector) vector.Vector {
 	return angles
 }
 
-func (ef *EngineFuncs) MoveToOrigin(e *Edict, goal vector.Vector, dist float32, moveType MoveType) {
+func (ef *EngineFuncs) MoveToOrigin(e *Edict, goal vector.Vector, dist float32, moveType engine.MoveType) {
 	C.engineFuncsMoveToOrigin(
 		ef.p,
 		e.p,
@@ -776,14 +777,14 @@ func (ef *EngineFuncs) ChangePitch(e *Edict) {
 	C.engineFuncsChangePitch(ef.p, e.p)
 }
 
-func (ef *EngineFuncs) FindEntityByString(start *Edict, field FindEntityField, value string) *Edict {
+func (ef *EngineFuncs) FindEntityByString(start *Edict, field engine.FindEntityField, value string) *Edict {
 	csField := C.CString(string(field))
 	defer C.free(unsafe.Pointer(csField))
 
 	csValue := C.CString(value)
 	defer C.free(unsafe.Pointer(csValue))
 
-	e := C.engineFuncsFindEntityByString(ef.p, start.p, csField, csValue)
+	e := C.engineFuncsFindEntityByString(ef.p, start.ptr(), csField, csValue)
 
 	return edictFromC(ef.globalVars.p, e)
 }
@@ -795,7 +796,7 @@ func (ef *EngineFuncs) GetEntityIllum(e *Edict) int {
 func (ef *EngineFuncs) FindEntityInSphere(start *Edict, origin vector.Vector, radius float32) *Edict {
 	e := C.engineFuncsFindEntityInSphere(
 		ef.p,
-		start.p,
+		start.ptr(),
 		(*C.float)(&origin[0]),
 		C.float(radius),
 	)
@@ -842,7 +843,7 @@ func (ef *EngineFuncs) DropToFloor(e *Edict) int {
 	return int(C.engineFuncsDropToFloor(ef.p, e.p))
 }
 
-func (ef *EngineFuncs) WalkMove(e *Edict, yaw float32, dist float32, mode WalkMoveMode) int {
+func (ef *EngineFuncs) WalkMove(e *Edict, yaw float32, dist float32, mode engine.WalkMoveMode) int {
 	return int(C.engineFuncsWalkMove(ef.p, e.p, C.float(yaw), C.float(dist), C.int(mode)))
 }
 
@@ -1292,7 +1293,7 @@ func (ef *EngineFuncs) CVarSetString(name, value string) {
 }
 
 // AlertMessage Sends a message to the server console.
-func (ef *EngineFuncs) AlertMessage(alertType AlertType, msg string) {
+func (ef *EngineFuncs) AlertMessage(alertType engine.AlertType, msg string) {
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 
@@ -1368,7 +1369,7 @@ func (ef *EngineFuncs) NameForFunction(function uint32) string {
 }
 
 // ClientPrint Prints a message to a client.
-func (ef *EngineFuncs) ClientPrint(pEdict *Edict, ptype PrintType, msg string) {
+func (ef *EngineFuncs) ClientPrint(pEdict *Edict, ptype engine.PrintType, msg string) {
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 

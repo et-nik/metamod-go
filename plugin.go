@@ -2,6 +2,7 @@ package metamod_go
 
 import "C"
 import (
+	"github.com/et-nik/metamod-go/engine"
 	"github.com/et-nik/metamod-go/vector"
 	"unsafe"
 )
@@ -179,10 +180,10 @@ type EngineHooks struct {
 	ChangeLevel        func(mapName string, landmark string) EngineHookResult
 	VecToYaw           func(vec vector.Vector) (EngineHookResult, float32)
 	VecToAngles        func(vec vector.Vector) (EngineHookResult, vector.Vector)
-	MoveToOrigin       func(e *Edict, goal vector.Vector, dist float32, moveType MoveType) EngineHookResult
+	MoveToOrigin       func(e *Edict, goal vector.Vector, dist float32, moveType engine.MoveType) EngineHookResult
 	ChangeYaw          func(e *Edict) EngineHookResult
 	ChangePitch        func(e *Edict) EngineHookResult
-	FindEntityByString func(start *Edict, field FindEntityField, value string) (EngineHookResult, *Edict)
+	FindEntityByString func(start *Edict, field engine.FindEntityField, value string) (EngineHookResult, *Edict)
 	GetEntityIllum     func(e *Edict) (EngineHookResult, int)
 	FindEntityInSphere func(start *Edict, origin vector.Vector, radius float32) (EngineHookResult, *Edict)
 	FindClientInPVS    func(e *Edict) (EngineHookResult, *Edict)
@@ -195,7 +196,7 @@ type EngineHooks struct {
 	MakeStatic         func(e *Edict) EngineHookResult
 	EntIsOnFloor       func(e *Edict) (EngineHookResult, bool)
 	DropToFloor        func(e *Edict) (EngineHookResult, int)
-	WalkMove           func(e *Edict, yaw float32, dist float32, mode WalkMoveMode) (EngineHookResult, int)
+	WalkMove           func(e *Edict, yaw float32, dist float32, mode engine.WalkMoveMode) (EngineHookResult, int)
 	SetOrigin          func(e *Edict, origin vector.Vector) EngineHookResult
 	EmitSound          func(e *Edict, channel int, sample string, volume float32, attenuation int, fFlags int, pitch int) EngineHookResult
 	EmitAmbientSound   func(
@@ -244,7 +245,7 @@ type EngineHooks struct {
 	CVarGetFloat          func(name string) (EngineHookResult, float32)
 	CVarSetFloat          func(name string, value float32) EngineHookResult
 	CVarSetString         func(name, value string) EngineHookResult
-	AlertMessage          func(alertType AlertType, msg string) EngineHookResult
+	AlertMessage          func(alertType engine.AlertType, msg string) EngineHookResult
 	MessageWriteByte      func(b int) EngineHookResult
 	MessageWriteChar      func(c int) EngineHookResult
 	MessageWriteShort     func(s int) EngineHookResult
@@ -264,8 +265,11 @@ type EngineHooks struct {
 	RegUserMsg            func(name string, size int) (EngineHookResult, int)
 	FunctionFromName      func(name string) (EngineHookResult, uint32)
 	NameForFunction       func(fn uint32) (EngineHookResult, string)
-	ClientPrint           func(pEdict *Edict, printType PrintType, msg string) EngineHookResult
+	ClientPrint           func(pEdict *Edict, printType engine.PrintType, msg string) EngineHookResult
 	ServerPrint           func(msg string) EngineHookResult
+	CmdArgs               func() (EngineHookResult, string)
+	CmdArgc               func() (EngineHookResult, int)
+	CmdArgv               func(arg int) (EngineHookResult, string)
 	GetAttachment         func(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *vector.Vector) EngineHookResult
 	RandomLong            func(low, high int32) (EngineHookResult, int32)
 	RandomFloat           func(low, high float32) (EngineHookResult, float32)

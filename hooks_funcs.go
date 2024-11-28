@@ -9,6 +9,7 @@ extern void setVec3FloatPtr(float x, float y, float z, float* ptr);
 */
 import "C"
 import (
+	"github.com/et-nik/metamod-go/engine"
 	"github.com/et-nik/metamod-go/vector"
 	"unsafe"
 )
@@ -158,7 +159,7 @@ func goHookMoveToOrigin(pEdict *C.edict_t, goal *C.float, dist C.float, moveType
 			edictFromC(globalPluginState.globalVars.p, pEdict),
 			vector.Vector{float32(v[0]), float32(v[1]), float32(v[2])},
 			float32(dist),
-			MoveType(int(moveType)),
+			engine.MoveType(int(moveType)),
 		)
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
@@ -197,7 +198,7 @@ func goHookFindEntityByString(pEdict *C.edict_t, field *C.char, s *C.char) *C.ed
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.FindEntityByString != nil {
 		metaResult, result := globalPluginState.engineHooks.FindEntityByString(
 			edictFromC(globalPluginState.globalVars.p, pEdict),
-			FindEntityField(C.GoString(field)),
+			engine.FindEntityField(C.GoString(field)),
 			C.GoString(s),
 		)
 
@@ -421,7 +422,7 @@ func goHookDropToFloor(pEdict *C.edict_t) C.int {
 //export goHookWalkMove
 func goHookWalkMove(pEdict *C.edict_t, yaw C.float, dist C.float, mode C.int) C.int {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.WalkMove != nil {
-		metaResult, result := globalPluginState.engineHooks.WalkMove(edictFromC(globalPluginState.globalVars.p, pEdict), float32(yaw), float32(dist), WalkMoveMode(mode))
+		metaResult, result := globalPluginState.engineHooks.WalkMove(edictFromC(globalPluginState.globalVars.p, pEdict), float32(yaw), float32(dist), engine.WalkMoveMode(mode))
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return C.int(result)
@@ -962,7 +963,7 @@ func goHookCVarSetString(s, value *C.char) {
 //export goHookAlertMessage
 func goHookAlertMessage(level C.ALERT_TYPE, format *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.AlertMessage != nil {
-		r := globalPluginState.engineHooks.AlertMessage(AlertType(level), C.GoString(format))
+		r := globalPluginState.engineHooks.AlertMessage(engine.AlertType(level), C.GoString(format))
 		globalPluginState.metaGlobals.SetMres(MetaResult(r))
 
 		return
@@ -1142,7 +1143,7 @@ func goHookNameForFunction(function C.uint32) *C.char {
 //export goHookClientPrint
 func goHookClientPrint(pEdict *C.edict_t, level C.PRINT_TYPE, msg *C.char) {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.ClientPrint != nil {
-		metaResult := globalPluginState.engineHooks.ClientPrint(edictFromC(globalPluginState.globalVars.p, pEdict), PrintType(level), C.GoString(msg))
+		metaResult := globalPluginState.engineHooks.ClientPrint(edictFromC(globalPluginState.globalVars.p, pEdict), engine.PrintType(level), C.GoString(msg))
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
 		return
@@ -1161,6 +1162,56 @@ func goHookServerPrint(msg *C.char) {
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+}
+
+//export goHookCmd_Args
+func goHookCmd_Args() *C.char {
+	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CmdArgs != nil {
+		metaResult, result := globalPluginState.engineHooks.CmdArgs()
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+
+	return nil
+}
+
+//export goHookCmd_Argv
+func goHookCmd_Argv(arg C.int) *C.char {
+	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CmdArgv != nil {
+		metaResult, result := globalPluginState.engineHooks.CmdArgv(int(arg))
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		if result != "" {
+			return C.CString(result)
+		}
+
+		return nil
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+
+	return nil
+}
+
+//export goHookCmd_Argc
+func goHookCmd_Argc() C.int {
+	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CmdArgc != nil {
+		metaResult, result := globalPluginState.engineHooks.CmdArgc()
+		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
+
+		return C.int(result)
+	}
+
+	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
+
+	return 0
 }
 
 //export goHookGetAttachment
