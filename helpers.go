@@ -27,7 +27,7 @@ func EntityIndex(e *Edict) int {
 		return 0
 	}
 
-	return entityIndex(e.p)
+	return entityIndex(e.ptr())
 }
 
 func entityIndex(e *C.edict_t) int {
@@ -39,7 +39,7 @@ func entityIndex(e *C.edict_t) int {
 		return 0
 	}
 
-	return int(C.indexOfEntity(e, globalPluginState.startEntity.p))
+	return int(C.indexOfEntity(e, globalPluginState.startEntity.ptr()))
 }
 
 func PlayerIndex(e *Edict) int {

@@ -712,7 +712,7 @@ func (ef *EngineFuncs) SetModel(e *Edict, model string) {
 	cs := C.CString(model)
 	defer C.free(unsafe.Pointer(cs))
 
-	C.engineFuncsSetModel(ef.p, e.p, cs)
+	C.engineFuncsSetModel(ef.p, e.ptr(), cs)
 }
 
 func (ef *EngineFuncs) ModelIndex(name string) int {
@@ -729,7 +729,7 @@ func (ef *EngineFuncs) ModelFrames(index int) int {
 func (ef *EngineFuncs) SetSize(e *Edict, mins, maxs vector.Vector) {
 	C.engineFuncsSetSize(
 		ef.p,
-		e.p,
+		e.ptr(),
 		(*C.float)(&mins[0]),
 		(*C.float)(&maxs[0]),
 	)
@@ -762,7 +762,7 @@ func (ef *EngineFuncs) VecToAngles(vec vector.Vector) vector.Vector {
 func (ef *EngineFuncs) MoveToOrigin(e *Edict, goal vector.Vector, dist float32, moveType engine.MoveType) {
 	C.engineFuncsMoveToOrigin(
 		ef.p,
-		e.p,
+		e.ptr(),
 		(*C.float)(&goal[0]),
 		C.float(dist),
 		C.int(int(moveType)),
@@ -770,11 +770,11 @@ func (ef *EngineFuncs) MoveToOrigin(e *Edict, goal vector.Vector, dist float32, 
 }
 
 func (ef *EngineFuncs) ChangeYaw(e *Edict) {
-	C.engineFuncsChangeYaw(ef.p, e.p)
+	C.engineFuncsChangeYaw(ef.p, e.ptr())
 }
 
 func (ef *EngineFuncs) ChangePitch(e *Edict) {
-	C.engineFuncsChangePitch(ef.p, e.p)
+	C.engineFuncsChangePitch(ef.p, e.ptr())
 }
 
 func (ef *EngineFuncs) FindEntityByString(start *Edict, field engine.FindEntityField, value string) *Edict {
@@ -790,7 +790,7 @@ func (ef *EngineFuncs) FindEntityByString(start *Edict, field engine.FindEntityF
 }
 
 func (ef *EngineFuncs) GetEntityIllum(e *Edict) int {
-	return int(C.engineFuncsGetEntityIllum(ef.p, e.p))
+	return int(C.engineFuncsGetEntityIllum(ef.p, e.ptr()))
 }
 
 func (ef *EngineFuncs) FindEntityInSphere(start *Edict, origin vector.Vector, radius float32) *Edict {
@@ -806,13 +806,13 @@ func (ef *EngineFuncs) FindEntityInSphere(start *Edict, origin vector.Vector, ra
 
 // FindClientInPVS Finds a client in the Potentially Visible Set of the given entity.
 func (ef *EngineFuncs) FindClientInPVS(e *Edict) *Edict {
-	edict := C.engineFuncsFindClientInPVS(ef.p, e.p)
+	edict := C.engineFuncsFindClientInPVS(ef.p, e.ptr())
 
 	return edictFromC(ef.globalVars.p, edict)
 }
 
 func (ef *EngineFuncs) EntitiesInPVS(e *Edict) *Edict {
-	edict := C.engineFuncsEntitiesInPVS(ef.p, e.p)
+	edict := C.engineFuncsEntitiesInPVS(ef.p, e.ptr())
 
 	return edictFromC(ef.globalVars.p, edict)
 }
@@ -832,23 +832,23 @@ func (ef *EngineFuncs) AngleVectors(vector vector.Vector, forward, right, up vec
 }
 
 func (ef *EngineFuncs) MakeStatic(e *Edict) {
-	C.engineFuncsMakeStatic(ef.p, e.p)
+	C.engineFuncsMakeStatic(ef.p, e.ptr())
 }
 
 func (ef *EngineFuncs) EntIsOnFloor(e *Edict) bool {
-	return int(C.engineFuncsEntIsOnFloor(ef.p, e.p)) == 1
+	return int(C.engineFuncsEntIsOnFloor(ef.p, e.ptr())) == 1
 }
 
 func (ef *EngineFuncs) DropToFloor(e *Edict) int {
-	return int(C.engineFuncsDropToFloor(ef.p, e.p))
+	return int(C.engineFuncsDropToFloor(ef.p, e.ptr()))
 }
 
 func (ef *EngineFuncs) WalkMove(e *Edict, yaw float32, dist float32, mode engine.WalkMoveMode) int {
-	return int(C.engineFuncsWalkMove(ef.p, e.p, C.float(yaw), C.float(dist), C.int(mode)))
+	return int(C.engineFuncsWalkMove(ef.p, e.ptr(), C.float(yaw), C.float(dist), C.int(mode)))
 }
 
 func (ef *EngineFuncs) SetOrigin(e *Edict, origin vector.Vector) {
-	C.engineFuncsSetOrigin(ef.p, e.p, (*C.float)(&origin[0]))
+	C.engineFuncsSetOrigin(ef.p, e.ptr(), (*C.float)(&origin[0]))
 }
 
 func (ef *EngineFuncs) EmitSound(e *Edict, channel int, sample string, volume, attenuation float32, flags int, pitch int) {
@@ -857,7 +857,7 @@ func (ef *EngineFuncs) EmitSound(e *Edict, channel int, sample string, volume, a
 
 	C.engineFuncsEmitSound(
 		ef.p,
-		e.p,
+		e.ptr(),
 		C.int(channel),
 		cs,
 		C.float(volume),
@@ -880,7 +880,7 @@ func (ef *EngineFuncs) EmitAmbientSound(
 
 	C.engineFuncsEmitAmbientSound(
 		ef.p,
-		e.p,
+		e.ptr(),
 		(*C.float)(&position[0]),
 		cs,
 		C.float(volume),
@@ -996,7 +996,7 @@ func (ef *EngineFuncs) CreateNamedEntity(className string) *Edict {
 }
 
 func (ef *EngineFuncs) RemoveEntity(e *Edict) {
-	C.engineFuncsRemoveEntity(ef.p, e.p)
+	C.engineFuncsRemoveEntity(ef.p, e.ptr())
 }
 
 func (ef *EngineFuncs) AllocString(s string) int {
@@ -1059,7 +1059,7 @@ func (ef *EngineFuncs) TraceToss(pent, pentToIgnore *Edict) *TraceResult {
 
 	C.engineFuncsTraceToss(
 		ef.p,
-		pent.p,
+		pent.ptr(),
 		pentToIgnoreC,
 		&tr,
 	)
@@ -1085,7 +1085,7 @@ func (ef *EngineFuncs) TraceMonsterHull(
 
 	result := C.engineFuncsTraceMonsterHull(
 		ef.p,
-		pent.p,
+		pent.ptr(),
 		(*C.float)(&v1[0]),
 		(*C.float)(&v2[0]),
 		C.int(noMonsters),
@@ -1140,7 +1140,7 @@ func (ef *EngineFuncs) TraceModel(
 		(*C.float)(&v1[0]),
 		(*C.float)(&v2[0]),
 		C.int(hullNumber),
-		pent.p,
+		pent.ptr(),
 		&tr,
 	)
 
@@ -1156,7 +1156,7 @@ func (ef *EngineFuncs) TraceTexture(
 ) *Texture {
 	texture := C.engineFuncsTraceTexture(
 		ef.p,
-		pent.p,
+		pent.ptr(),
 		(*C.float)(&v1[0]),
 		(*C.float)(&v2[0]),
 	)
@@ -1166,7 +1166,7 @@ func (ef *EngineFuncs) TraceTexture(
 
 func (ef *EngineFuncs) GetAimVector(ent *Edict, speed float32) vector.Vector {
 	var vec vector.Vector
-	C.engineFuncsGetAimVector(ef.p, ent.p, C.float(speed), (*C.float)(&vec[0]))
+	C.engineFuncsGetAimVector(ef.p, ent.ptr(), C.float(speed), (*C.float)(&vec[0]))
 
 	return vec
 }
@@ -1207,7 +1207,7 @@ func (ef *EngineFuncs) ClientCommand(pEdict *Edict, str string) {
 	cs := C.CString(str)
 	defer C.free(unsafe.Pointer(cs))
 
-	C.engineFuncsClientCommand(ef.p, pEdict.p, cs)
+	C.engineFuncsClientCommand(ef.p, pEdict.ptr(), cs)
 }
 
 // ParticleEffect Creates a particle effect.
@@ -1304,27 +1304,27 @@ func (ef *EngineFuncs) AlertMessage(alertType engine.AlertType, msg string) {
 // The memory is freed when the entity is removed.
 // It returns a pointer to the allocated memory.
 func (ef *EngineFuncs) PvAllocEntPrivateData(ent *Edict, size int32) unsafe.Pointer {
-	return C.engineFuncsPvAllocEntPrivateData(ef.p, ent.p, C.int32(size))
+	return C.engineFuncsPvAllocEntPrivateData(ef.p, ent.ptr(), C.int32(size))
 }
 
 // PvEntPrivateData Gets the private data of an entity.
 func (ef *EngineFuncs) PvEntPrivateData(ent *Edict) unsafe.Pointer {
-	return C.engineFuncsPvEntPrivateData(ef.p, ent.p)
+	return C.engineFuncsPvEntPrivateData(ef.p, ent.ptr())
 }
 
 // FreeEntPrivateData Frees the private data of an entity.
 func (ef *EngineFuncs) FreeEntPrivateData(ent *Edict) {
-	C.engineFuncsFreeEntPrivateData(ef.p, ent.p)
+	C.engineFuncsFreeEntPrivateData(ef.p, ent.ptr())
 }
 
 // GetVarsOfEnt Gets the entvars_t of an entity.
 func (ef *EngineFuncs) GetVarsOfEnt(ent *Edict) *EntVars {
-	return entVarsFromC(ef.globalVars.p, C.engineFuncsGetVarsOfEnt(ef.p, ent.p))
+	return entVarsFromC(ef.globalVars.p, C.engineFuncsGetVarsOfEnt(ef.p, ent.ptr()))
 }
 
 // IndexOfEdict Gets the index of an entity.
 func (ef *EngineFuncs) IndexOfEdict(pEdict *Edict) int {
-	return int(C.engineFuncsIndexOfEdict(ef.p, pEdict.p))
+	return int(C.engineFuncsIndexOfEdict(ef.p, pEdict.ptr()))
 }
 
 // PEntityOfEntIndex Gets the edict at the given entity index.
@@ -1344,7 +1344,7 @@ func (ef *EngineFuncs) FindEntityByVars(vars *EntVars) *Edict {
 
 // GetModelPtr Gets the model pointer of an entity.
 func (ef *EngineFuncs) GetModelPtr(pEdict *Edict) unsafe.Pointer {
-	return C.engineFuncsGetModelPtr(ef.p, pEdict.p)
+	return C.engineFuncsGetModelPtr(ef.p, pEdict.ptr())
 }
 
 // RegUserMsg Registers a user message.
@@ -1373,7 +1373,7 @@ func (ef *EngineFuncs) ClientPrint(pEdict *Edict, ptype engine.PrintType, msg st
 	cs := C.CString(msg)
 	defer C.free(unsafe.Pointer(cs))
 
-	C.engineFuncsClientPrintf(ef.p, pEdict.p, C.PRINT_TYPE(ptype), cs)
+	C.engineFuncsClientPrintf(ef.p, pEdict.ptr(), C.PRINT_TYPE(ptype), cs)
 }
 
 // ServerPrint Prints a message to the server console.
@@ -1394,7 +1394,7 @@ func (ef *EngineFuncs) ServerPrintf(format string, args ...interface{}) {
 }
 
 func (ef *EngineFuncs) GetAttachment(pEdict *Edict, attachmentIndex int, rgflOrigin, rgflAngles *vector.Vector) {
-	C.engineFuncsGetAttachment(ef.p, pEdict.p, C.int(attachmentIndex), (*C.float)(&rgflOrigin[0]), (*C.float)(&rgflAngles[0]))
+	C.engineFuncsGetAttachment(ef.p, pEdict.ptr(), C.int(attachmentIndex), (*C.float)(&rgflOrigin[0]), (*C.float)(&rgflAngles[0]))
 }
 
 // RandomLong Generates a random long number between low and high.
@@ -1407,7 +1407,7 @@ func (ef *EngineFuncs) RandomFloat(low, high float32) float32 {
 }
 
 func (ef *EngineFuncs) SetView(pClient, pViewent *Edict) {
-	C.engineFuncsSetView(ef.p, pClient.p, pViewent.p)
+	C.engineFuncsSetView(ef.p, pClient.ptr(), pViewent.p)
 }
 
 func (ef *EngineFuncs) Time() float32 {
@@ -1417,7 +1417,7 @@ func (ef *EngineFuncs) Time() float32 {
 // CrosshairAngle Sets the angles of the given player's crosshairs to the given settings.
 // Set both to 0 to disable.
 func (ef *EngineFuncs) CrosshairAngle(pClient *Edict, pitch, yaw float32) {
-	C.engineFuncsCrosshairAngle(ef.p, pClient.p, C.float(pitch), C.float(yaw))
+	C.engineFuncsCrosshairAngle(ef.p, pClient.ptr(), C.float(pitch), C.float(yaw))
 }
 
 // LoadFileForMe Loads a file from disk.
@@ -1464,12 +1464,12 @@ func (ef *EngineFuncs) CVarRegisterVariable(variable *CVar) {
 
 // FadeClientVolume Fades the volume of a client.
 func (ef *EngineFuncs) FadeClientVolume(pEdict *Edict, fadePercent, fadeOutSeconds, holdTime, fadeInSeconds int) {
-	C.engineFuncsFadeClientVolume(ef.p, pEdict.p, C.int(fadePercent), C.int(fadeOutSeconds), C.int(holdTime), C.int(fadeInSeconds))
+	C.engineFuncsFadeClientVolume(ef.p, pEdict.ptr(), C.int(fadePercent), C.int(fadeOutSeconds), C.int(holdTime), C.int(fadeInSeconds))
 }
 
 // SetClientMaxspeed Sets the max speed of a client.
 func (ef *EngineFuncs) SetClientMaxspeed(e *Edict, maxSpeed float32) {
-	C.engineFuncsSetClientMaxspeed(ef.p, e.p, C.float(maxSpeed))
+	C.engineFuncsSetClientMaxspeed(ef.p, e.ptr(), C.float(maxSpeed))
 }
 
 // CreateFakeClient Creates a fake client.
@@ -1491,7 +1491,7 @@ func (ef *EngineFuncs) RunPlayerMove(
 ) {
 	C.engineFuncsRunPlayerMove(
 		ef.p,
-		fakeClient.p,
+		fakeClient.ptr(),
 		(*C.float)(&viewAngles[0]),
 		C.float(forwardMove),
 		C.float(sideMove),
@@ -1509,7 +1509,7 @@ func (ef *EngineFuncs) NumberOfEntities() int {
 
 // GetInfoKeyBuffer Gets the info key buffer of an entity.
 func (ef *EngineFuncs) GetInfoKeyBuffer(e *Edict) *InfoBuffer {
-	c := C.engineFuncsGetInfoKeyBuffer(ef.p, e.p)
+	c := C.engineFuncsGetInfoKeyBuffer(ef.p, e.ptr())
 
 	return infoBufferFromC(c)
 }
@@ -1574,7 +1574,7 @@ func (ef *EngineFuncs) PrecacheGeneric(s string) int {
 
 // GetPlayerUserId Returns the server assigned userid for this player.
 func (ef *EngineFuncs) GetPlayerUserId(e *Edict) int {
-	return int(C.engineFuncsGetPlayerUserId(ef.p, e.p))
+	return int(C.engineFuncsGetPlayerUserId(ef.p, e.ptr()))
 }
 
 // BuildSoundMsg Builds a sound message.
@@ -1603,7 +1603,7 @@ func (ef *EngineFuncs) BuildSoundMsg(
 
 	C.engineFuncsBuildSoundMsg(
 		ef.p,
-		entity.p,
+		entity.ptr(),
 		C.int(channel),
 		csSample,
 		C.float(volume),
@@ -1613,7 +1613,7 @@ func (ef *EngineFuncs) BuildSoundMsg(
 		C.int(msgType),
 		C.int(msgID),
 		(*C.float)(&origin[0]),
-		ed.p,
+		ed.ptr(),
 	)
 }
 
@@ -1632,7 +1632,7 @@ func (ef *EngineFuncs) CVarGetPointer(name string) *CVar {
 
 // GetPlayerWONID Gets the WON ID of a player.
 func (ef *EngineFuncs) GetPlayerWONID(e *Edict) uint {
-	return uint(C.engineFuncsGetPlayerWONId(ef.p, e.p))
+	return uint(C.engineFuncsGetPlayerWONId(ef.p, e.ptr()))
 }
 
 // InfoRemoveKey Removes a key from an info buffer.
@@ -1648,7 +1648,7 @@ func (ef *EngineFuncs) GetPhysicsKeyValue(client *Edict, key string) *InfoBuffer
 	csKey := C.CString(key)
 	defer C.free(unsafe.Pointer(csKey))
 
-	return infoBufferFromC(C.engineFuncsGetPhysicsKeyValue(ef.p, client.p, csKey))
+	return infoBufferFromC(C.engineFuncsGetPhysicsKeyValue(ef.p, client.ptr(), csKey))
 }
 
 // SetPhysicsKeyValue Sets the value of a key in a physics keyvalue buffer.
@@ -1659,12 +1659,12 @@ func (ef *EngineFuncs) SetPhysicsKeyValue(client *Edict, key, value string) {
 	csValue := C.CString(value)
 	defer C.free(unsafe.Pointer(csValue))
 
-	C.engineFuncsSetPhysicsKeyValue(ef.p, client.p, csKey, csValue)
+	C.engineFuncsSetPhysicsKeyValue(ef.p, client.ptr(), csKey, csValue)
 }
 
 // GetPhysicsInfoString Gets the physics info string of an entity.
 func (ef *EngineFuncs) GetPhysicsInfoString(client *Edict) string {
-	return C.GoString(C.engineFuncsGetPhysicsInfoString(ef.p, client.p))
+	return C.GoString(C.engineFuncsGetPhysicsInfoString(ef.p, client.ptr()))
 }
 
 // PrecacheEvent Precaches an event.
@@ -1712,7 +1712,7 @@ func (ef *EngineFuncs) PlaybackEvent(
 	C.engineFuncsPlaybackEvent(
 		ef.p,
 		C.int(flags),
-		invoker.p,
+		invoker.ptr(),
 		C.uint16(eventIndex),
 		C.float(delay),
 		(*C.float)(&origin[0]),
@@ -1753,25 +1753,25 @@ func (ef *EngineFuncs) CvarDirectSet(cvar *CVar, value string) {
 // GetPlayerStats Gets ping and packet loss of a player.
 func (ef *EngineFuncs) GetPlayerStats(client *Edict) (ping, packetLoss int) {
 	var cp, cl C.int
-	C.engineFuncsGetPlayerStats(ef.p, client.p, &cp, &cl)
+	C.engineFuncsGetPlayerStats(ef.p, client.ptr(), &cp, &cl)
 	return int(cp), int(cl)
 }
 
 // GetPlayerAuthId Gets the auth ID of a player.
 func (ef *EngineFuncs) GetPlayerAuthId(client *Edict) string {
-	return C.GoString(C.engineFuncsGetPlayerAuthId(ef.p, client.p))
+	return C.GoString(C.engineFuncsGetPlayerAuthId(ef.p, client.ptr()))
 }
 
 func (ef *EngineFuncs) QueryClientCvarValue(player *Edict, cvarName string) {
 	cs := C.CString(cvarName)
 	defer C.free(unsafe.Pointer(cs))
 
-	C.engineFuncsQueryClientCvarValue(ef.p, player.p, cs)
+	C.engineFuncsQueryClientCvarValue(ef.p, player.ptr(), cs)
 }
 
 func (ef *EngineFuncs) QueryClientCvarValue2(player *Edict, cvarName string, requestID int) {
 	cs := C.CString(cvarName)
 	defer C.free(unsafe.Pointer(cs))
 
-	C.engineFuncsQueryClientCvarValue2(ef.p, player.p, cs, C.int(requestID))
+	C.engineFuncsQueryClientCvarValue2(ef.p, player.ptr(), cs, C.int(requestID))
 }

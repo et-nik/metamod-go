@@ -65,7 +65,7 @@ func newGameDLLFuncs(p *C.DLL_FUNCTIONS) *GameDLLFuncs {
 }
 
 func (g *GameDLLFuncs) Spawn(entity *Edict) int {
-	return int(C.gameFuncsSpawn(g.p, entity.p))
+	return int(C.gameFuncsSpawn(g.p, entity.ptr()))
 }
 
 func (g *GameDLLFuncs) ClientConnect(
@@ -83,7 +83,7 @@ func (g *GameDLLFuncs) ClientConnect(
 
 	result := C.gameFuncsClientConnect(
 		g.p,
-		entity.p,
+		entity.ptr(),
 		csName,
 		csAddress,
 		(*C.char)(unsafe.Pointer(&szRejectReason[0])),
@@ -99,19 +99,19 @@ func (g *GameDLLFuncs) ClientConnect(
 }
 
 func (g *GameDLLFuncs) ClientDisconnect(entity *Edict) {
-	C.gameFuncsClientDisconnect(g.p, entity.p)
+	C.gameFuncsClientDisconnect(g.p, entity.ptr())
 }
 
 func (g *GameDLLFuncs) ClientKill(entity *Edict) {
-	C.gameFuncsClientKill(g.p, entity.p)
+	C.gameFuncsClientKill(g.p, entity.ptr())
 }
 
 func (g *GameDLLFuncs) ClientPutInServer(entity *Edict) {
-	C.gameFuncsClientPutInServer(g.p, entity.p)
+	C.gameFuncsClientPutInServer(g.p, entity.ptr())
 }
 
 func (g *GameDLLFuncs) ClientCommand(entity *Edict) {
-	C.gameFuncsClientCommand(g.p, entity.p)
+	C.gameFuncsClientCommand(g.p, entity.ptr())
 }
 
 func (g *GameDLLFuncs) GetGameDescription() string {

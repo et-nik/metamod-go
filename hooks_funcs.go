@@ -204,11 +204,7 @@ func goHookFindEntityByString(pEdict *C.edict_t, field *C.char, s *C.char) *C.ed
 
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result.p != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -242,11 +238,7 @@ func goHookFindEntityInSphere(pEdict *C.edict_t, origin *C.float, radius C.float
 		)
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result.p != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -260,11 +252,7 @@ func goHookFindClientInPVS(pEdict *C.edict_t) *C.edict_t {
 		metaResult, result := globalPluginState.engineHooks.FindClientInPVS(edictFromC(globalPluginState.globalVars.p, pEdict))
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result.p != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -278,11 +266,7 @@ func goHookEntitiesInPVS(pEdict *C.edict_t) *C.edict_t {
 		metaResult, result := globalPluginState.engineHooks.EntitiesInPVS(edictFromC(globalPluginState.globalVars.p, pEdict))
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result.p != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -334,11 +318,7 @@ func goHookCreateEntity() *C.edict_t {
 		metaResult, result := globalPluginState.engineHooks.CreateEntity()
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result.p != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -351,11 +331,7 @@ func goHookCreateNamedEntity(s *C.char) *C.edict_t {
 	if globalPluginState.engineHooks != nil && globalPluginState.engineHooks.CreateNamedEntity != nil {
 		result := globalPluginState.engineHooks.CreateNamedEntity(C.GoString(s))
 
-		if result.p != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -1050,11 +1026,7 @@ func goHookPEntityOfEntIndex(index C.int) *C.edict_t {
 		metaResult, result := globalPluginState.engineHooks.PEntityOfEntIndex(int(index))
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -1068,11 +1040,7 @@ func goHookFindEntityByVars(vars *C.entvars_t) *C.edict_t {
 		metaResult, result := globalPluginState.engineHooks.FindEntityByVars(entVarsFromC(globalPluginState.globalVars.p, vars))
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
@@ -1407,11 +1375,7 @@ func goHookCreateFakeClient(name *C.char) *C.edict_t {
 		metaResult, result := globalPluginState.engineHooks.CreateFakeClient(C.GoString(name))
 		globalPluginState.metaGlobals.SetMres(MetaResult(metaResult))
 
-		if result.p != nil {
-			return result.p
-		}
-
-		return nil
+		return result.ptr()
 	}
 
 	globalPluginState.metaGlobals.SetMres(MetaResultIgnored)
