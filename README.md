@@ -21,3 +21,6 @@ List of plugins and examples:
 
 * https://github.com/et-nik/metamod-go-example
 * https://github.com/et-nik/dumbots
+
+
+* https://github.com/et-nik/fastdl-mm - FastDL Metamod plugin for GoldSrc (Half-Life 1, CS 1.6) servers. This plugin allows you to download files from a web server to the client's computer.
