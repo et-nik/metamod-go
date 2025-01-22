@@ -19,7 +19,7 @@ func IsNullEntity(e *Edict) bool {
 }
 
 func isNullEntity(e *C.edict_t) bool {
-	return e == nil || entityIndex(e) == 0 || e.free == 1
+	return e == nil || e.free == 1
 }
 
 func EntityIndex(e *Edict) int {
