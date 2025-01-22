@@ -117,8 +117,8 @@
 // temp entity events
 //
 #define	TE_BEAMPOINTS		0		// beam effect between two points
-// coord coord coord (start position) 
-// coord coord coord (end position) 
+    // coord coord coord (start position)
+    // coord coord coord (end position)
 // short (sprite index) 
 // byte (starting frame) 
 // byte (frame rate in 0.1's) 

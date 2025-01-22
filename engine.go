@@ -162,10 +162,6 @@ func (e *EntVars) IsValid() bool {
 		return false
 	}
 
-	if e.p.pContainingEntity == nil {
-		return false
-	}
-
 	if e.p.flags&engine.EdictFlagKillMe != 0 {
 		return false
 	}
